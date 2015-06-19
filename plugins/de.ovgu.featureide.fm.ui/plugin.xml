@@ -348,6 +348,19 @@
 					</reference>
 				</visibleWhen>
 			</command>
+			<command
+					commandId="de.ovgu.featureide.fm.ui.commands.ExportDOT"
+					icon="icons/export_wiz.gif"
+					id="de.ovgu.featureide.fm.ui.actions.ExportDOT"
+					label="Export model to graph description language DOT"
+					style="push">
+				<visibleWhen
+						checkEnabled="false">
+					<reference
+							definitionId="de.ovgu.featureide.fm.ui.expressions.containsXml">
+					</reference>
+				</visibleWhen>
+			</command>
 		</menuContribution>
 	</extension>
 	<extension
@@ -426,6 +439,10 @@
 		<handler
 				class="de.ovgu.featureide.fm.ui.handlers.ExportSXFMHandler"
 				commandId="de.ovgu.featureide.fm.ui.commands.ExportSXFM">
+		</handler>
+		<handler
+				class="de.ovgu.featureide.fm.ui.handlers.ExportDOTHandler"
+				commandId="de.ovgu.featureide.fm.ui.commands.ExportDOT">
 		</handler>
 		<handler
 				class="de.ovgu.featureide.fm.ui.handlers.ExportVelvetHandler"
