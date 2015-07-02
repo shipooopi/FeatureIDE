@@ -30,7 +30,6 @@ import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
 
 import de.ovgu.featureide.fm.core.Feature;
-import de.ovgu.featureide.fm.core.Features;
 
 /**
  * provides proposals for content assist while typing constraints
@@ -200,7 +199,7 @@ public class ConstraintContentProposalProvider implements IContentProposalProvid
 		//		Show feature for "A implies |"
 		//		Hide features for "A |"
 		for (String s : featureList)
-			proposals.add(new ContentProposal(s + (operatorNamesInFeatures.contains(s.trim()) ? " " + Features.FEATURE_SUFFIX : "")));
+			proposals.add(new ContentProposal(s + (operatorNamesInFeatures.contains(s.trim()) ? " " + FEATURE_SUFFIX : "")));
 
 		return proposals;
 	}

@@ -26,7 +26,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 
-import de.ovgu.featureide.fm.core.Features;
 
 /**
  * contentAdapter for content assist while typing constraints
@@ -88,8 +87,8 @@ public class SimpleSyntaxHighlighterConstraintContentAdapter implements IControl
 		String before = "", after = "";
 		String text = textToInsert;
 
-		if (text.contains(Features.FEATURE_SUFFIX)) {
-			text = "\"" + text.replace(Features.FEATURE_SUFFIX, "").trim() + "\"";
+		if (text.contains(FEATURE_SUFFIX)) {
+			text = "\"" + text.replace(FEATURE_SUFFIX, "").trim() + "\"";
 		} else if (text.contains(" ")) {
 			text = "\"" + text + "\"";
 		}
