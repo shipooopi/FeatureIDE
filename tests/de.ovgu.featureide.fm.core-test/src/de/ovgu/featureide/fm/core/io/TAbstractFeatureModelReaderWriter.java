@@ -278,7 +278,7 @@ public abstract class TAbstractFeatureModelReaderWriter {
 	public void testDescription() {
 		for (Feature origFeature : origFm.getFeatures()) {
 			Feature newFeature = newFm.getFeature(origFeature.getName());
-			assertEquals(origFeature.getDescription(), newFeature.getDescription());
+			assertEquals(origFeature.getProperties().getDescription(), newFeature.getDescription());
 		}
 	}
 

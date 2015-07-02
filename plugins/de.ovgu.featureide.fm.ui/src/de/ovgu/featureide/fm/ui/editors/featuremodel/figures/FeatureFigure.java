@@ -199,7 +199,7 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 			}
 		}
 
-		final String description = feature.getDescription();
+		final String description = feature.getProperties().getDescription();
 		if (description != null && !description.trim().isEmpty()) {
 			toolTip.append("\n\nDescription:\n");
 			toolTip.append(description);

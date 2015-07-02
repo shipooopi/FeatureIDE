@@ -37,7 +37,7 @@ public class ChangeFeatureDescriptionAction extends SingleSelectionAction {
 	@Override
 	public void run() {
 		String description = "";
-		if (feature.getDescription() != null) {
+		if (feature.getProperties().getDescription() != null) {
 			description = feature.getDescription();
 			description = description.trim();
 		}

@@ -102,7 +102,7 @@ public class NodeCreator {
 	}
 
 	/**
-	 * @param and
+	 * @param data.isAnd()
 	 * @param featureModel
 	 * @return
 	 */

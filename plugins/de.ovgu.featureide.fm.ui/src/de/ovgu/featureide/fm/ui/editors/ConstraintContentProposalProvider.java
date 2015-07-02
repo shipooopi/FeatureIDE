@@ -29,6 +29,7 @@ import java.util.Set;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
 
+import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.Features;
 
 /**
@@ -160,6 +161,8 @@ public class ConstraintContentProposalProvider implements IContentProposalProvid
 
 		return words;
 	}
+	
+	public static final String FEATURE_SUFFIX = "(Feature)";
 
 	/**
 	 * 
@@ -175,7 +178,7 @@ public class ConstraintContentProposalProvider implements IContentProposalProvid
 		ArrayList<String> featureList = new ArrayList<String>(features);
 		Collections.sort(featureList, String.CASE_INSENSITIVE_ORDER);
 
-		Collection<String> operatorNamesInFeatures = Features.extractOperatorNamesFromFeatuers(features);
+		Collection<String> operatorNamesInFeatures = Feature.extractOperatorNamesFromFeatuers(features);
 
 		// TODO: Add binary operators only iff their appearance makes sense in content proposal
 		// Example:

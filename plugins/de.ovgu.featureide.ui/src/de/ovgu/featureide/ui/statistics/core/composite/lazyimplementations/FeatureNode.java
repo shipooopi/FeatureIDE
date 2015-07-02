@@ -150,7 +150,7 @@ public class FeatureNode extends LazyParent implements IToolTip {
 	 * Adds the description to the features tooltip, if it has one.
 	 */
 	private void printDescription(StringBuilder buffer) {
-		String featDesc = feat.getDescription();
+		String featDesc = feat.getProperties().getDescription();
 		if (featDesc != null && !featDesc.equals("")) {
 			buffer.append("\n");
 			buffer.append("Description: ");

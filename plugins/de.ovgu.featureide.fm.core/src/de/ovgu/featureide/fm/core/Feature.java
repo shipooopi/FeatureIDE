@@ -22,555 +22,176 @@ package de.ovgu.featureide.fm.core;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
 import org.prop4j.NodeWriter;
+
+import de.ovgu.featureide.fm.core.IGraphicItem.GraphicItem;
 
 /**
  * Provides all properties of a feature. This includes its connections to parent
  * and child features.
  * 
  * @author Thomas Thuem
+ * @author Marcus Pinnecke, July 2015
  * 
  */
 public class Feature implements PropertyConstants, PropertyChangeListener, IGraphicItem {
-
-	private String name;
-
-	private boolean mandatory;
-
-	private boolean concret;
-
-	private boolean and;
-
-	private boolean multiple;
-
-	private boolean hidden;
-
-	private boolean constraintSelected;
-
-	private ColorList colorList;
-
-	private List<Constraint> partOfConstraints = new LinkedList<Constraint>();
-
-	private FeatureStatus status;
-
-	private FeatureModel featureModel;
-
-	private FMPoint location;
 	
-	private String description;
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	F I E L D S
+	//
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	/**
-	 * 
-	 * @return The description of the Feature.
-	 */
-	@CheckForNull
-	public String getDescription() {
-		return description;
+	private ModelContext context;
+
+	private Properties properties;
+
+	private Graphics graphics;
+	
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	G E T T E R
+	//
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public Properties getProperties() {
+		return properties;
 	}
 
-	/**
-	 * @param decription The description of the Feature.
-	 */
-	public void setDescription(String description) {
-		this.description = description;
+	public Graphics getGraphicalRepresentation() {
+		return graphics;
 	}
+
+	public ModelContext getContext() {
+		return context;
+	}
+	
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	C O N S T R U C T O R S
+	//
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public Feature(FeatureModel featureModel) {
 		this(featureModel, "Unknown");
 	}
 
 	public Feature(FeatureModel featureModel, String name) {
-		this.featureModel = featureModel;
-		this.name = name;
-		
-		this.mandatory = false;
-		this.concret = true;
-		this.and = true;
-		this.multiple = false;
-		this.hidden = false;
-		this.constraintSelected = false;
-		this.colorList = new ColorList(this);
-		this.status = FeatureStatus.NORMAL;
-		this.location = new FMPoint(0, 0);
-		this.description = null;
-		this.parent = null;
-		
-		sourceConnections.add(parentConnection);
-		colorList = new ColorList(this);
+		this.context = new ModelContext(this, featureModel);
+		this.properties = new Properties(name, this);
+		this.graphics = new Graphics(this, 0, 0);
 	}
-	
+
 	protected Feature(Feature feature, FeatureModel featureModel, boolean complete) {
-		this.featureModel = featureModel;
-		
-		this.name = feature.name;
-		this.mandatory = feature.mandatory;
-		this.concret = feature.concret;
-		this.and = feature.and;
-		this.multiple = feature.multiple;
-		this.hidden = feature.hidden;
-		this.constraintSelected = feature.constraintSelected;
-		this.status = feature.status;
-		this.description = feature.description;
-		
+		this.context.setFeatureModel(featureModel);
+		this.properties = new Properties(feature.getProperties(), this);
+
 		if (complete) {
-			this.colorList = feature.colorList.clone(this);
-			this.location = new FMPoint(feature.location.getX(), feature.location.getY());
+			this.graphics = new Graphics(feature.graphics, feature);
 		} else {
-			this.colorList = null;
-			this.location = null;
+			this.graphics = new Graphics(this);
 		}
-		
-		this.featureModel.addFeature(this);
-		for (Feature child : feature.children) {
-			Feature thisChild = this.featureModel.getFeature(child.getName());
+
+		this.context.getFeatureModel().addFeature(this);
+		for (Feature child : feature.context.getChildren()) {
+			Feature thisChild = this.context.getFeatureModel().getFeature(child.getName());
 			if (thisChild == null) {
 				thisChild = child.clone(featureModel, complete);
 			}
-			this.featureModel.addFeature(thisChild);
-			children.add(thisChild);
+			this.context.getFeatureModel().addFeature(thisChild);
+			context.getChildren().add(thisChild);
 		}
-		
-		if (feature.parent != null) {
-			this.parent = this.featureModel.getFeature(feature.parent.getName());
+
+		if (feature.context.getParent() != null) {
+			this.context.setParent(this.context.getFeatureModel().getFeature(feature.context.getParent().getName()));
 		}
 	}
-
-	public void setNewLocation(FMPoint newLocation) {
-		location = newLocation;
+	
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	S T A T I C   H E L P E R   F U N C T I O N S
+	//
+	//---------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	/**
+	 * Changes <b>feature</b> to <i>and</i> and returns the result. 
+	 * Please note, that the input feature is actually changed and not cloned.
+	 * 
+	 * @param feature
+	 * @return the input feature but changed
+	 */
+	public static Feature changeToAnd(Feature feature) {
+		feature.getProperties().setAnd(true);
+		feature.getProperties().setMultiple(false);
+		feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		return feature;
 	}
 
-	public FMPoint getLocation() {
-		return location;
-	}
-
-	public boolean isAnd() {
-		return and;
-	}
-
-	public boolean isOr() {
-		return !and && multiple;
-	}
-
-	public boolean isAlternative() {
-		return !and && !multiple;
-	}
-
-	public void changeToAnd() {
-		and = true;
-		multiple = false;
-		fireChildrenChanged();
-	}
-
-	public void changeToOr() {
-		and = false;
-		multiple = true;
-		fireChildrenChanged();
-	}
-
-	public void changeToAlternative() {
-		and = false;
-		multiple = false;
-		fireChildrenChanged();
-	}
-
-	public void setAND(boolean and) {
-		this.and = and;
-		fireChildrenChanged();
-	}
-
-	public boolean isMandatorySet() {
-		return mandatory;
-	}
-
-	public boolean isMandatory() {
-		return parent == null || !parent.isAnd() || mandatory;
-	}
-
-	public void setMandatory(boolean mandatory) {
-		this.mandatory = mandatory;
-		fireMandatoryChanged();
-	}
-
-	public boolean isHidden() {
-		return hidden;
-	}
-
-	public void setHidden(boolean hid) {
-		this.hidden = hid;
-		fireHiddenChanged();
-	}
-
-	public boolean isConstraintSelected() {
-		return constraintSelected;
-	}
-
-	public void setConstraintSelected(boolean selection) {
-		this.constraintSelected = selection;
-		fire(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, Boolean.FALSE,
-				Boolean.TRUE));
-	}
-
-	public void setAbstract(boolean value) {
-		this.concret = !value;
-		fireChildrenChanged();
-	}
-
-	public Collection<Constraint> getRelevantConstraints() {
-		return partOfConstraints;
+	/**
+	 * Changes <b>feature</b> to <i>or</i> and returns the result. 
+	 * Please note, that the input feature is actually changed and not cloned.
+	 * 
+	 * @param feature
+	 * @return the input feature but changed
+	 */
+	public static Feature changeToOr(Feature feature) {
+		feature.getProperties().setAnd(false);
+		feature.getProperties().setMultiple(true);
+		feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		return feature;
 	}
 	
 	/**
+	 * Changes <b>feature</b> to <i>alternative</i> and returns the result. 
+	 * Please note, that the input feature is actually changed and not cloned.
 	 * 
-	 * @return all constraints containing this feature.
+	 * @param feature
+	 * @return the input feature but changed
 	 */
-	public String getRelevantConstraintsString() {
-		StringBuilder relevant = new StringBuilder();
-		for (Constraint constraint : featureModel.getConstraints()) {
-			for (Feature f : constraint.getContainedFeatures()) {
-				if (f.getName().equals(getName())) {
-					relevant.append((relevant.length() == 0 ? " " : "\n ") + constraint.getNode().toString(NodeWriter.logicalSymbols) + " ");
-					break;
-				}
-			}			
-		} 
-		return relevant.toString();
+	public static Feature changeToAlternative(Feature feature) {
+		feature.getProperties().setAnd(false);
+		feature.getProperties().setMultiple(false);
+		feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		return feature;
 	}
-
-	public void setRelevantConstraints() {
-		List<Constraint> constraintList = new LinkedList<Constraint>();
-		for (Constraint constraint : featureModel.getConstraints()) {
-			for (Feature f : constraint.getContainedFeatures()) {
-				if (f.getName().equals(getName())) {
-					constraintList.add(constraint);
-					break;
-				}
-			}			
-		} 
-		partOfConstraints = constraintList;
-	}
-
-	public FeatureStatus getFeatureStatus() {
-		return status;
-	}
-
-	public FeatureModel getFeatureModel() {
-		return featureModel;
-	}
-
-	public void setFeatureStatus(FeatureStatus stat, boolean fire) {
-		this.status = stat;
-		if (fire)
-			fire(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED,
-					Boolean.FALSE, Boolean.TRUE));
-	}
-
-	public boolean isMultiple() {
-		return multiple;
-	}
-
-	public void setMultiple(boolean multiple) {
-		this.multiple = multiple;
-		fireChildrenChanged();
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-		fireNameChanged();
-	}
-
+	
 	/**
-	 * Returns true if the rule can be writen in a format like 'Ab [Cd] Ef ::
-	 * Gh'.
-	 */
-	public boolean hasInlineRule() {
-		return getChildrenCount() > 1 && and && isMandatory() && !multiple;
-	}
-
-	private Feature parent;
-
-	private LinkedList<Feature> children = new LinkedList<Feature>();
-
-	public void setParent(Feature newParent) {
-		if (newParent == parent)
-			return;
-
-		// delete old parent connection (if existing)
-		if (parent != null) {
-			parent.removeTargetConnection(parentConnection);
-			parentConnection.setTarget(null);
-		}
-
-		// update the target
-		parent = newParent;
-		if (newParent != null) {
-			parentConnection.setTarget(newParent);
-			newParent.addTargetConnection(parentConnection);
-		}
-	}
-
-	public Feature getParent() {
-		return parent;
-	}
-
-	public boolean isRoot() {
-		return parent == null;
-	}
-
-	public LinkedList<Feature> getChildren() {
-		return children;
-	}
-
-	public void setChildren(LinkedList<Feature> children) {
-		if (this.children == children)
-			return;
-		for (Feature child : children) {
-			child.setParent(this);
-		}
-		this.children = children;
-		fireChildrenChanged();
-	}
-
-	public boolean hasChildren() {
-		return !children.isEmpty();
-	}
-
-	public void addChild(Feature newChild) {
-		children.add(newChild);
-		newChild.setParent(this);
-		fireChildrenChanged();
-	}
-
-	public void addChildAtPosition(int index, Feature newChild) {
-		children.add(index, newChild);
-		newChild.setParent(this);
-		fireChildrenChanged();
-	}
-
-	public void replaceChild(Feature oldChild, Feature newChild) {
-		int index = children.indexOf(oldChild);
-		children.set(index, newChild);
-		oldChild.setParent(null);
-		newChild.setParent(this);
-		fireChildrenChanged();
-	}
-
-	public void removeChild(Feature child) {
-		children.remove(child);
-		child.setParent(null);
-		fireChildrenChanged();
-	}
-
-	public Feature removeLastChild() {
-		Feature child = children.removeLast();
-		child.setParent(null);
-		fireChildrenChanged();
-		return child;
-	}
-
-	private FeatureConnection parentConnection = new FeatureConnection(this);
-
-	private final LinkedList<FeatureConnection> sourceConnections = new LinkedList<FeatureConnection>();
-
-	private final LinkedList<FeatureConnection> targetConnections = new LinkedList<FeatureConnection>();
-
-	private static final List<FeatureConnection> EMPTY_LIST = Collections.<FeatureConnection>emptyList();
-
-	public List<FeatureConnection> getSourceConnections() {
-		return parent == null ? EMPTY_LIST : sourceConnections;
-	}
-
-	public List<FeatureConnection> getTargetConnections() {
-		return targetConnections;
-	}
-
-	public void addTargetConnection(FeatureConnection connection) {
-		targetConnections.add(connection);
-	}
-
-	public boolean removeTargetConnection(FeatureConnection connection) {
-		return targetConnections.remove(connection);
-	}
-
-	//
-	// private Point location;
-	//
-	// private Dimension size;
-	//
-	// public Point getLocation() {
-	// return location;
-	// }
-	//
-	// public void setLocation(Point newLocation) {
-	// if (newLocation == null || newLocation.equals(location))
-	// return;
-	// Point oldLocation = this.location;
-	// this.location = newLocation;
-	// fireLocationChanged(oldLocation, newLocation);
-	// }
-	//
-	// public Dimension getSize() {
-	// return size;
-	// }
-	//
-	// public void setSize(Dimension size) {
-	// this.size = size;
-	// }
-	//
-	// public Rectangle getBounds() {
-	// return new Rectangle(location, size);
-	// }
-
-	private LinkedList<PropertyChangeListener> listenerList = new LinkedList<PropertyChangeListener>();
-
-	public void addListener(PropertyChangeListener listener) {
-		if (!listenerList.contains(listener))
-			listenerList.add(listener);
-	}
-
-	public void removeListener(PropertyChangeListener listener) {
-		listenerList.remove(listener);
-	}
-
-	// private void fireLocationChanged(Point oldLocation, Point newLocation) {
-	// PropertyChangeEvent event = new PropertyChangeEvent(this,
-	// LOCATION_CHANGED, oldLocation, newLocation);
-	// for (PropertyChangeListener listener : listenerList)
-	// listener.propertyChange(event);
-	// }
-
-	private void fireNameChanged() {
-		PropertyChangeEvent event = new PropertyChangeEvent(this, NAME_CHANGED,
-				Boolean.FALSE, Boolean.TRUE);
-		for (PropertyChangeListener listener : listenerList)
-			listener.propertyChange(event);
-	}
-
-	private void fireHiddenChanged() {
-		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				HIDDEN_CHANGED, Boolean.FALSE, Boolean.TRUE);
-		for (PropertyChangeListener listener : listenerList)
-			listener.propertyChange(event);
-	}
-
-	private void fireChildrenChanged() {
-		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				CHILDREN_CHANGED, Boolean.FALSE, Boolean.TRUE);
-		for (PropertyChangeListener listener : listenerList)
-			listener.propertyChange(event);
-	}
-
-	private void fireMandatoryChanged() {
-		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				MANDATORY_CHANGED, Boolean.FALSE, Boolean.TRUE);
-		for (PropertyChangeListener listener : listenerList)
-			listener.propertyChange(event);
-	}
-
-	// private void fireColorChanged(int oldValue, int newValue) {
-	// PropertyChangeEvent event = new PropertyChangeEvent(this, COLOR_CHANGED,
-	// oldValue, newValue);
-	// for (PropertyChangeListener listener : listenerList)
-	// listener.propertyChange(event);
-	// }
-
-	// public Point getReferencePoint() {
-	// return new Rectangle(location, size).getCenter();
-	// }
-	//
-	// public Point calculateReferencePoint(Point newLocation) {
-	// return new Rectangle(newLocation, size).getCenter();
-	// }
-
-	public boolean isAncestorOf(Feature next) {
-		while (next.getParent() != null) {
-			if (next.getParent() == this)
-				return true;
-			next = next.getParent();
-		}
-		return false;
-	}
-
-	public boolean isFirstChild(Feature child) {
-		return children.indexOf(child) == 0;
-	}
-
-	public int getChildrenCount() {
-		return children.size();
-	}
-
-	public Feature getFirstChild() {
-		if (children.isEmpty())
-			return null;
-		return children.get(0);
-	}
-
-	public Feature getLastChild() {
-		if (!children.isEmpty()) {
-			return children.getLast();
-		}
-		return null;
-	}
-
-	// public Point getSourceLocation() {
-	// return getSourceLocation(getBounds());
-	// }
-	//
-	// public Point getSourceLocation(Point newLocation) {
-	// return getSourceLocation(new Rectangle(newLocation, getSize()));
-	// }
-	//
-	// private Point getSourceLocation(Rectangle bounds) {
-	// return new Point(bounds.getCenter().x, bounds.y - 1);
-	// }
-	//
-	// public Point getTargetLocation() {
-	// Rectangle bounds = getBounds();
-	// return new Point(bounds.getCenter().x, bounds.bottom());
-	// }
-
-	public int getChildIndex(Feature feature) {
-		return children.indexOf(feature);
-	}
-
-	public boolean isAbstract() {
-		return !isConcrete();
-	}
-
-	public boolean isConcrete() {
-		return concret;
-	}
-
-	public boolean isANDPossible() {
-		if (parent == null || parent.isAnd())
-			return false;
-		for (Feature child : children) {
-			if (child.isAnd())
-				return false;
-		}
-		return true;
-	}
-
-	/**
-	 * used externally to fire events, eg for graphical changes not anticipated
-	 * in the core implementation
+	 * Set <b>feature</b> to <i>end</i> and returns the result. 
+	 * Please note, that the input feature is actually changed and not cloned.
 	 * 
-	 * @param event
+	 * @param feature
+	 * @return the input feature but changed
 	 */
-	public void fire(PropertyChangeEvent event) {
-		for (PropertyChangeListener listener : listenerList)
-			listener.propertyChange(event);
+	public static Feature setAND(Feature feature, boolean and) {
+		feature.getProperties().setAnd(and);
+		feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		return feature;
 	}
+	
+	public static final Collection<String> extractOperatorNamesFromFeatuers(final Set<String> features) {
+		List<String> result = new ArrayList<>();
+		for (String feature : features) {
+			final String str = feature.toLowerCase().trim();
+			if (Operator.isOperatorName(str))
+				result.add(str);
+		}
+		return result;
+	}
+	
+	//---------------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	// C L O N I N G   A N D   T O   S T R I N G
+	//
+	//---------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	/**
 	 * Returns the value of clone(this.getFeatureModel(), true).
@@ -583,7 +204,7 @@ public class Feature implements PropertyConstants, PropertyChangeListener, IGrap
 	public Feature clone() {
 		return clone(getFeatureModel(), true);
 	}
-	
+
 	/**
 	 * Clones the feature.
 	 * If the parent feature is not contained in the given feature model, the cloned features parent will be {@code null}.
@@ -598,48 +219,16 @@ public class Feature implements PropertyConstants, PropertyChangeListener, IGrap
 	public Feature clone(FeatureModel featureModel, boolean complete) {
 		return new Feature(this, featureModel, complete);
 	}
+	
 
-	public void setAnd() {
-		this.and = true;
-	}
-
-	public void setOr() {
-		this.and = false;
-		this.multiple = true;
-	}
-
-	public void setAlternative() {
-		this.and = false;
-		this.multiple = false;
-	}
-
-	public boolean hasHiddenParent() {
-
-		if (isHidden())
-			return true;
-		if (isRoot()) {
-
-			return false;
-		}
-		Feature p = getParent();
-
-		while (!p.isRoot()) {
-			if (p.isHidden())
-				return true;
-			p = p.getParent();
-
-		}
-
-		return false;
+	@Override
+	public int hashCode() {
+		return properties.getName().hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return name;
-	}
-	
-	public String getDisplayName() {
-		return name;
+		return properties.getName();
 	}
 
 	@Override
@@ -647,78 +236,1125 @@ public class Feature implements PropertyConstants, PropertyChangeListener, IGrap
 
 	}
 
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	F E A T U R E   M O D E L   C O N T E X T   C L A S S
+	//
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	
+	public static class ModelContext {
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	F I E L D S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		
+		private static final List<FeatureConnection> EMPTY_LIST = Collections.<FeatureConnection> emptyList();
+		
+		private List<Constraint> partOfConstraints;
+		
+		private FeatureModel featureModel;
+		
+		private Feature parent;
+		
+		private Feature feature;
+		
+		private LinkedList<Feature> children;
+		
+		private FeatureConnection parentConnection;
+		
+		private List<FeatureConnection> sourceConnections;
+
+		private LinkedList<FeatureConnection> targetConnections;
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	C O N S T R U C T O R S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+
+		public ModelContext(Feature currentFeature, FeatureModel featureModel) {
+			this(new LinkedList<Constraint>(), new LinkedList<Feature>(), new FeatureConnection(currentFeature), new LinkedList<FeatureConnection>(), new LinkedList<FeatureConnection>(), featureModel, currentFeature);
+		}
+
+		
+		public ModelContext(List<Constraint> partOfConstraints, LinkedList<Feature> children, FeatureConnection parentConnection,
+				LinkedList<FeatureConnection> sourceConnections, LinkedList<FeatureConnection> targetConnections, FeatureModel featureModel, Feature currentFeature) {
+			this.partOfConstraints = partOfConstraints;
+			this.children = children;
+			this.parentConnection = parentConnection;
+			this.sourceConnections = sourceConnections;
+			this.targetConnections = targetConnections;
+			this.featureModel = featureModel;
+			this.feature = currentFeature;
+			setParent(null);
+		}
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	P U B L I C   M E T H O D S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+
+		public void addChild(Feature newChild) {
+			getChildren().add(newChild);
+			newChild.getContext().setParent(feature);
+			feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);		
+		}
+
+		public void addChildAtPosition(int index, Feature newChild) {
+			getChildren().add(index, newChild);
+			newChild.getContext().setParent(feature);
+			feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		}
+
+		public void addTargetConnection(FeatureConnection connection) {
+			getTargetConnections().add(connection);
+		}
+
+		public int getChildIndex(Feature feature) {
+			return getChildren().indexOf(feature);
+		}
+
+		public LinkedList<Feature> getChildren() {
+			return children;
+		}
+
+		public int getChildrenCount() {
+			return getChildren().size();
+		}
+
+		public FeatureModel getFeatureModel() {
+			return featureModel;
+		}
+
+		public Feature getFirstChild() {
+			if (getChildren().isEmpty())
+				return null;
+			return getChildren().get(0);
+		}
+
+		public Feature getLastChild() {
+			if (!getChildren().isEmpty()) {
+				return getChildren().getLast();
+			}
+			return null;
+		}
+
+		public Feature getParent() {
+			return parent;
+		}
+		
+		public FeatureConnection getParentConnection() {
+			return parentConnection;
+		}
+
+		public List<Constraint> getPartOfConstraints() {
+			return partOfConstraints;
+		}
+
+		public String getRelevantConstraintsString() {
+			StringBuilder relevant = new StringBuilder();
+			for (Constraint constraint : getFeatureModel().getConstraints()) {
+				for (Feature f : constraint.getContainedFeatures()) {
+					if (f.getProperties().getName().equals(feature.getProperties().getName())) {
+						relevant.append((relevant.length() == 0 ? " " : "\n ") + constraint.getNode().toString(NodeWriter.logicalSymbols) + " ");
+						break;
+					}
+				}
+			}
+			return relevant.toString();
+		}
+
+		public List<FeatureConnection> getSourceConnections() {
+			return getParent() == null ? EMPTY_LIST : sourceConnections;
+		}
+
+		public LinkedList<FeatureConnection> getTargetConnections() {
+			return targetConnections;
+		}
+
+		public boolean hasChildren() {
+			return !getChildren().isEmpty();
+		}
+
+		public boolean isAncestorOf(Feature next) {
+			while (next.getContext().getParent() != null) {
+				if (next.getContext().getParent() == feature)
+					return true;
+				next = next.getContext().getParent();
+			}
+			return false;
+		}
+
+		public boolean isAndPossible() {
+			if (getParent() == null || getParent().getProperties().isAnd())
+				return false;
+			for (Feature child : getChildren()) {
+				if (child.getProperties().isAnd())
+					return false;
+			}
+			return true;
+		}
+
+		public boolean isFirstChild(Feature child) {
+			return getChildren().indexOf(child) == 0;
+		}
+
+		public boolean isRoot() {
+			return getParent() == null;
+		}
+
+		public void removeChild(Feature child) {
+			getChildren().remove(child);
+			child.getContext().setParent(null);
+			feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		}
+
+		public Feature removeLastChild() {
+			Feature child = getChildren().removeLast();
+			child.getContext().setParent(null);
+			feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+			return child;
+		}
+
+		public boolean removeTargetConnection(FeatureConnection connection) {
+			return getTargetConnections().remove(connection);
+		}
+
+		public void replaceChild(Feature oldChild, Feature newChild) {
+			int index = getChildren().indexOf(oldChild);
+			getChildren().set(index, newChild);
+			oldChild.getContext().setParent(null);
+			newChild.getContext().setParent(feature);
+			feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		}
+
+		public void setChildren(LinkedList<Feature> children) {
+			if (getChildren() == children)
+				return;
+			for (Feature child : children) {
+				child.getContext().setParent(feature);
+			}
+			this.children = children;
+			feature.getProperties().getEventListener().fireEventForListeners(feature.getProperties().EVENT_CHILDREN_CHANGED);
+		}
+
+		public void setFeatureModel(FeatureModel featureModel) {
+			this.featureModel = featureModel;
+		}
+
+		public void setParent(Feature newParent) {
+			if (newParent == parent)
+				return;
+
+			// delete old parent connection (if existing)
+			if (parent != null) {
+				parent.removeTargetConnection(getParentConnection());
+				parent.getContext().getParentConnection().setTarget(null);
+			}
+
+			// update the target
+			parent = newParent;
+			if (newParent != null) {
+				getParentConnection().setTarget(newParent);
+				newParent.addTargetConnection(getParentConnection());
+			}
+		}
+
+		public void setParentConnection(FeatureConnection parentConnection) {
+			this.parentConnection = parentConnection;
+		}
+
+		public void setPartOfConstraints(List<Constraint> partOfConstraints) {
+			this.partOfConstraints = partOfConstraints;
+		}
+
+		public void setRelevantConstraints() {
+			List<Constraint> constraintList = new LinkedList<Constraint>();
+			for (Constraint constraint : getFeatureModel().getConstraints()) {
+				for (Feature f : constraint.getContainedFeatures()) {
+					if (f.getProperties().getName().equals(feature.getProperties().getName())) {
+						constraintList.add(constraint);
+						break;
+					}
+				}
+			}
+			setPartOfConstraints(constraintList);
+		}
+
+		public void setSourceConnections(LinkedList<FeatureConnection> sourceConnections) {
+			this.sourceConnections = sourceConnections;
+		}
+
+		public void setTargetConnections(LinkedList<FeatureConnection> targetConnections) {
+			this.targetConnections = targetConnections;
+		}
+		
+	}
+	
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	F E A T U R E   P R O P E R T E I S   C L A S S
+	//
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	
+	public class Properties {
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	F I E L D S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+
+		private Feature feature;
+
+		public PropertyChangeEvent EVENT_NAME_CHANGED;
+
+		public PropertyChangeEvent EVENT_HIDDEN_CHANGED;
+
+		public PropertyChangeEvent EVENT_CHILDREN_CHANGED;
+
+		public PropertyChangeEvent EVENT_MANDATORY_CHANGED;
+
+		private PropertyChangedEventListener eventListeners = new PropertyChangedEventListener();
+
+		private String name;
+
+		private FeatureStatus status;
+		
+		private boolean and;
+
+		private boolean multiple;
+		
+		private boolean mandatory;
+		
+		private boolean concret;
+		
+		private boolean hidden;
+		
+		private boolean constraintSelected;
+		
+		private String description;
+				
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	C O N S T R U C T O R
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		
+		public Properties(Properties properties, Feature feature) {
+			this.feature = feature;
+
+			name = properties.getName();
+			mandatory = properties.isMandatory();
+			concret = properties.isConcrete();
+			and = properties.isAnd();
+			multiple = properties.isMultiple();
+			hidden = properties.isHidden();
+			constraintSelected = properties.isConstraintSelected();
+			status = properties.getStatus();
+			description = properties.getDescription();
+			initEvents();
+		}
+		
+		/**
+		 * @param name
+		 * 
+		 */
+		public Properties(String name, Feature feature) {
+			this.feature = feature;
+
+			this.name = name;
+			mandatory = false;
+			concret = true;
+			and = true;
+			multiple = false;
+			hidden = false;
+			constraintSelected = false;
+			status = FeatureStatus.NORMAL;
+			description = null;
+			initEvents();
+		}
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	P U B L I C   M E T H O D S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+
+		public String getDescription() {
+			return description;
+		}
+
+		public PropertyChangedEventListener getEventListener() {
+			return eventListeners;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public FeatureStatus getStatus() {
+			return status;
+		}
+
+		public boolean hasHiddenParent() {
+			if (feature.getProperties().isHidden())
+				return true;
+			if (feature.getContext().isRoot())
+				return false;
+			Feature p = feature.getContext().getParent();
+
+			while (!p.getContext().isRoot()) {
+				if (p.getProperties().isHidden())
+					return true;
+				p = p.getContext().getParent();
+			}
+
+			return false;
+		}
+
+		public boolean hasInlineRune() {
+			return feature.getContext().getChildrenCount() > 1 && isAnd() && isMandatory() && !isMultiple();
+		}
+
+		private void initEvents() {
+			EVENT_NAME_CHANGED = new PropertyChangeEvent(this, PropertyConstants.NAME_CHANGED, Boolean.FALSE, Boolean.TRUE);
+			EVENT_HIDDEN_CHANGED = new PropertyChangeEvent(this, PropertyConstants.HIDDEN_CHANGED, Boolean.FALSE, Boolean.TRUE);
+			EVENT_CHILDREN_CHANGED = new PropertyChangeEvent(this, PropertyConstants.CHILDREN_CHANGED, Boolean.FALSE, Boolean.TRUE);
+			EVENT_MANDATORY_CHANGED = new PropertyChangeEvent(this, PropertyConstants.MANDATORY_CHANGED, Boolean.FALSE, Boolean.TRUE);
+		}
+
+		public boolean isAbstract() {
+			return !isConcrete();
+		}
+
+		public boolean isAlternative() {
+			return !isAnd() && !isMultiple();
+		}
+
+		public boolean isAnd() {
+			return and;
+		}
+
+		public boolean isConcrete() {
+			return concret;
+		}
+
+		public boolean isConstraintSelected() {
+			return constraintSelected;
+		}
+
+		public boolean isHidden() {
+			return hidden;
+		}
+
+		public boolean isMandatory() {
+			return feature.getContext().getParent() == null || !feature.getContext().getParent().getProperties().isAnd() || mandatory;
+		}
+
+		public boolean isMandatorySet() {
+			return isMandatory();
+		}
+
+		public boolean isMultiple() {
+			return multiple;
+		}
+
+		public boolean isOr() {
+			return !isAnd() && isMultiple();
+		}
+
+		public void setAbstract(boolean b) {
+			setConcret(!b);
+		}
+
+		public void setAlternative() {
+			setAnd(false);
+			setMultiple(false);
+		}
+
+		public void setAnd() {
+			setAnd(true);
+		}
+
+		void setAnd(boolean b) {
+			and = b;
+			getEventListener().fireEventForListeners(EVENT_CHILDREN_CHANGED);
+		}
+
+		public void setConcret(boolean b) {
+			this.concret = b;
+			eventListeners.fireEventForListeners(EVENT_CHILDREN_CHANGED);
+		}
+
+		public void setConstraintSelected(boolean selection) {
+			this.constraintSelected = selection;
+			getEventListener().fireEventForListeners(new PropertyChangeEvent(this, PropertyConstants.ATTRIBUTE_CHANGED, Boolean.FALSE, Boolean.TRUE));
+		}
+
+		public void setDescription(String description2) {
+			this.description = description2;
+		}
+
+		public void setHidden(boolean hid) {
+			this.hidden = hid;
+			eventListeners.fireEventForListeners(EVENT_HIDDEN_CHANGED);
+		}
+
+		public void setMandatory(boolean mandatory2) {
+			this.mandatory = mandatory2;
+			eventListeners.fireEventForListeners(EVENT_MANDATORY_CHANGED);
+		}
+
+		void setMultiple(boolean b) {
+			this.multiple = b;
+			eventListeners.fireEventForListeners(EVENT_CHILDREN_CHANGED);
+		}
+
+		public void setName(String name2) {
+			this.name = name2;
+			eventListeners.fireEventForListeners(EVENT_NAME_CHANGED);
+		}
+
+		public void setOr() {
+			setAnd(false);
+			setMultiple(true);
+		}
+
+		public void setStatus(FeatureStatus stat, boolean fire) {
+			this.status = stat;
+			if (fire)
+				getEventListener().fireEventForListeners(new PropertyChangeEvent(this, PropertyConstants.ATTRIBUTE_CHANGED, Boolean.FALSE, Boolean.TRUE));
+
+		}
+	}
+	
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	G R A P H I C A L   R E P R E S E N A T I O N 
+	//
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	
+	public class Graphics {
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	F I E L D S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		
+		private ColorList colorList;
+		
+		private FMPoint location;
+
+		private Feature feature;
+		
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	C O N S T R U C T O R S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		
+		public Graphics(Feature feature) {
+			colorList = null;
+			location = null;
+			this.feature = feature;
+		}
+		
+		public Graphics(Feature feature, int x, int y) {
+			colorList = new ColorList(feature);
+			location = new FMPoint(0, 0);
+			this.feature = feature;
+		}
+		
+		public Graphics(Graphics graphics, Feature feature) {
+			setColorList(graphics.getColorList().clone(feature));
+			setLocation(new FMPoint(graphics.getLocation().getX(), graphics.getLocation().getY()));
+		}
+
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+		//
+		//	P U B L I C   M E T H O D S
+		//
+		//-----------------------------------------------------------------------------------------------------------------------------------------
+
+		public ColorList getColorList() {
+			return colorList;
+		}
+
+		Feature getFeature() {
+			return feature;
+		}
+
+		public GraphicItem getItemType() {
+			return GraphicItem.Feature;
+		}
+
+		public FMPoint getLocation() {
+			return location;
+		}
+
+		public void setColorList(ColorList colorList) {
+			this.colorList = colorList;
+			
+		}
+
+		public void setLocation(FMPoint newLocation) {
+			this.location = newLocation;
+		}
+
+	}
+	
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//
+	//	D E P R E C A T E D   A R E A
+	//
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//	P R O P E R T I E S
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * 
+	 * @return The description of the Feature.
+	 * @deprecated as of release 2.7.5, use {@link getProperties()} instead
+	 */
+	@CheckForNull
+	@Deprecated
+	public String getDescription() {
+		return properties.getDescription();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#getName()} instead
+	 */
+	@Deprecated
+	public String getDisplayName() {
+		return properties.getName();
+	}
+	
 	@Deprecated
 	public String toString(boolean writeMarks) {
 		if (writeMarks) {
-			if (this.name.contains(" ") || Operator.isOperatorName(this.name)) {
-				return "\"" + this.name + "\"";
+			if (this.properties.getName().contains(" ") || Operator.isOperatorName(this.properties.getName())) {
+				return "\"" + this.properties.getName() + "\"";
 			}
-			return name;
+			return properties.getName();
 		} else {
 			return toString();
 		}
 	}
 
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isAbstract() {
+		return properties.isAbstract();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isConcrete() {
+		return properties.isConcrete();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isAnd() {
+		return properties.isAnd();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isOr() {
+		return properties.isOr();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isAlternative() {
+		return properties.isAlternative();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isMandatorySet() {
+		return properties.isMandatorySet();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isHidden() {
+		return properties.isHidden();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isConstraintSelected() {
+		return properties.isConstraintSelected();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public FeatureStatus getFeatureStatus() {
+		return properties.getStatus();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public boolean isMultiple() {
+		return properties.isMultiple();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()} instead
+	 */
+	@Deprecated
+	public String getName() {
+		return properties.getName();
+	}
+	
+	/**
+	 * @deprecated as of release 2.7.5, use static helper method {@link Feature #changeToAnd(Feature)} instead
+	 */
+	@Deprecated
+	public void changeToAnd() {
+		changeToAnd(this);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use static helper method {@link Feature #changeToOr(Feature)} instead
+	 */
+	@Deprecated
+	public void changeToOr() {
+		changeToOr(this);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use static helper method {@link Feature #changeToAlternative(Feature)} instead
+	 */
+	@Deprecated
+	public void changeToAlternative() {
+		changeToAlternative(this);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use static helper method {@link Feature #setAND(Feature)} instead
+	 */
+	@Deprecated
+	public void setAND(boolean and) {
+		properties.setAnd(and);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#isMandatory()} instead
+	 */
+	@Deprecated
+	public boolean isMandatory() {
+		return properties.isMandatory();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#hasInlineRule()} instead
+	 */
+	@Deprecated
+	public boolean hasInlineRule() {
+		return properties.hasInlineRune();
+	}
+	
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setAnd()} instead
+	 */
+	@Deprecated
+	public void setAnd() {
+		properties.setAnd();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setOr()} instead
+	 */
+	@Deprecated
+	public void setOr() {
+		properties.setOr();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setAlternative()} instead
+	 */
+	@Deprecated
+	public void setAlternative() {
+		properties.setAlternative();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#hasHiddenParent()} instead
+	 */
+	@Deprecated
+	public boolean hasHiddenParent() {
+		return properties.hasHiddenParent();
+	}
+	
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setDescription(String)} instead
+	 */
+	@Deprecated
+	public void setDescription(String description) {
+		this.properties.setDescription(description);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setMandatory(boolean} instead
+	 */
+	@Deprecated
+	public void setMandatory(boolean mandatory) {
+		this.properties.setMandatory(mandatory);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setHidden(boolean} instead
+	 */
+	@Deprecated
+	public void setHidden(boolean hid) {
+		this.properties.setHidden(hid);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setConstraintSelected(boolean} instead
+	 */
+	@Deprecated
+	public void setConstraintSelected(boolean selection) {
+		this.properties.setConstraintSelected(selection);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setAbstract(boolean} instead
+	 */
+	@Deprecated
+	public void setAbstract(boolean value) {
+		this.properties.setConcret(!value);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setFeatureStatus(FeatureStatus, boolean)} instead
+	 */
+	@Deprecated
+	public void setFeatureStatus(FeatureStatus stat, boolean fire) {
+		this.properties.setStatus(stat, fire);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setMultiple(boolean)} instead
+	 */
+	@Deprecated
+	public void setMultiple(boolean multiple) {
+		this.properties.setMultiple(multiple);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#setName(String)} instead
+	 */
+	@Deprecated
+	public void setName(String name) {
+		this.properties.setName(name);
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//	C O N T E X T
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public boolean isFirstChild(Feature child) {
+		return context.isFirstChild(child);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#getChildrenCount()} instead
+	 */
+	@Deprecated
+	public int getChildrenCount() {
+		return context.getChildrenCount();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public Feature getFirstChild() {
+		return context.getFirstChild();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public Feature getLastChild() {
+		return context.getLastChild();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public int getChildIndex(Feature feature) {
+		return context.getChildIndex(feature);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public boolean isANDPossible() {
+		return context.isAndPossible();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#getSourceConnections()} instead
+	 */
+	@Deprecated
+	public List<FeatureConnection> getSourceConnections() {
+		return context.getSourceConnections();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public List<FeatureConnection> getTargetConnections() {
+		return context.getTargetConnections();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public Feature getParent() {
+		return context.getParent();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#isRoot()} instead
+	 */
+	@Deprecated
+	public boolean isRoot() {
+		return context.isRoot();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public LinkedList<Feature> getChildren() {
+		return context.getChildren();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public Collection<Constraint> getRelevantConstraints() {
+		return context.getPartOfConstraints();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()} instead
+	 */
+	@Deprecated
+	public FeatureModel getFeatureModel() {
+		return context.getFeatureModel();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#hasChildren()} instead
+	 */
+	@Deprecated
+	public boolean hasChildren() {
+		return context.hasChildren();
+	}
+	
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#getRelevantConstraintsString()} instead
+	 */
+	@Deprecated
+	public String getRelevantConstraintsString() {
+		return context.getRelevantConstraintsString();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#setRelevantConstraints()} instead
+	 */
+	@Deprecated
+	public void setRelevantConstraints() {
+		context.setRelevantConstraints();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#setParent()} instead
+	 */
+	@Deprecated
+	public void setParent(Feature newParent) {
+		context.setParent(newParent);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#setChildren(LinkedList)} instead
+	 */
+	@Deprecated
+	public void setChildren(LinkedList<Feature> children) {
+		context.setChildren(children);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#addChild(Feature)} instead
+	 */
+	@Deprecated
+	public void addChild(Feature newChild) {
+		context.addChild(newChild);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#addChildAtPosition(int, Feature)} instead
+	 */
+	@Deprecated
+	public void addChildAtPosition(int index, Feature newChild) {
+		context.addChildAtPosition(index, newChild);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#replaceChild(Feature, Feature)} instead
+	 */
+	@Deprecated
+	public void replaceChild(Feature oldChild, Feature newChild) {
+		context.replaceChild(oldChild, newChild);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#removeChild(Feature)} instead
+	 */
+	@Deprecated
+	public void removeChild(Feature child) {
+		context.removeChild(child);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#removeLastChild()} instead
+	 */
+	@Deprecated
+	public Feature removeLastChild() {
+		return context.removeLastChild();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#addTargetConnection(FeatureConnection)} instead
+	 */
+	@Deprecated
+	public void addTargetConnection(FeatureConnection connection) {
+		context.addTargetConnection(connection);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#removeTargetConnection(FeatureConnection)} instead
+	 */
+	@Deprecated
+	public boolean removeTargetConnection(FeatureConnection connection) {
+		return context.removeTargetConnection(connection);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getContext()#isAncestorOf(Feature)} instead
+	 */
+	@Deprecated
+	public boolean isAncestorOf(Feature next) {
+		return context.isAncestorOf(next);
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	//	G R A P H I C S
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getGraphicalRepresentation()} instead
+	 */
+	@Deprecated
 	public ColorList getColorList() {
-		return colorList;
+		return graphics.getColorList();
 	}
-	
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-	
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getGraphicalRepresentation()} instead
+	 */
+	@Deprecated
 	@Override
 	public GraphicItem getItemType() {
-		return GraphicItem.Feature;
+		return graphics.getItemType();
 	}
-	
-	// TODO fix UI bug when hashCode function is used.
-	// (feature model editor acts strange, root feature is not placed correctly)
-	// problem seems to be the static implementation of FeatureUIHelper
-	// all features are put in the same hash map
-	
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 17;
-//		result = prime * (result + (and ? 1231 : 1237));
-//		result = prime * (result + (concret ? 1231 : 1237));
-//		result = prime * (result + (hidden ? 1231 : 1237));
-//		result = prime * (result + (mandatory ? 1231 : 1237));
-//		result = prime * (result + (multiple ? 1231 : 1237));
-//		result = prime * (result + ((name == null) ? 0 : name.hashCode()));
-//		result = prime * (result + ((parent == null) ? 0 : parent.name.hashCode()));
-//		return result;
-//	}
 
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj) {
-//			return true;
-//		}
-//		if (obj == null || getClass() != obj.getClass()) {
-//			return false;
-//		}
-//		
-//		Feature other = (Feature) obj;
-//		if (and != other.and || concret != other.concret || hidden != other.hidden 
-//				|| mandatory != other.mandatory || multiple != other.multiple)
-//			return false;
-//		
-//		if (name == null && other.name != null) {
-//			return false;
-//		}
-//		if (!name.equals(other.name)) {
-//			return false;
-//		}
-//		
-//		if (children == null && other.children != null) {
-//			return false;
-//		}
-//		if (children.equals(other.children)) {
-//			return false;
-//		}
-//		return true;
-//	}
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getGraphicalRepresentation()} instead
+	 */
+	@Deprecated
+	public FMPoint getLocation() {
+		return graphics.getLocation();
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getGraphicalRepresentation()#setLocation(FMPoint} instead
+	 */
+	@Deprecated
+	public void setNewLocation(FMPoint newLocation) {
+		graphics.setLocation(newLocation);
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+	// EVENT LISTENER
+	// --------------------------------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#getEventListener()#addListener(PropertyChangeListener)} instead
+	 */
+	public void addListener(PropertyChangeListener listener) {
+		properties.getEventListener().addListener(listener);
+	}
+
+	/**
+	 * @deprecated as of release 2.7.5, use {@link #getProperties()#getEventListener()#removeListener(PropertyChangeListener)} instead
+	 */
+	public void removeListener(PropertyChangeListener listener) {
+		properties.getEventListener().removeListener(listener);
+	}
+
+	
 }

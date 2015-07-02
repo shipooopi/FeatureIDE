@@ -307,7 +307,7 @@ public class Generator extends Job implements IConfigurationBuilderBasics {
 	}
 
 	/**
-	 * @param description
+	 * @param data.getDescription()
 	 * @param iProjectDescription 
 	 * @return
 	 * @throws CoreException 

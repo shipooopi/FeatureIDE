@@ -161,7 +161,7 @@ public class XmlFeatureModelWriter extends AbstractFeatureModelWriter implements
     	children = feat.getChildren();
     	if (children.isEmpty()) {
     		fnod = doc.createElement(FEATURE);
-    		String description = feat.getDescription();
+    		String description = feat.getProperties().getDescription();
 	    	if (description != null) {
 	    		Element descr = doc.createElement(DESCRIPTION);
 	    		descr.setTextContent("\n" + description.replace("\r", "") + "\n");

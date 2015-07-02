@@ -145,7 +145,7 @@ public class FeatureUIHelper {
 
 	private static void fireLocationChanged(Feature feature, Point oldLocation, Point newLocation) {
 		PropertyChangeEvent event = new PropertyChangeEvent(feature, PropertyConstants.LOCATION_CHANGED, oldLocation, newLocation);
-		feature.fire(event);
+		feature.getProperties().getEventListener().fireEventForListeners(event);
 	}
 
 	public static Point getReferencePoint(Feature feature) {

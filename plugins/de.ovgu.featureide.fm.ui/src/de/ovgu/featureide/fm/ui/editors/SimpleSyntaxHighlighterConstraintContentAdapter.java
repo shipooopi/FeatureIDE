@@ -33,6 +33,7 @@ import de.ovgu.featureide.fm.core.Features;
  * 
  * @author David Broneske
  * @author Fabian Benduhn
+ * @author Marcus Pinnecke
  */
 public class SimpleSyntaxHighlighterConstraintContentAdapter implements IControlContentAdapter, IControlContentAdapter2 {
 
@@ -43,6 +44,8 @@ public class SimpleSyntaxHighlighterConstraintContentAdapter implements IControl
 	public enum InsertionMode {
 		SUBSTRING_PRESENT, JUST_INSERT, UNKNOWN
 	}
+	
+	public static final String FEATURE_SUFFIX = "(Feature)";
 
 	public static class InsertionResult {
 		Point selection;

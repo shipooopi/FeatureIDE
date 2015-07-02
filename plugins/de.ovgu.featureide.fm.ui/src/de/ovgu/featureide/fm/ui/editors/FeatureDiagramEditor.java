@@ -614,7 +614,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (changedAttributes == null) {
 					for (Feature f : featureModelEditor.getFeatureModel().getFeatures()) {
-						f.fire(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, false, true));
+						f.getProperties().getEventListener().fireEventForListeners(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, false, true));
 					}
 					for (Constraint c : featureModelEditor.getFeatureModel().getConstraints()) {
 						c.fire(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, false, true));
@@ -622,7 +622,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 				} else {
 					for (Object f : changedAttributes.keySet()) {
 						if (f instanceof Feature) {
-							((Feature) f).fire(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, Boolean.FALSE, true));
+							((Feature) f).getProperties().getEventListener().fireEventForListeners(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, Boolean.FALSE, true));
 						} else if (f instanceof Constraint) {
 							((Constraint) f).fire(new PropertyChangeEvent(this, ATTRIBUTE_CHANGED, false, true));
 						}
