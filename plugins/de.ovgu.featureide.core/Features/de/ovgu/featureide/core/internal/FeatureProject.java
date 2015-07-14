@@ -727,7 +727,7 @@ public class FeatureProject extends BuilderMarkerHandler implements IFeatureProj
 	/**
 	 * refreshes Feature Module Markers for all folders in the source folder
 	 * 
-	 * @param featureModel
+	 * @param context.getFeatureModel()
 	 * @param sourceFolder
 	 */
 	/*
