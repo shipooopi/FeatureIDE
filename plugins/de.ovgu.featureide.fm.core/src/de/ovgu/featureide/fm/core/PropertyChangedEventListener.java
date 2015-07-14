@@ -24,10 +24,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * TODO description
- * 
- * @author marcus
- */
+ * An type binding of generic class {@link EventListener} class to provide listening to property changes inside {@link Feature.Properties} class. 
+ * <br/>
+ * @author Marcus Pinnecke, July/14/2015 
+**/
 public class PropertyChangedEventListener extends EventListener<PropertyChangeListener> {
 
 	public void fireEventForListeners(final PropertyChangeEvent event) {
