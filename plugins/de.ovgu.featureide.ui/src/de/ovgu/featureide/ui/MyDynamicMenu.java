@@ -1,14 +1,11 @@
 package de.ovgu.featureide.ui;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.NO_COLORSCHEME_SELECTED;
-import static de.ovgu.featureide.fm.core.localization.StringTable.SHOW_FIELDS_AND_METHODS;
 
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer;
@@ -23,25 +20,18 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.internal.Workbench;
 
-import de.ovgu.featureide.core.CorePlugin;
-import de.ovgu.featureide.core.fstmodel.FSTConfiguration;
-import de.ovgu.featureide.core.fstmodel.FSTFeature;
-import de.ovgu.featureide.fm.core.ColorList;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
-import de.ovgu.featureide.fm.core.FMCorePlugin;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.ui.views.collaboration.action.AddColorSchemeAction;
 import de.ovgu.featureide.ui.views.collaboration.action.DeleteColorSchemeAction;
 import de.ovgu.featureide.ui.views.collaboration.action.RenameColorSchemeAction;
 import de.ovgu.featureide.ui.views.collaboration.action.SetColorSchemeAction;
-import de.ovgu.featureide.ui.views.collaboration.action.ShowFieldsMethodsAction;
-import de.ovgu.featureide.ui.views.collaboration.editparts.CollaborationEditPart;
 
 public class MyDynamicMenu extends ContributionItem {
 	private AddColorSchemeAction addColorSchemeAction =  new AddColorSchemeAction("Add", null, null);
-	private RenameColorSchemeAction renameColorSchemeAction = new RenameColorSchemeAction("Remove", null, null);
-	private DeleteColorSchemeAction	deleteColorSchemeAction = new DeleteColorSchemeAction("Leck mich", null, null);
+	private RenameColorSchemeAction renameColorSchemeAction = new RenameColorSchemeAction("Change Name", null, null);
+	private DeleteColorSchemeAction	deleteColorSchemeAction = new DeleteColorSchemeAction("Delete Scheme", null, null);
 	
 	public MyDynamicMenu() {
 
@@ -77,19 +67,21 @@ public class MyDynamicMenu extends ContributionItem {
 		        if(selection instanceof IStructuredSelection) {    
 		            Object element = ((IStructuredSelection)selection).getFirstElement();    
 
-		            if (element instanceof IResource) {    
+//		            if (element instanceof IResource) {    
 		                project= ((IResource)element).getProject();    
-		            } else if (element instanceof PackageFragmentRootContainer) {    
-		                IJavaProject jProject =     
-		                    ((PackageFragmentRootContainer)element).getJavaProject();    
-		                project = jProject.getProject();    
-		            } else if (element instanceof IJavaElement) {    
-		                IJavaProject jProject= ((IJavaElement)element).getJavaProject();    
-		                project = jProject.getProject();    
-		            }    
-		        }     
+//		            } else if (element instanceof PackageFragmentRootContainer) {    
+//		                IJavaProject jProject =     
+//		                    ((PackageFragmentRootContainer)element).getJavaProject();    
+//		                project = jProject.getProject();    
+//		            } else if (element instanceof IJavaElement) {    
+//		                IJavaProject jProject= ((IJavaElement)element).getJavaProject();    
+//		                project = jProject.getProject();    
+//		            }    
+		                 }  
+		                
 		        return project;    
 		    }
+	//
 	
 	private void fillContextMenu(IMenuManager menuMgr) {
 //		disableToolbarFilterItems();
@@ -124,7 +116,7 @@ public class MyDynamicMenu extends ContributionItem {
 //			menuMgr.add(methodsFieldsSubMenu);
 //		}
 
-//		ResourcesPlugin.getWorkspace()
+
 //		ResourcesPlugin.getWorkspace().getRoot().getProjects()
 //		IProject pr = null;
 //		ResourcesPlugin.getWorkspace().getRoot();
@@ -132,34 +124,34 @@ public class MyDynamicMenu extends ContributionItem {
 		
 		
 		
-		IProject project = getCurrentProject();
+//		IProject project = getCurrentProject();
 		
 		
 //		Object selection = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
 //		if (selection instanceof CollaborationEditPart) {
 //			FSTFeature coll = ((CollaborationEditPart) selection).getCollaborationModel();
 //			if (!(coll instanceof FSTConfiguration)) {
-				FeatureModel fm = ((Feature) project).getFeatureModel();
-				ColorschemeTable colorschemeTable = fm.getColorschemeTable();
-				List<String> csNames = colorschemeTable.getColorschemeNames();
+//				FeatureModel fm = ((Feature) project).getFeatureModel();
+//				ColorschemeTable colorschemeTable = fm.getColorschemeTable();
+//				List<String> csNames = colorschemeTable.getColorschemeNames();
 
-				String curColorSchemeName = colorschemeTable.getSelectedColorschemeName();
-				MenuManager colorSchemeSubMenu = null;
+//				String curColorSchemeName = colorschemeTable.getSelectedColorschemeName();
+//				MenuManager colorSchemeSubMenu = null;
+//
+//				if (curColorSchemeName != null) {
+//					colorSchemeSubMenu = new MenuManager(curColorSchemeName);
+//				} else {
+//					colorSchemeSubMenu = new MenuManager(NO_COLORSCHEME_SELECTED);
+//				}
 
-				if (curColorSchemeName != null) {
-					colorSchemeSubMenu = new MenuManager(curColorSchemeName);
-				} else {
-					colorSchemeSubMenu = new MenuManager(NO_COLORSCHEME_SELECTED);
-				}
-
-				int count = 0;
-				for (String name : csNames) {
-					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, null, null, ++count);
-					if (count == colorschemeTable.getSelectedColorscheme()) {
-						setCSAction.setChecked(true);
-					}
-					colorSchemeSubMenu.add(setCSAction);
-				}
+//				int count = 0;
+//				for (String name : csNames) {
+//					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, null, null, ++count);
+//					if (count == colorschemeTable.getSelectedColorscheme()) {
+//						setCSAction.setChecked(true);
+//					}
+//					colorSchemeSubMenu.add(setCSAction);
+//				}
 
 				menuMgr.add(new Separator());
 				menuMgr.add(addColorSchemeAction);
