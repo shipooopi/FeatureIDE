@@ -6,15 +6,22 @@ import static de.ovgu.featureide.fm.core.localization.StringTable.SHOW_FIELDS_AN
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.internal.Workbench;
 
 import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.fstmodel.FSTConfiguration;
@@ -22,6 +29,7 @@ import de.ovgu.featureide.core.fstmodel.FSTFeature;
 import de.ovgu.featureide.fm.core.ColorList;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FMCorePlugin;
+import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.ui.views.collaboration.action.AddColorSchemeAction;
 import de.ovgu.featureide.ui.views.collaboration.action.DeleteColorSchemeAction;
@@ -58,6 +66,31 @@ public class MyDynamicMenu extends ContributionItem {
 	
 	}
 	
+	//Eclipse get current project selected
+			public static IProject getCurrentProject(){    
+		        ISelectionService selectionService =     
+		            Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService();    
+
+		        ISelection selection = selectionService.getSelection();    
+
+		        IProject project = null;    
+		        if(selection instanceof IStructuredSelection) {    
+		            Object element = ((IStructuredSelection)selection).getFirstElement();    
+
+		            if (element instanceof IResource) {    
+		                project= ((IResource)element).getProject();    
+		            } else if (element instanceof PackageFragmentRootContainer) {    
+		                IJavaProject jProject =     
+		                    ((PackageFragmentRootContainer)element).getJavaProject();    
+		                project = jProject.getProject();    
+		            } else if (element instanceof IJavaElement) {    
+		                IJavaProject jProject= ((IJavaElement)element).getJavaProject();    
+		                project = jProject.getProject();    
+		            }    
+		        }     
+		        return project;    
+		    }
+	
 	private void fillContextMenu(IMenuManager menuMgr) {
 //		disableToolbarFilterItems();
 //		if (featureProject == null) {
@@ -93,15 +126,20 @@ public class MyDynamicMenu extends ContributionItem {
 
 //		ResourcesPlugin.getWorkspace()
 //		ResourcesPlugin.getWorkspace().getRoot().getProjects()
-		IProject pr = null;
-		ResourcesPlugin.getWorkspace().getRoot().
+//		IProject pr = null;
+//		ResourcesPlugin.getWorkspace().getRoot();
 //		CorePlugin.getFeatureProjects().toArray();
 		
-		Object selection = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
-		if (selection instanceof CollaborationEditPart) {
-			FSTFeature coll = ((CollaborationEditPart) selection).getCollaborationModel();
-			if (!(coll instanceof FSTConfiguration)) {
-				FeatureModel fm = featureProject.getFeatureModel();
+		
+		
+		IProject project = getCurrentProject();
+		
+		
+//		Object selection = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
+//		if (selection instanceof CollaborationEditPart) {
+//			FSTFeature coll = ((CollaborationEditPart) selection).getCollaborationModel();
+//			if (!(coll instanceof FSTConfiguration)) {
+				FeatureModel fm = ((Feature) project).getFeatureModel();
 				ColorschemeTable colorschemeTable = fm.getColorschemeTable();
 				List<String> csNames = colorschemeTable.getColorschemeNames();
 
@@ -116,7 +154,7 @@ public class MyDynamicMenu extends ContributionItem {
 
 				int count = 0;
 				for (String name : csNames) {
-					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, viewer, this, ++count);
+					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, null, null, ++count);
 					if (count == colorschemeTable.getSelectedColorscheme()) {
 						setCSAction.setChecked(true);
 					}
@@ -127,32 +165,32 @@ public class MyDynamicMenu extends ContributionItem {
 				menuMgr.add(addColorSchemeAction);
 				menuMgr.add(renameColorSchemeAction);
 				menuMgr.add(deleteColorSchemeAction);
-				colorSubMenu.removeAll();
-				colorSubMenu.add(colorSchemeSubMenu);
-				colorSubMenu.add(new Separator());
+//				colorSubMenu.removeAll();
+//				colorSubMenu.add(colorSchemeSubMenu);
+//				colorSubMenu.add(new Separator());
 
-				boolean enableColorActions = colorschemeTable.getSelectedColorscheme() > 0;
-				for (int i = 0; i < setColorActions.length; i++) {
-					setColorActions[i].setEnabled(enableColorActions);
-					setColorActions[i].setChecked(false);
-					colorSubMenu.add(setColorActions[i]);
-				}
+//				boolean enableColorActions = colorschemeTable.getSelectedColorscheme() > 0;
+//				for (int i = 0; i < setColorActions.length; i++) {
+//					setColorActions[i].setEnabled(enableColorActions);
+//					setColorActions[i].setChecked(false);
+//					colorSubMenu.add(setColorActions[i]);
+//				}
 
-				int color = fm.getFeature(coll.getName()).getColorList().getColor();
-				if (ColorList.isValidColor(color)) {
-					setColorActions[color].setChecked(true);
-				}
-
-				menuMgr.add(colorSubMenu);
-			}
+//				int color = fm.getFeature(coll.getName()).getColorList().getColor();
+//				if (ColorList.isValidColor(color)) {
+//					setColorActions[color].setChecked(true);
+//				}
+//
+//				menuMgr.add(colorSubMenu);
+//			}
 		}
 
-		menuMgr.add(new Separator());
-		MenuManager exportMenu = new MenuManager(EXPORT_AS_LABEL);
-		exportMenu.add(exportAsImage);
-		exportMenu.add(exportAsXML);
-		menuMgr.add(exportMenu);
-	}
+//		menuMgr.add(new Separator());
+//		MenuManager exportMenu = new MenuManager(EXPORT_AS_LABEL);
+//		exportMenu.add(exportAsImage);
+//		exportMenu.add(exportAsXML);
+//		menuMgr.add(exportMenu);
+//	}
 	
 //	private void fillContextMenu(IMenuManager menuMgr) {
 //		System.out.println();
