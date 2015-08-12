@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.internal.Workbench;
 
+import de.ovgu.featureide.core.CorePlugin;
+import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
@@ -67,16 +69,16 @@ public class MyDynamicMenu extends ContributionItem {
 		        if(selection instanceof IStructuredSelection) {    
 		            Object element = ((IStructuredSelection)selection).getFirstElement();    
 
-//		            if (element instanceof IResource) {    
+		            if (element instanceof IResource) {    
 		                project= ((IResource)element).getProject();    
-//		            } else if (element instanceof PackageFragmentRootContainer) {    
-//		                IJavaProject jProject =     
-//		                    ((PackageFragmentRootContainer)element).getJavaProject();    
-//		                project = jProject.getProject();    
-//		            } else if (element instanceof IJavaElement) {    
-//		                IJavaProject jProject= ((IJavaElement)element).getJavaProject();    
-//		                project = jProject.getProject();    
-//		            }    
+		            } else if (element instanceof PackageFragmentRootContainer) {    
+		                IJavaProject jProject =     
+		                    ((PackageFragmentRootContainer)element).getJavaProject();    
+		                project = jProject.getProject();    
+		            } else if (element instanceof IJavaElement) {    
+		                IJavaProject jProject= ((IJavaElement)element).getJavaProject();    
+		                project = jProject.getProject();    
+		            }    
 		                 }  
 		                
 		        return project;    
@@ -124,34 +126,34 @@ public class MyDynamicMenu extends ContributionItem {
 		
 		
 		
-//		IProject project = getCurrentProject();
-		
+		IProject project = getCurrentProject();
+		IFeatureProject myproject = CorePlugin.getFeatureProject(project);
 		
 //		Object selection = ((IStructuredSelection) viewer.getSelection()).getFirstElement();
 //		if (selection instanceof CollaborationEditPart) {
 //			FSTFeature coll = ((CollaborationEditPart) selection).getCollaborationModel();
 //			if (!(coll instanceof FSTConfiguration)) {
-//				FeatureModel fm = ((Feature) project).getFeatureModel();
-//				ColorschemeTable colorschemeTable = fm.getColorschemeTable();
-//				List<String> csNames = colorschemeTable.getColorschemeNames();
+				FeatureModel fm = myproject.getFeatureModel();
+				ColorschemeTable colorschemeTable = fm.getColorschemeTable();
+				List<String> csNames = colorschemeTable.getColorschemeNames();
 
-//				String curColorSchemeName = colorschemeTable.getSelectedColorschemeName();
-//				MenuManager colorSchemeSubMenu = null;
-//
-//				if (curColorSchemeName != null) {
-//					colorSchemeSubMenu = new MenuManager(curColorSchemeName);
-//				} else {
-//					colorSchemeSubMenu = new MenuManager(NO_COLORSCHEME_SELECTED);
-//				}
+				String curColorSchemeName = colorschemeTable.getSelectedColorschemeName();
+				MenuManager colorSchemeSubMenu = null;
 
-//				int count = 0;
-//				for (String name : csNames) {
-//					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, null, null, ++count);
-//					if (count == colorschemeTable.getSelectedColorscheme()) {
-//						setCSAction.setChecked(true);
-//					}
-//					colorSchemeSubMenu.add(setCSAction);
-//				}
+				if (curColorSchemeName != null) {
+					colorSchemeSubMenu = new MenuManager(curColorSchemeName);
+				} else {
+					colorSchemeSubMenu = new MenuManager(NO_COLORSCHEME_SELECTED);
+				}
+
+				int count = 0;
+				for (String name : csNames) {
+					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, null, null, ++count);
+					if (count == colorschemeTable.getSelectedColorscheme()) {
+						setCSAction.setChecked(true);
+					}
+					colorSchemeSubMenu.add(setCSAction);
+				}
 
 				menuMgr.add(new Separator());
 				menuMgr.add(addColorSchemeAction);
