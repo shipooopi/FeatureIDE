@@ -1129,10 +1129,8 @@
             style="push">
       </command>
       <dynamic
-            id="whatever">
-         <class
-               class="de.ovgu.featureide.ui.views.collaboration.action.AddColorSchemAction.java">
-         </class>
+            class="de.ovgu.featureide.ui.MyDynamicMenu"
+            id="de.ovgu.featureide.ui.AddColorScheme">
       </dynamic>
    </menu>
 		</menuContribution>
