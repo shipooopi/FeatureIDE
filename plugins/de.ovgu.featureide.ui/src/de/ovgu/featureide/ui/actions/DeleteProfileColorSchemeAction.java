@@ -20,37 +20,31 @@
  */
 package de.ovgu.featureide.ui.actions;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.wizard.WizardDialog;
 
 import de.ovgu.featureide.fm.core.FeatureModel;
-import de.ovgu.featureide.ui.wizards.NewColorSchemeWizard;
 
 /**
  * TODO description
  * 
  * @author Jonas Weigt
  */
-public class AddProfileSchemeAction extends Action{
+public class DeleteProfileColorSchemeAction extends Action {
 
-	public AddProfileSchemeAction(String text){
+	private FeatureModel model;
+
+	public DeleteProfileColorSchemeAction(String text, FeatureModel model) {
 		super(text);
-		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
-	}
-	
-	//protected
-	public boolean action(FeatureModel fm, String collName) {
-		NewColorSchemeWizard wizard = new NewColorSchemeWizard(fm);
+		this.model = model;
+		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
 
-		WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
-		dialog.create();
-		if (dialog.open() == WizardDialog.OK && 
-				fm.getColorschemeTable().getSelectedColorscheme() == fm.getColorschemeTable().size()) {
-			return true;
-		}
-		return false;
 	}
+
+	public void run() {
+		model.getColorschemeTable().removeColorscheme();
+		model.getColorschemeTable().saveColorsToFile(CurrentFeatureModel.getCurrentFeatureProject().getProject());
+	}
+
 }

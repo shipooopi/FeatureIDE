@@ -26,30 +26,30 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import de.ovgu.featureide.fm.core.FeatureModel;
-import de.ovgu.featureide.ui.wizards.NewColorSchemeWizard;
+import de.ovgu.featureide.ui.wizards.RenameColorSchemeWizard;
 
 /**
  * TODO description
  * 
  * @author Jonas Weigt
  */
-public class RenameProfileSchemeAction extends Action{
-	
-	public RenameProfileSchemeAction(String text){
+public class RenameProfileColorSchemeAction extends Action {
+
+	private FeatureModel model;
+
+	public RenameProfileColorSchemeAction(String text, FeatureModel model) {
 		super(text);
-		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_ETOOL_CLEAR));
+		this.model = model;
+		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_CLEAR));
 	}
-	//protected
-	public boolean action(FeatureModel fm, String collName) {
-		NewColorSchemeWizard wizard = new NewColorSchemeWizard(fm);
+
+	public void run() {
+		RenameColorSchemeWizard wizard = new RenameColorSchemeWizard(model);
 
 		WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
 		dialog.create();
-		if (dialog.open() == WizardDialog.OK && 
-				fm.getColorschemeTable().getSelectedColorscheme() == fm.getColorschemeTable().size()) {
-			return true;
-		}
-		return false;
+		dialog.open();
+		model.getColorschemeTable().saveColorsToFile(CurrentFeatureModel.getCurrentFeatureProject().getProject());
+
 	}
 }
