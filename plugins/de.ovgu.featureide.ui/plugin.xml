@@ -1111,28 +1111,16 @@
 					</reference>
 				</visibleWhen>
 			</command>
-   <menu
-         icon="icons/FeatureIconSmall.ico"
-         id="Profilemenu"
-         label="Profile">
+   <dynamic
+         class="de.ovgu.featureide.ui.MyDynamicMenu"
+         id="de.ovgu.featureide.ui.AddColorScheme">
       <visibleWhen
             checkEnabled="false">
          <reference
                definitionId="de.ovgu.featureide.ui.expressions.onlyProjects">
          </reference>
       </visibleWhen>
-      <command
-            commandId="de.ovgu.featureide.fm.ui.colorscheme"
-            icon="icons/FeatureProjectSmall.png"
-            id="de.ovgu.featureide.fm.ui.actions.colorscheme"
-            label="Color"
-            style="push">
-      </command>
-      <dynamic
-            class="de.ovgu.featureide.ui.MyDynamicMenu"
-            id="de.ovgu.featureide.ui.AddColorScheme">
-      </dynamic>
-   </menu>
+   </dynamic>
 		</menuContribution>
 
 		<menuContribution

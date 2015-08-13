@@ -18,8 +18,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.Workbench;
 
+import de.ovgu.featureide.ui.actions.AddProfileSchemeAction;
+import de.ovgu.featureide.ui.actions.DeleteProfileSchemeAction;
+import de.ovgu.featureide.ui.actions.RenameProfileSchemeAction;
 import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
@@ -31,9 +36,9 @@ import de.ovgu.featureide.ui.views.collaboration.action.RenameColorSchemeAction;
 import de.ovgu.featureide.ui.views.collaboration.action.SetColorSchemeAction;
 
 public class MyDynamicMenu extends ContributionItem {
-	private AddColorSchemeAction addColorSchemeAction =  new AddColorSchemeAction("Add", null, null);
-	private RenameColorSchemeAction renameColorSchemeAction = new RenameColorSchemeAction("Change Name", null, null);
-	private DeleteColorSchemeAction	deleteColorSchemeAction = new DeleteColorSchemeAction("Delete Scheme", null, null);
+	private AddProfileSchemeAction addProfileSchemeAction =  new AddProfileSchemeAction("Add");
+	private RenameProfileSchemeAction renameProfileSchemeAction = new RenameProfileSchemeAction("Change Name");
+	private DeleteProfileSchemeAction deleteProfileSchemeAction = new DeleteProfileSchemeAction("Delete Scheme");
 	
 	public MyDynamicMenu() {
 
@@ -45,7 +50,11 @@ public class MyDynamicMenu extends ContributionItem {
 
 	@Override
 	public void fill(Menu menu, int index) {
-		MenuManager man = new MenuManager("Color");
+		MenuManager man = new MenuManager("Profile", PlatformUI.getWorkbench().getSharedImages()
+				.getImageDescriptor(ISharedImages.IMG_OBJ_ADD), "");
+		
+		
+
 		man.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager m) {
 				fillContextMenu(m);
@@ -154,11 +163,14 @@ public class MyDynamicMenu extends ContributionItem {
 					}
 					colorSchemeSubMenu.add(setCSAction);
 				}
-
+				
 				menuMgr.add(new Separator());
-				menuMgr.add(addColorSchemeAction);
-				menuMgr.add(renameColorSchemeAction);
-				menuMgr.add(deleteColorSchemeAction);
+				menuMgr.add(addProfileSchemeAction);
+				menuMgr.add(renameProfileSchemeAction);
+				menuMgr.add(deleteProfileSchemeAction);
+				//addProfileSchemeAction.action(fm, " ");
+				
+				
 //				colorSubMenu.removeAll();
 //				colorSubMenu.add(colorSchemeSubMenu);
 //				colorSubMenu.add(new Separator());

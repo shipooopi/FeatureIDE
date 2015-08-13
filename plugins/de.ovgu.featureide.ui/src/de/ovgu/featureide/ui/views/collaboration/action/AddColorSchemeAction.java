@@ -41,7 +41,8 @@ public class AddColorSchemeAction extends AbstractColorAction {
 		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
 				.getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 	}
-
+	
+	
 	@Override
 	protected boolean action(FeatureModel fm, String collName) {
 		NewColorSchemeWizard wizard = new NewColorSchemeWizard(fm);
