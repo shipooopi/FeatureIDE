@@ -25,8 +25,6 @@ import java.util.LinkedList;
 
 import javax.annotation.Nonnull;
 
-import de.ovgu.featureide.fm.core.Feature;
-
 /**
  * Represents a feature at the {@link FSTModel}.<br>
  * Contains {@link FSTRole}s with their corresponding {@link FSTClass}.
@@ -60,12 +58,14 @@ public class FSTFeature {
 	}
 	
 	public int getColor() {
-		if (model.getFeatureProject().getFeatureModel().getFeature(name).getColorList() != null){
-		//Feature feature = model.getFeatureProject().getFeatureModel().getFeature(name);
-		//	if(feature.getColorList() != null){
-				return model.getFeatureProject().getFeatureModel().getFeature(name).getColorList().getColor();
-				
-			}
+//		if (model.getFeatureProject().getFeatureModel().getFeature(name).getColorList() != null){
+//		//Feature feature = model.getFeatureProject().getFeatureModel().getFeature(name);
+//		//	if(feature.getColorList() != null){
+//				 return model.getFeatureProject().getFeatureModel().getFeature(name).getColorList().getColor();
+//				
+//		PROBLEM BEI COLLABORATION VIEW REFRESH ACTION
+//				
+//			}
 				return color;
 	}
 
