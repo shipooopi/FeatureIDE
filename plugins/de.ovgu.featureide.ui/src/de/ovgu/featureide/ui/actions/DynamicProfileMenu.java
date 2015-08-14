@@ -21,16 +21,17 @@ import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.ui.actions.CurrentFeatureModel;
 
 public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;
 	private DeleteProfileColorSchemeAction deleteProfileSchemeAction;
-	private IFeatureProject myFeatureProject = CorePlugin.getFeatureProject(((IJavaElement)((IStructuredSelection)((ISelection)((ISelectionService)Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService()).getSelection())).getFirstElement()).getJavaProject().getProject());
+	//	private IFeatureProject myFeatureProject = CorePlugin
+	//			.getFeatureProject(((IJavaElement) ((IStructuredSelection) ((ISelection) ((ISelectionService) Workbench.getInstance().getActiveWorkbenchWindow()
+	//					.getSelectionService()).getSelection())).getFirstElement()).getJavaProject().getProject());
+	private IFeatureProject myFeatureProject = CurrentFeatureModel.getCurrentFeatureProject();
 	private FeatureModel myFeatureModel = myFeatureProject.getFeatureModel();
-//			CorePlugin.getFeatureProject(
-//			(IProject) ((IStructuredSelection) Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService().getSelection()).getFirstElement())
-//			.getFeatureModel();
 
 	public DynamicProfileMenu() {
 
@@ -54,11 +55,11 @@ public class DynamicProfileMenu extends ContributionItem {
 		man.fill(menu, index);
 		man.setVisible(true);
 		createActions();
-		
+
 	}
 
 	private void fillContextMenu(IMenuManager menuMgr) {
-//SetProfileColorSchemeAction setCSAction;
+		//SetProfileColorSchemeAction setCSAction;
 		FeatureModel fm = myFeatureModel;
 		ColorschemeTable colorschemeTable = fm.getColorschemeTable();
 		List<String> csNames = colorschemeTable.getColorschemeNames();
@@ -71,25 +72,27 @@ public class DynamicProfileMenu extends ContributionItem {
 				setCSAction.setChecked(true);
 			}
 			menuMgr.add(setCSAction);
-			
-			}
+
+		}
 		menuMgr.add(new Separator());
 		menuMgr.add(addProfileSchemeAction);
 		menuMgr.add(renameProfileSchemeAction);
 		menuMgr.add(deleteProfileSchemeAction);
-//		renameProfileSchemeAction.setId("533");
-		menuMgr.setRemoveAllWhenShown(true);
-//		menuMgr.remove("533");
-		
 
+		if (colorschemeTable.getSelectedColorschemeName().equals("Default Colorscheme")) {
+			renameProfileSchemeAction.setEnabled(false);
+			deleteProfileSchemeAction.setEnabled(false);
+		}
+
+		menuMgr.setRemoveAllWhenShown(true);
 	}
 
 	// create Actions
 
 	private void createActions() {
-		addProfileSchemeAction = new AddProfileColorSchemeAction("Add", myFeatureModel, myFeatureProject);
+		addProfileSchemeAction = new AddProfileColorSchemeAction("Add Colorscheme", myFeatureModel, myFeatureProject);
 		renameProfileSchemeAction = new RenameProfileColorSchemeAction("Change Name", myFeatureModel, myFeatureProject);
-		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Scheme", myFeatureModel, myFeatureProject);
+		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Colorscheme", myFeatureModel, myFeatureProject);
 
 	}
 
