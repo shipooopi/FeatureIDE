@@ -2,7 +2,11 @@ package de.ovgu.featureide.ui.actions;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
@@ -11,6 +15,9 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeSelection;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.ISharedImages;
@@ -21,17 +28,14 @@ import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
-import de.ovgu.featureide.ui.actions.CurrentFeatureModel;
 
 public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;
 	private DeleteProfileColorSchemeAction deleteProfileSchemeAction;
-	//	private IFeatureProject myFeatureProject = CorePlugin
-	//			.getFeatureProject(((IJavaElement) ((IStructuredSelection) ((ISelection) ((ISelectionService) Workbench.getInstance().getActiveWorkbenchWindow()
-	//					.getSelectionService()).getSelection())).getFirstElement()).getJavaProject().getProject());
-	private IFeatureProject myFeatureProject = CurrentFeatureModel.getCurrentFeatureProject();
+	private IFeatureProject myFeatureProject = getCurrentFeatureProject();
 	private FeatureModel myFeatureModel = myFeatureProject.getFeatureModel();
+	private boolean multipleSelected = isMultipleSelection();
 
 	public DynamicProfileMenu() {
 
@@ -44,15 +48,23 @@ public class DynamicProfileMenu extends ContributionItem {
 	@Override
 	public void fill(Menu menu, int index) {
 
-		MenuManager man = new MenuManager("Profile", PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD), "");
+		//		final IFeatureProject res = (IFeatureProject) SelectionWrapper.init((IStructuredSelection)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection(), IResource.class);
+		//			myFeatureModel = res.getFeatureModel();
+		//			myFeatureProject = res;
+		//
 
+		MenuManager man = new MenuManager("Profile", PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD), "");
 		man.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager m) {
 
 				fillContextMenu(m);
 			}
 		});
-		man.fill(menu, index);
+
+		if (multipleSelected == false) {
+			man.fill(menu, index);
+		}
+
 		man.setVisible(true);
 		createActions();
 
@@ -96,4 +108,53 @@ public class DynamicProfileMenu extends ContributionItem {
 
 	}
 
+	private static IStructuredSelection getIStructuredCurrentSelection() {
+		ISelectionService selectionService = Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService();
+
+		ISelection selection = selectionService.getSelection();
+		return (IStructuredSelection) selection;
+
+	}
+
+	// Mehrfachselektion ausgewählt?
+	private static boolean isMultipleSelection() {
+		boolean multipleSelected = false;
+		IStructuredSelection myselection = getIStructuredCurrentSelection();
+
+		if (myselection instanceof ITreeSelection) {
+			TreeSelection treeSelection = (TreeSelection) myselection;
+			TreePath[] treePaths = treeSelection.getPaths();
+			if (treePaths.length > 1) {
+				multipleSelected = true;
+				return multipleSelected;
+			}
+		}
+		return multipleSelected;
+
+	}
+
+	//	Eclipse get current project selected
+	private static IProject getCurrentProject() {
+		Object element = getIStructuredCurrentSelection().getFirstElement();
+
+		IProject project = null;
+
+		if (element instanceof IResource) {
+			project = ((IResource) element).getProject();
+		} else if (element instanceof PackageFragmentRootContainer) {
+			IJavaProject jProject = ((PackageFragmentRootContainer) element).getJavaProject();
+			project = jProject.getProject();
+		} else if (element instanceof IJavaElement) {
+			IJavaProject jProject = ((IJavaElement) element).getJavaProject();
+			project = jProject.getProject();
+		}
+
+		return project;
+	}
+
+	public static IFeatureProject getCurrentFeatureProject() {
+		IProject project = getCurrentProject();
+		IFeatureProject myproject = CorePlugin.getFeatureProject(project);
+		return myproject;
+	}
 }

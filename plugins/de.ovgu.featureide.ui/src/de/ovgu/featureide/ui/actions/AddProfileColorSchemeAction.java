@@ -55,7 +55,7 @@ public class AddProfileColorSchemeAction extends Action {
 		dialog.create();
 		dialog.open();
 		model.getColorschemeTable().saveColorsToFile(project.getProject());
-		
+	
 	}
 	
 }
