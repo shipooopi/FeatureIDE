@@ -42,50 +42,50 @@ import de.ovgu.featureide.fm.core.FeatureModel;
 public class CurrentFeatureModel {
 
 //	Eclipse get current project selected
-	private static IProject getCurrentProject() {
-		ISelectionService selectionService = Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService();
-
-		ISelection selection = selectionService.getSelection();
-
-		IProject project = null;
-		if (selection instanceof IStructuredSelection) {
-			Object element = ((IStructuredSelection) selection).getFirstElement();
-
-			if (element instanceof IResource) {
-				project = ((IResource) element).getProject();
-			} else if (element instanceof PackageFragmentRootContainer) {
-				IJavaProject jProject = ((PackageFragmentRootContainer) element).getJavaProject();
-				project = jProject.getProject();
-			} else if (element instanceof IJavaElement) {
-				IJavaProject jProject = ((IJavaElement) element).getJavaProject();
-				project = jProject.getProject();
-			}
-		}
-		return project;
-	}
+//	private static IProject getCurrentProject() {
+//		ISelectionService selectionService = Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService();
+//
+//		ISelection selection = selectionService.getSelection();
+//
+//		IProject project = null;
+//		if (selection instanceof IStructuredSelection) {
+//			Object element = ((IStructuredSelection) selection).getFirstElement();
+//
+//			if (element instanceof IResource) {
+//				project = ((IResource) element).getProject();
+//			} else if (element instanceof PackageFragmentRootContainer) {
+//				IJavaProject jProject = ((PackageFragmentRootContainer) element).getJavaProject();
+//				project = jProject.getProject();
+//			} else if (element instanceof IJavaElement) {
+//				IJavaProject jProject = ((IJavaElement) element).getJavaProject();
+//				project = jProject.getProject();
+//			}
+//		
+//		}
+//		return project;
+//	}
 
 //	public static IFeatureProject getCurrentFeatureProject() {
-//
-//		return CorePlugin.getFeatureProject(((IResource)((IStructuredSelection)Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService().getSelection()).getFirstElement()).getProject());
+//		return CorePlugin.getFeatureProject(((IJavaElement)((Object)((IStructuredSelection)((ISelection)((ISelectionService)Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService()).getSelection())).getFirstElement())).getJavaProject().getProject());
 //	}
 	
-	public static FeatureModel getCurrentFeatureModel() {
-		IProject project = getCurrentProject();
-		IFeatureProject myproject = CorePlugin.getFeatureProject(project);
-		FeatureModel fm = myproject.getFeatureModel();
+//	public static FeatureModel getCurrentFeatureModel() {
+//		IProject project = getCurrentProject();
+//		IFeatureProject myproject = CorePlugin.getFeatureProject(project);
+//		FeatureModel fm = myproject.getFeatureModel();
 
 //		CorePlugin
 //				.getFeatureProject((IProject) ((IStructuredSelection) Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService().getSelection())
 //						.getFirstElement());
-
-		return fm;
-	}
-
-			public static IFeatureProject getCurrentFeatureProject(){
-				IProject project = getCurrentProject();
-				IFeatureProject myproject = CorePlugin.getFeatureProject(project);
-				return myproject;
-			}
-			
-	
+//
+//		return fm;
+//	}
+//
+//			public static IFeatureProject getCurrentFeatureProject(){
+//				IProject project = getCurrentProject();
+//				IFeatureProject myproject = CorePlugin.getFeatureProject(project);
+//				return myproject;
+//			}
+//			
+//	
 }

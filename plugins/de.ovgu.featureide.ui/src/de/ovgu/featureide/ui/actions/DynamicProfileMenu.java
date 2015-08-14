@@ -2,15 +2,17 @@ package de.ovgu.featureide.ui.actions;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.Workbench;
@@ -24,8 +26,8 @@ public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;
 	private DeleteProfileColorSchemeAction deleteProfileSchemeAction;
-	private IFeatureProject myFeatureProject = CurrentFeatureModel.getCurrentFeatureProject();
-	private FeatureModel myFeatureModel = CurrentFeatureModel.getCurrentFeatureModel();
+	private IFeatureProject myFeatureProject = CorePlugin.getFeatureProject(((IJavaElement)((IStructuredSelection)((ISelection)((ISelectionService)Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService()).getSelection())).getFirstElement()).getJavaProject().getProject());
+	private FeatureModel myFeatureModel = myFeatureProject.getFeatureModel();
 //			CorePlugin.getFeatureProject(
 //			(IProject) ((IStructuredSelection) Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService().getSelection()).getFirstElement())
 //			.getFeatureModel();
@@ -75,7 +77,7 @@ public class DynamicProfileMenu extends ContributionItem {
 		
 
 		menuMgr.add(new Separator());
-		//menuMgr.add(addProfileSchemeAction);
+		menuMgr.add(addProfileSchemeAction);
 		menuMgr.add(renameProfileSchemeAction);
 		menuMgr.add(deleteProfileSchemeAction);
 //		renameProfileSchemeAction.setId("533");
@@ -88,9 +90,9 @@ public class DynamicProfileMenu extends ContributionItem {
 	// create Actions
 
 	private void createActions() {
-		addProfileSchemeAction = new AddProfileColorSchemeAction("Add", myFeatureModel);
-		renameProfileSchemeAction = new RenameProfileColorSchemeAction("Change Name", myFeatureModel);
-		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Scheme", myFeatureModel);
+		addProfileSchemeAction = new AddProfileColorSchemeAction("Add", myFeatureModel, myFeatureProject);
+		renameProfileSchemeAction = new RenameProfileColorSchemeAction("Change Name", myFeatureModel, myFeatureProject);
+		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Scheme", myFeatureModel, myFeatureProject);
 
 	}
 
