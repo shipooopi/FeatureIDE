@@ -1112,7 +1112,7 @@
 				</visibleWhen>
 			</command>
    <dynamic
-         class="de.ovgu.featureide.ui.actions.MyDynamicMenu"
+         class="de.ovgu.featureide.ui.actions.DynamicProfileMenu"
          id="de.ovgu.featureide.ui.AddColorScheme">
       <visibleWhen
             checkEnabled="false">
