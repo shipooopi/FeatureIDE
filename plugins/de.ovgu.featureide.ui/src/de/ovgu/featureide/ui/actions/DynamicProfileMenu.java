@@ -20,7 +20,7 @@ import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
 
-public class MyDynamicMenu extends ContributionItem {
+public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;
 	private DeleteProfileColorSchemeAction deleteProfileSchemeAction;
@@ -30,11 +30,11 @@ public class MyDynamicMenu extends ContributionItem {
 //			(IProject) ((IStructuredSelection) Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService().getSelection()).getFirstElement())
 //			.getFeatureModel();
 
-	public MyDynamicMenu() {
+	public DynamicProfileMenu() {
 
 	}
 
-	public MyDynamicMenu(String id) {
+	public DynamicProfileMenu(String id) {
 		super(id);
 	}
 
@@ -52,7 +52,7 @@ public class MyDynamicMenu extends ContributionItem {
 		man.fill(menu, index);
 		man.setVisible(true);
 		createActions();
-
+		
 	}
 
 	private void fillContextMenu(IMenuManager menuMgr) {
@@ -75,7 +75,7 @@ public class MyDynamicMenu extends ContributionItem {
 		
 
 		menuMgr.add(new Separator());
-		menuMgr.add(addProfileSchemeAction);
+		//menuMgr.add(addProfileSchemeAction);
 		menuMgr.add(renameProfileSchemeAction);
 		menuMgr.add(deleteProfileSchemeAction);
 //		renameProfileSchemeAction.setId("533");
