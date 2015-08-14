@@ -65,10 +65,10 @@ public class CurrentFeatureModel {
 	}
 
 //	public static IFeatureProject getCurrentFeatureProject() {
-//		return CorePlugin.getFeatureProject((IProject) ((IStructuredSelection) Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService()
-//				.getSelection()).getFirstElement());
+//
+//		return CorePlugin.getFeatureProject(((IResource)((IStructuredSelection)Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService().getSelection()).getFirstElement()).getProject());
 //	}
-
+	
 	public static FeatureModel getCurrentFeatureModel() {
 		IProject project = getCurrentProject();
 		IFeatureProject myproject = CorePlugin.getFeatureProject(project);
