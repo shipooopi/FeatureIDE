@@ -978,4 +978,8 @@ public class StringTable {
     public static final String BLUE = "blue";
     public static final String MARGENTA = "margenta";
     public static final String PINK = "pink";
+    public static final String COLOR_TYPE= "Test Color";
+    public static final String COLOR_SELECTED_FEATURE = "Color the selected Feature";
+    public static final String COLOR_SELECTED_FEATURE_CHILDREN = "Color the selected Feature and its Children";
+    public static final String COLOR_SELECTED_FEATURE_SAME_LEVEL = "Color all Features on the same Level";
 }
