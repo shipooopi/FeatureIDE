@@ -1113,7 +1113,7 @@
 			</command>
    <dynamic
          class="de.ovgu.featureide.ui.actions.DynamicProfileMenu"
-         id="de.ovgu.featureide.ui.AddColorScheme">
+         id="de.ovgu.featureide.ui.ProfileSchemeMenu">
       <visibleWhen
             checkEnabled="false">
          <reference
