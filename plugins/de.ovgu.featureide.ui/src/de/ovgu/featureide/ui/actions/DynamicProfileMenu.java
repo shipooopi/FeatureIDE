@@ -29,6 +29,13 @@ import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
 
+/**
+ * Class to add the profilemenu to the contextmenu of the project (projectonly)
+ * 
+ * @author Jonas Weigt
+ * @author Christian Harnisch
+ */
+
 public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;
@@ -37,6 +44,9 @@ public class DynamicProfileMenu extends ContributionItem {
 	private FeatureModel myFeatureModel = myFeatureProject.getFeatureModel();
 	private boolean multipleSelected = isMultipleSelection();
 
+	/*
+	 * Constructors
+	 */
 	public DynamicProfileMenu() {
 
 	}
@@ -44,14 +54,23 @@ public class DynamicProfileMenu extends ContributionItem {
 	public DynamicProfileMenu(String id) {
 		super(id);
 	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.action.ContributionItem#fill(org.eclipse.swt.widgets.Menu, int)
+	 * 
+	 * creates dynamic menu 
+	 */
 	@Override
 	public void fill(Menu menu, int index) {
 
-		//		final IFeatureProject res = (IFeatureProject) SelectionWrapper.init((IStructuredSelection)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection(), IResource.class);
-		//			myFeatureModel = res.getFeatureModel();
-		//			myFeatureProject = res;
-		//
+		/*
+		 * 		final IFeatureProject res = (IFeatureProject) SelectionWrapper.init((IStructuredSelection)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection(), IProject.class);
+		 *		myFeatureModel = res.getFeatureModel();
+		 *		myFeatureProject = res;
+		 *	
+		 *		maybe another solution for getting the current project or structured selection 
+		 *
+		 */
 
 		MenuManager man = new MenuManager("Profile", PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD), "");
 		man.addMenuListener(new IMenuListener() {
@@ -70,16 +89,17 @@ public class DynamicProfileMenu extends ContributionItem {
 
 	}
 
+	/*
+	 * this method fills the menumanager with actionbuttons
+	 */
 	private void fillContextMenu(IMenuManager menuMgr) {
-		//SetProfileColorSchemeAction setCSAction;
 		FeatureModel fm = myFeatureModel;
 		ColorschemeTable colorschemeTable = fm.getColorschemeTable();
 		List<String> csNames = colorschemeTable.getColorschemeNames();
 
 		int count = 0;
 		for (String name : csNames) {
-			//SetProfileColorSchemeAction 
-			SetProfileColorSchemeAction setCSAction = new SetProfileColorSchemeAction(name, ++count, Action.AS_CHECK_BOX, myFeatureModel);
+			SetProfileColorSchemeAction setCSAction = new SetProfileColorSchemeAction(name, ++count, Action.AS_CHECK_BOX, myFeatureModel, myFeatureProject);
 			if (count == colorschemeTable.getSelectedColorscheme()) {
 				setCSAction.setChecked(true);
 			}
@@ -91,6 +111,9 @@ public class DynamicProfileMenu extends ContributionItem {
 		menuMgr.add(renameProfileSchemeAction);
 		menuMgr.add(deleteProfileSchemeAction);
 
+		/*
+		 * disables rename and delete when default colorscheme is selected
+		 */
 		if (colorschemeTable.getSelectedColorschemeName().equals("Default Colorscheme")) {
 			renameProfileSchemeAction.setEnabled(false);
 			deleteProfileSchemeAction.setEnabled(false);
@@ -99,7 +122,9 @@ public class DynamicProfileMenu extends ContributionItem {
 		menuMgr.setRemoveAllWhenShown(true);
 	}
 
-	// create Actions
+	/*
+	 * this methods creates functionality of the actionbuttons
+	 */
 
 	private void createActions() {
 		addProfileSchemeAction = new AddProfileColorSchemeAction("Add Colorscheme", myFeatureModel, myFeatureProject);
@@ -107,7 +132,9 @@ public class DynamicProfileMenu extends ContributionItem {
 		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Colorscheme", myFeatureModel, myFeatureProject);
 
 	}
-
+	/*
+	 * Returns selection of type IStructuredSelection
+	 */
 	private static IStructuredSelection getIStructuredCurrentSelection() {
 		ISelectionService selectionService = Workbench.getInstance().getActiveWorkbenchWindow().getSelectionService();
 
@@ -116,7 +143,9 @@ public class DynamicProfileMenu extends ContributionItem {
 
 	}
 
-	// Mehrfachselektion ausgewählt?
+	/*
+	 *  this method disables the profilemenu, if more than one project is selected
+	 */
 	private static boolean isMultipleSelection() {
 		boolean multipleSelected = false;
 		IStructuredSelection myselection = getIStructuredCurrentSelection();
@@ -133,8 +162,10 @@ public class DynamicProfileMenu extends ContributionItem {
 
 	}
 
-	//	Eclipse get current project selected
-	private static IProject getCurrentProject() {
+	/*
+	 * Returns selected FeatureProject
+	 */
+	private static IFeatureProject getCurrentFeatureProject() {
 		Object element = getIStructuredCurrentSelection().getFirstElement();
 
 		IProject project = null;
@@ -147,14 +178,10 @@ public class DynamicProfileMenu extends ContributionItem {
 		} else if (element instanceof IJavaElement) {
 			IJavaProject jProject = ((IJavaElement) element).getJavaProject();
 			project = jProject.getProject();
+
 		}
-
-		return project;
-	}
-
-	public static IFeatureProject getCurrentFeatureProject() {
-		IProject project = getCurrentProject();
 		IFeatureProject myproject = CorePlugin.getFeatureProject(project);
 		return myproject;
 	}
+
 }

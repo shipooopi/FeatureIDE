@@ -30,15 +30,23 @@ import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.ui.wizards.RenameColorSchemeWizard;
 
 /**
- * TODO description
+ * This Class contains one of the three actions, which is added to the menu
+ * 
+ * The other related classes are:
+ * @see de.ovgu.featureide.ui.actions.AddProfileColorScheme.java
+ * @see de.ovgu.featureide.ui.actions.DeleteProfileColorScheme.java
  * 
  * @author Jonas Weigt
+ * @author Christian Harnisch
  */
 public class RenameProfileColorSchemeAction extends Action {
 
 	private FeatureModel model;
 	private IFeatureProject project;
 
+	/*
+	 * Constructor
+	 */
 	public RenameProfileColorSchemeAction(String text, FeatureModel model, IFeatureProject project) {
 		super(text);
 		this.model = model;
@@ -46,6 +54,12 @@ public class RenameProfileColorSchemeAction extends Action {
 		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_CLEAR));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.action.Action#run()
+	 * 
+	 * this method calls the renamewizard and saves the configuration
+	 */
 	public void run() {
 		RenameColorSchemeWizard wizard = new RenameColorSchemeWizard(model);
 

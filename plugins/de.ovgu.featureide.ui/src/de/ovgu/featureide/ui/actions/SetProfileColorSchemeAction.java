@@ -21,33 +21,46 @@
 package de.ovgu.featureide.ui.actions;
 
 import org.eclipse.jface.action.Action;
+
+import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.FeatureModel;
 
 
 /**
- * TODO description
+ * This class enables you to switch profiles
  * 
  * @author Jonas Weigt
+ * @author Christian Harnisch
  */
 
 public class SetProfileColorSchemeAction extends Action{
 	private FeatureModel model;
+	private IFeatureProject project;
 	private int index;
 	
-	public SetProfileColorSchemeAction(String text,int index, int style, FeatureModel model) {
+
+	/*
+	 * Constructor
+	 */
+	public SetProfileColorSchemeAction(String text,int index, int style, FeatureModel model, IFeatureProject project) {
 		super(text, Action.AS_CHECK_BOX);
 		this.model = model;
 		this.index = index;
+		this.project = project;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.ovgu.featureide.ui.views.collaboration.color.action.AbstractColorAction#action(de.ovgu.featureide.fm.core.Feature)
+	 * 
+	 * this method changes selected Colorscheme and saves the configuration 
 	 */
 	public void run(){
 		if (model.getColorschemeTable().getSelectedColorscheme() != index) {
 			model.getColorschemeTable().setSelectedColorscheme(index);
+			model.getColorschemeTable().saveColorsToFile(project.getProject());
 		} else {
 			model.getColorschemeTable().setEmptyColorscheme();
+			model.getColorschemeTable().saveColorsToFile(project.getProject());
 		}
 	}
 	

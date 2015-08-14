@@ -30,9 +30,14 @@ import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.ui.wizards.NewColorSchemeWizard;
 
 /**
- * TODO description
+ * This Class contains one of the three actions, which is added to the menu
+ * 
+ * The other related classes are:
+ * @see de.ovgu.featureide.ui.actions.DeleteProfileColorScheme.java
+ * @see de.ovgu.featureide.ui.actions.RenameProfileColorScheme.java
  * 
  * @author Jonas Weigt
+ * @author Christian Harnisch
  */
 public class AddProfileColorSchemeAction extends Action {
 
@@ -40,6 +45,9 @@ public class AddProfileColorSchemeAction extends Action {
 	private FeatureModel model;
 	private IFeatureProject project;
 	
+	/*
+	 * Constructor
+	 */
 	public AddProfileColorSchemeAction(String text, FeatureModel model, IFeatureProject project) {
 		super(text);
 		this.model = model;	
@@ -47,7 +55,13 @@ public class AddProfileColorSchemeAction extends Action {
 		
 		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.action.Action#run()
+	 * 
+	 * this Method calls the Wizard and saves the configuration
+	 */
 	public void run() {
 		NewColorSchemeWizard wizard = new NewColorSchemeWizard(model);
 
