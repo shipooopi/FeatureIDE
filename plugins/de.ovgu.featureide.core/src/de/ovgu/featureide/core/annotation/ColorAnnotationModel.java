@@ -18,7 +18,7 @@
  *
  * See http://featureide.cs.ovgu.de/ for further information.
  */
-package de.ovgu.featureide.ui.editors.annotation;
+package de.ovgu.featureide.core.annotation;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.CANT_CONNECT_TO_DIFFERENT_DOCUMENT_;
 import static de.ovgu.featureide.fm.core.localization.StringTable.CANT_DISCONNECT_FROM_DIFFERENT_DOCUMENT_;
@@ -54,13 +54,14 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
+import de.ovgu.featureide.core.annotation.LogService.LogLevel;
 import de.ovgu.featureide.core.builder.IComposerExtensionClass;
 import de.ovgu.featureide.core.fstmodel.FSTFeature;
 import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
 import de.ovgu.featureide.core.fstmodel.preprocessor.FSTDirective;
 import de.ovgu.featureide.fm.core.ColorList;
-import de.ovgu.featureide.ui.UIPlugin;
+//import de.ovgu.featureide.ui.UIPlugin;
 
 /**
  * Assigns color annotations to the editor.
@@ -349,7 +350,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 			try {
 				lines.add(document.get(document.getLineOffset(i), document.getLineLength(i)));
 			} catch (BadLocationException e) {
-				UIPlugin.getDefault().logError(e);
+				LogService.getInstance().log(LogLevel.DEBUG, e.getMessage());
 			}
 		}
 		
@@ -444,7 +445,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 					overViewLength = 0;
 				}
 			} catch (BadLocationException e) {
-				UIPlugin.getDefault().logError(e);
+				LogService.getInstance().log(LogLevel.DEBUG, e.getMessage());
 			}
 		}
 		

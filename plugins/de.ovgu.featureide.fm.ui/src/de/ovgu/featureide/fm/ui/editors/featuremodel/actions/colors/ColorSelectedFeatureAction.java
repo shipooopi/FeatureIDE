@@ -27,15 +27,11 @@ import java.util.ArrayList;
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
-import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureAction extends Action {
 
@@ -61,7 +57,7 @@ public class ColorSelectedFeatureAction extends Action {
 	public ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
-			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			//IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
 			//			if (selection.isEmpty() == false) {
 			//
@@ -99,7 +95,7 @@ public class ColorSelectedFeatureAction extends Action {
 			//				}
 			//
 			//				System.out.println("///" + flist.size());
-			//				// Übergabe der flist 
+			//				// ï¿½bergabe der flist 
 			//				//return flist;
 			//				//flist.clear();
 			//			}

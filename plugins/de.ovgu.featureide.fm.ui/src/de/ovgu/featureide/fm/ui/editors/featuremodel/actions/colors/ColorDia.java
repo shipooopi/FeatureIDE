@@ -32,7 +32,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
@@ -70,8 +69,6 @@ public class ColorDia extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		Layout l = parent.getLayout();
-
 		Composite container = (Composite) super.createDialogArea(parent);
 		container.setBackground(new Color(parent.getDisplay(), 255, 255, 255));
 //		Composite container2 = (Composite) super.createDialogArea(parent);
