@@ -20,7 +20,7 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
-//import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE_SAME_LEVEL;
+import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE_SAME_LEVEL;
 
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
@@ -45,11 +45,10 @@ public class ColorSelectedFeatureSameLevelAction extends Action {
 
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
-		//updateSetColorActionText(COLOR_SELECTED_FEATURE_SAME_LEVEL);
+		updateSetColorActionText(COLOR_SELECTED_FEATURE_SAME_LEVEL);
 	}
 
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
-		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			//IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
