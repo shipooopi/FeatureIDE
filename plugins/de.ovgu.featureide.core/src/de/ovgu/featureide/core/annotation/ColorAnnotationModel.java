@@ -54,13 +54,15 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
-import de.ovgu.featureide.core.annotation.LogService.LogLevel;
 import de.ovgu.featureide.core.builder.IComposerExtensionClass;
 import de.ovgu.featureide.core.fstmodel.FSTFeature;
 import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
 import de.ovgu.featureide.core.fstmodel.preprocessor.FSTDirective;
 import de.ovgu.featureide.fm.core.ColorList;
+import de.ovgu.featureide.fm.core.annotation.ColorAnnotation;
+import de.ovgu.featureide.fm.core.annotation.LogService;
+import de.ovgu.featureide.fm.core.annotation.LogService.LogLevel;
 //import de.ovgu.featureide.ui.UIPlugin;
 
 /**

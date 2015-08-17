@@ -18,11 +18,9 @@
  *
  * See http://featureide.cs.ovgu.de/ for further information.
  */
-package de.ovgu.featureide.core.annotation;
+package de.ovgu.featureide.fm.core.annotation;
 
 /**
- * TODO description
- * 
  * @author Marcus Pinnecke
  */
 public class LogService {

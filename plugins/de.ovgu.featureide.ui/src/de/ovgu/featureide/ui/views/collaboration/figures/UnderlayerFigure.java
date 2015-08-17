@@ -22,8 +22,8 @@ package de.ovgu.featureide.ui.views.collaboration.figures;
 
 import org.eclipse.draw2d.Figure;
 
-import de.ovgu.featureide.core.annotation.ColorPalette;
 import de.ovgu.featureide.core.fstmodel.FSTFeature;
+import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.ui.views.collaboration.GUIDefaults;
 
 /**

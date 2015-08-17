@@ -18,7 +18,7 @@
  *
  * See http://featureide.cs.ovgu.de/ for further information.
  */
-package de.ovgu.featureide.core.annotation;
+package de.ovgu.featureide.fm.core.annotation;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.source.Annotation;

@@ -26,9 +26,9 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
 
-import de.ovgu.featureide.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.ui.views.collaboration.CollaborationView;
 
 /**
