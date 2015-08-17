@@ -59,11 +59,12 @@ public class FSTFeature {
 	
 	public int getColor() {
 //		if (model.getFeatureProject().getFeatureModel().getFeature(name).getColorList() != null){
-//		//Feature feature = model.getFeatureProject().getFeatureModel().getFeature(name);
-//		//	if(feature.getColorList() != null){
+//		Feature feature = model.getFeatureProject().getFeatureModel().getFeature(name);
+//			if(feature.getColorList() != null){
 //				 return model.getFeatureProject().getFeatureModel().getFeature(name).getColorList().getColor();
 //				
-//		PROBLEM BEI COLLABORATION VIEW REFRESH ACTION
+//Bug mit Nullpointer-Exeption in dieser Methode		
+//PROBLEM BEI COLLABORATION VIEW REFRESH ACTION
 //				
 //			}
 				return color;
