@@ -63,53 +63,8 @@ public class ColorSelectedFeatureAction extends Action {
 		public void selectionChanged(SelectionChangedEvent event) {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-			//			if (selection.isEmpty() == false) {
-			//
-			//				if (selection.size() == 1) {
-			//					Object editPart = selection.getFirstElement();
-			//					if (editPart instanceof FeatureEditPart) {
-			//						FeatureEditPart editP = (FeatureEditPart) editPart;
-			//						Feature f = editP.getFeature();
-			//						flist.add(f);
-			//						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 0, 0, 45));
-			//						System.out.println(f.getName());
-			//
-			//					}
-			//
-			//				}
-			//
-			//				else {
-			//					Object[] editPartArray = selection.toArray();
-			//
-			//					for (int i = 0; i < selection.size(); i++) {
-			//
-			//						Object editPart = editPartArray[i];
-			//						if (editPart instanceof FeatureEditPart) {
-			//							FeatureEditPart editP = (FeatureEditPart) editPart;
-			//
-			//							Feature f = editP.getFeature();
-			//
-			//							flist.add(f);
-			//							System.out.println(f.getName());
-			//
-			//							editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 10, 155, 45));
-			//						}
-			//					}
-			//
-			//				}
-			//
-			//				System.out.println("///" + flist.size());
-			//				// Übergabe der flist 
-			//				//return flist;
-			//				//flist.clear();
-			//			}
 		}
 	};
-
-	public ArrayList<Feature> getFeatureList() {
-
-		return flist;
-	}
 
 	/* (non-Javadoc)
 	 * @see de.ovgu.featureide.fm.ui.editors.featuremodel.actions.CreateConstraintAction#run()
