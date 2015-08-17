@@ -22,21 +22,16 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
@@ -60,17 +55,102 @@ public class ColorDia extends Dialog {
 
 	protected ColorDia(Shell parentShell) {
 		super(parentShell);
-		//setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
-		// TODO Auto-generated constructor stub
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
 	}
 
 	protected void configureShell(Shell newShell) {
+		newShell.setMinimumSize(new Point(600, 600));
 		super.configureShell(newShell);
 		newShell.setText("Color");
 	}
 
 	protected Point getInitialSize() {
 		return new Point(600, 600);
+	}
+
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Layout l = parent.getLayout();
+
+		Composite container = (Composite) super.createDialogArea(parent);
+		container.setBackground(new Color(parent.getDisplay(), 255, 255, 255));
+//		Composite container2 = (Composite) super.createDialogArea(parent);
+//		container2.setBackground(new Color(parent.getDisplay(), 240, 240, 240));
+		GridLayout gridLayout = (GridLayout) container.getLayout();
+		gridLayout.numColumns = 2;
+
+		GridData gridData = new GridData();
+
+//		gridData.verticalAlignment = GridData.BEGINNING;
+		gridData.horizontalSpan = 2;
+		gridData.verticalSpan = 5;
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.grabExcessVerticalSpace = true;
+
+		Button button1 = new Button(container, SWT.PUSH);
+		button1.setText("Oben");
+		button1.setLayoutData(gridData);
+
+		gridData = new GridData();
+		gridData.verticalSpan = 20;
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.grabExcessVerticalSpace = true;
+
+		final List list = new List(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+		list.setBackground(new Color(parent.getDisplay(), 240, 240, 240));
+		list.setLayoutData(gridData);
+
+		for (int i = 0; i < 50; i++) {
+			list.add("Item " + i);
+		}
+
+		gridData = new GridData();
+//		gridData.verticalSpan = 20;
+//		gridData.verticalAlignment = GridData.FILL;
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.grabExcessVerticalSpace = true;
+
+//		Button button2 = new Button(container, SWT.PUSH);
+//		button2.setLayoutData(gridData);
+		Button button01 = new Button(container, SWT.PUSH);
+		Button button02 = new Button(container, SWT.PUSH);
+		Button button03 = new Button(container, SWT.PUSH);
+		Button button04 = new Button(container, SWT.PUSH);
+		Button button05 = new Button(container, SWT.PUSH);
+		Button button06 = new Button(container, SWT.PUSH);
+		Button button07 = new Button(container, SWT.PUSH);
+		Button button08 = new Button(container, SWT.PUSH);
+		Button button09 = new Button(container, SWT.PUSH);
+		Button button010 = new Button(container, SWT.PUSH);
+		
+		button01.setText("Red");
+		button01.setLayoutData(gridData);
+		button02.setText("Orange");
+		button02.setLayoutData(gridData);
+		button03.setText("Yellow");
+		button03.setLayoutData(gridData);
+		button04.setText("Dark Green");
+		button04.setLayoutData(gridData);
+		button05.setText("Light Green");
+		button05.setLayoutData(gridData);
+		button06.setText("Cyan");
+		button06.setLayoutData(gridData);
+		button07.setText("Light Grey");
+		button07.setLayoutData(gridData);
+		button08.setText("Blue");
+		button08.setLayoutData(gridData);
+		button09.setText("Magenta");
+		button09.setLayoutData(gridData);
+		button010.setText("Pink");
+		button010.setLayoutData(gridData);
+
+		return parent;
+
 	}
 
 	protected void buttonPressed(int buttonId) {
@@ -89,82 +169,4 @@ public class ColorDia extends Dialog {
 		super.cancelPressed();
 	}
 
-	@Override
-	protected Control createDialogArea(Composite parent) {
-		Layout l = parent.getLayout();
-
-		Composite container = (Composite) super.createDialogArea(parent);
-		GridLayout gridLayout = (GridLayout) container.getLayout();
-		container.setBackground(new Color(parent.getDisplay(), 255, 255, 255));
-		gridLayout.numColumns = 2;
-		
-		/////
-		/////TO DO MONTAG LISTE FÜR FEATUEANZEIGE
-		/////
-//		final List list = new List (shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-//		for (int i=0; i<128; i++) list.add ("Item " + i);
-//		Rectangle clientArea = shell.getClientArea ();
-//		list.setBounds (clientArea.x, clientArea.y, 100, 100);
-//		list.addListener (SWT.Selection, new Listener () {
-//			@Override
-//			public void handleEvent (Event e) {
-//				String string = "";
-//				int [] selection = list.getSelectionIndices ();
-//				for (int i=0; i<selection.length; i++) string += selection [i] + " ";
-//				System.out.println ("Selection={" + string + "}");
-//			}
-//		});
-//		list.addListener (SWT.DefaultSelection, new Listener () {
-//			@Override
-//			public void handleEvent (Event e) {
-//				String string = "";
-//				int [] selection = list.getSelectionIndices ();
-//				for (int i=0; i<selection.length; i++) string += selection [i] + " ";
-//				System.out.println ("DefaultSelection={" + string + "}");
-//			}
-//		});
-//		shell.pack ();
-//		shell.open ();
-//		while (!shell.isDisposed ()) {
-//			if (!display.readAndDispatch ()) display.sleep ();
-//		}
-//		display.dispose ();
-//	}
-		
-		Button button1 = new Button(container, SWT.PUSH);
-		button1.setText("Oben");
-		GridData gridData = new GridData();
-
-		gridData.verticalAlignment = GridData.BEGINNING;
-		gridData.horizontalSpan = 2;
-		gridData.verticalSpan = 5;
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.grabExcessVerticalSpace = true;
-		button1.setLayoutData(gridData);
-
-		Button button3 = new Button(container, SWT.PUSH);
-		button3.setText("Links unten");
-		gridData = new GridData();
-		gridData.verticalSpan = 20;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.grabExcessVerticalSpace = true;
-		button3.setLayoutData(gridData);
-
-		Button button2 = new Button(container, SWT.PUSH);
-		button2.setText("Rechts unten");
-		gridData = new GridData();
-		gridData.verticalSpan = 20;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		gridData.grabExcessVerticalSpace = true;
-		button2.setLayoutData(gridData);
-
-		return parent;
-
-	}
 }

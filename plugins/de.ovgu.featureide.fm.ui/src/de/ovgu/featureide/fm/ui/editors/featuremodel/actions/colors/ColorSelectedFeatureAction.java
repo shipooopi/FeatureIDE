@@ -22,19 +22,27 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE;
 
+import java.util.ArrayList;
+
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureAction extends Action {
 
 	protected String selectedFeature;
 	final Shell shell = new Shell();
-	
+	public ArrayList<Feature> flist = new ArrayList<Feature>();
+
 	protected void updateSetColorActionText(String menuname) {
 		super.setText(menuname);
 	}
@@ -50,19 +58,64 @@ public class ColorSelectedFeatureAction extends Action {
 		updateSetColorActionText(COLOR_SELECTED_FEATURE);
 	}
 
-	private ISelectionChangedListener listener = new ISelectionChangedListener() {
+	public ISelectionChangedListener listener = new ISelectionChangedListener() {
+		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
-			//IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
+			//			if (selection.isEmpty() == false) {
+			//
+			//				if (selection.size() == 1) {
+			//					Object editPart = selection.getFirstElement();
+			//					if (editPart instanceof FeatureEditPart) {
+			//						FeatureEditPart editP = (FeatureEditPart) editPart;
+			//						Feature f = editP.getFeature();
+			//						flist.add(f);
+			//						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 0, 0, 45));
+			//						System.out.println(f.getName());
+			//
+			//					}
+			//
+			//				}
+			//
+			//				else {
+			//					Object[] editPartArray = selection.toArray();
+			//
+			//					for (int i = 0; i < selection.size(); i++) {
+			//
+			//						Object editPart = editPartArray[i];
+			//						if (editPart instanceof FeatureEditPart) {
+			//							FeatureEditPart editP = (FeatureEditPart) editPart;
+			//
+			//							Feature f = editP.getFeature();
+			//
+			//							flist.add(f);
+			//							System.out.println(f.getName());
+			//
+			//							editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 10, 155, 45));
+			//						}
+			//					}
+			//
+			//				}
+			//
+			//				System.out.println("///" + flist.size());
+			//				// Übergabe der flist 
+			//				//return flist;
+			//				//flist.clear();
+			//			}
 		}
-
 	};
+
+	public ArrayList<Feature> getFeatureList() {
+
+		return flist;
+	}
 
 	/* (non-Javadoc)
 	 * @see de.ovgu.featureide.fm.ui.editors.featuremodel.actions.CreateConstraintAction#run()
 	 */
 	@Override
-	public void run() {		
+	public void run() {
 		ColorDia dialog = new ColorDia(shell);
 		dialog.open();
 	}
