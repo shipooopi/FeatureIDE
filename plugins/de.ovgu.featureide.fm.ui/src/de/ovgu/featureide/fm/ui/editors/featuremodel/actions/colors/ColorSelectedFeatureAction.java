@@ -26,14 +26,15 @@ import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.swt.widgets.Shell;
 
 import de.ovgu.featureide.fm.core.FeatureModel;
-import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors.ColorDialog;
 
 public class ColorSelectedFeatureAction extends Action {
 
 	protected String selectedFeature;
-
+	final Shell shell = new Shell();
+	
 	protected void updateSetColorActionText(String menuname) {
 		super.setText(menuname);
 	}
@@ -61,8 +62,8 @@ public class ColorSelectedFeatureAction extends Action {
 	 * @see de.ovgu.featureide.fm.ui.editors.featuremodel.actions.CreateConstraintAction#run()
 	 */
 	@Override
-	public void run() {
-		ColorDialog dialog = new ColorDialog(null);
+	public void run() {		
+		ColorDia dialog = new ColorDia(shell);
 		dialog.open();
 	}
 }
