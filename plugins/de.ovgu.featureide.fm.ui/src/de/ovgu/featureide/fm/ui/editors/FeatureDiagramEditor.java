@@ -361,7 +361,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 		subMenuCalculations.add(new TautologyContraintsCalculationsAction(this, getFeatureModel()));
 
 		IMenuManager subMenuColors = new MenuManager("Color");
-		subMenuColors.add(new ColorSelectedFeatureAction(this, getFeatureModel()));
+		subMenuColors.add(colorSelectedFeatureAction);
 		subMenuColors.add(new ColorSelectedFeatureChildrenAction(this, getFeatureModel()));
 		subMenuColors.add(new ColorSelectedFeatureSameLevelAction(this, getFeatureModel()));
 		showHiddenFeaturesAction.setChecked(getFeatureModel().getLayout().showHiddenFeatures());
