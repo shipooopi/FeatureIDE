@@ -20,18 +20,21 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
-import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE_CHILDREN;
+//import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE_CHILDREN;
 
+import org.eclipse.gef.ui.parts.AbstractEditPartViewer;
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.Viewer;
 
 import de.ovgu.featureide.fm.core.FeatureModel;
 
 public class ColorSelectedFeatureChildrenAction extends Action {
 
 	protected String selectedFeature;
+	private Viewer viewer;
 
 	protected void updateSetColorActionText(String featureName) {
 		super.setText(featureName);
@@ -45,10 +48,11 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
-		updateSetColorActionText(COLOR_SELECTED_FEATURE_CHILDREN);
+		updateSetColorActionText("Color");
 	}
 
 	private ISelectionChangedListener listener = new ISelectionChangedListener() {
+		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			//IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
@@ -61,6 +65,8 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 	 */
 	@Override
 	public void run() {
+		//ColorDialog dialog = new ColorDialog(viewer.getControl().getShell());
+		//dialog.open();
 
 	}
 
