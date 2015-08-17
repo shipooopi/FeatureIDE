@@ -20,6 +20,8 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
+import java.util.ArrayList;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
@@ -32,8 +34,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
+
+import de.ovgu.featureide.fm.core.Feature;
 
 /**
  * The purpose of this dialog is to display the content of a 'normal' {@link TreeViewer} in a {@link CheckboxTreeViewer} to select some of it's
@@ -51,9 +56,11 @@ public class ColorDia extends Dialog {
 	 */
 
 	final Shell shell = new Shell();
+	ArrayList <Feature> flist;
 
-	protected ColorDia(Shell parentShell) {
+	protected ColorDia(Shell parentShell, ArrayList<Feature> flist) {
 		super(parentShell);
+		this.flist = flist;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
 	}
 
@@ -69,6 +76,8 @@ public class ColorDia extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		Layout l = parent.getLayout();
+
 		Composite container = (Composite) super.createDialogArea(parent);
 		container.setBackground(new Color(parent.getDisplay(), 255, 255, 255));
 //		Composite container2 = (Composite) super.createDialogArea(parent);
@@ -101,9 +110,13 @@ public class ColorDia extends Dialog {
 		list.setBackground(new Color(parent.getDisplay(), 240, 240, 240));
 		list.setLayoutData(gridData);
 
-		for (int i = 0; i < 50; i++) {
-			list.add("Item " + i);
+		
+		for (Feature currFeature : flist) {
+			list.add(currFeature.getName());
 		}
+//		for (int i = 0; i < 50; i++) {
+//			list.add("Item " + i);
+//		}
 
 		gridData = new GridData();
 //		gridData.verticalSpan = 20;
@@ -156,6 +169,12 @@ public class ColorDia extends Dialog {
 		} else if (IDialogConstants.CANCEL_ID == buttonId) {
 			cancelPressed();
 		}
+	}
+	
+	public void setfList (){
+		
+		
+		
 	}
 
 	protected void okPressed() {

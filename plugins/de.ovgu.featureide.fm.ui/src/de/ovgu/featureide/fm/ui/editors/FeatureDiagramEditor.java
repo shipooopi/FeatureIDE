@@ -29,6 +29,7 @@ import static de.ovgu.featureide.fm.core.localization.StringTable.SET_CALCULATIO
 import static de.ovgu.featureide.fm.core.localization.StringTable.SET_LAYOUT;
 import static de.ovgu.featureide.fm.core.localization.StringTable.SET_NAME_TYPE;
 import static de.ovgu.featureide.fm.core.localization.StringTable.UPDATING_FEATURE_MODEL_ATTRIBUTES;
+import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -133,6 +134,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 
 	private static final String PAGE_TEXT = FEATURE_DIAGRAM;
 	private static final String ID = FMUIPlugin.PLUGIN_ID + ".editors.FeatureDiagramEditor";
+	private static final String COLOR_TYPE = null;
 
 	private FeatureModelEditor featureModelEditor;
 	private ZoomManager zoomManager;
@@ -360,8 +362,8 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 
 		IMenuManager subMenuColors = new MenuManager("Color");
 		subMenuColors.add(colorSelectedFeatureAction);
-		subMenuColors.add(colorSelectedFeatureChildrenAction);
-		subMenuColors.add(colorSelectedFeatureSameLevelAction);
+		subMenuColors.add(new ColorSelectedFeatureChildrenAction(this, getFeatureModel()));
+		subMenuColors.add(new ColorSelectedFeatureSameLevelAction(this, getFeatureModel()));
 		showHiddenFeaturesAction.setChecked(getFeatureModel().getLayout().showHiddenFeatures());
 
 		final IMenuManager subMenuLayout = new MenuManager(SET_LAYOUT);
