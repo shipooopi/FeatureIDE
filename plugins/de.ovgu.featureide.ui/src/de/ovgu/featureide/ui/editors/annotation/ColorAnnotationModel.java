@@ -56,6 +56,7 @@ import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.core.builder.IComposerExtensionClass;
 import de.ovgu.featureide.core.fstmodel.FSTFeature;
+import de.ovgu.featureide.core.fstmodel.FSTMethod;
 import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
 import de.ovgu.featureide.core.fstmodel.preprocessor.FSTDirective;
@@ -155,6 +156,9 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 					IFeatureProject project = CorePlugin.getFeatureProject(file);
 					//TODO Jonas, Christian
 					if (project != null && project.getComposer() != null && project.getComposer().needColor()) {
+						if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){
+							//
+						}
 						IDocument document = provider.getDocument(input);
 						colormodel = new ColorAnnotationModel(document, file, project, editor);
 						modelex.addAnnotationModel(KEY, colormodel);
@@ -241,6 +245,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 	 * @param createNew
 	 *            true: builds new FSTModel
 	 *            false: only gets new FSTDirectives
+	  
 	 */
 	private void updateAnnotations(boolean createNew) {
 		if (!annotations.isEmpty()) {
@@ -248,13 +253,30 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		}
 		if (createNew) {
 			annotatedPositions = new HashMap<Integer, Position>(docLines);
+			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){//our FeatureHouseComposerAnnotations
+				try {
+					createFeatureHouseAnnotations();
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				}
+			else {
 			createDirectiveList();
 			createAnnotations();
+			}
 		} else if (!directiveMap.isEmpty()) {
 			annotatedPositions.clear();
 			updateDirectives();
 			createAnnotations();
 		}
+		if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){
+		try {
+			createFeatureHouseAnnotations();
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}}
 	}
 
 	/**
@@ -287,11 +309,10 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		if (model == null) {
 			return;
 		}
-
 		int index = 0;
 		for (FSTFeature fstFeature : model.getFeatures()) {
 			for (FSTRole role : fstFeature.getRoles()) {
-				if (file.equals(role.getFile())) {
+						if (file.equals(role.getFile())) {
 					for (FSTDirective dir : role.getDirectives()) {
 						directiveMap.put(dir.getId(), dir);
 						index++;
@@ -354,21 +375,82 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		return composer.buildModelDirectivesForFile(lines);
 	}
 
+	
+	private void createFeatureHouseAnnotations() throws BadLocationException{
+		AnnotationModelEvent event = new AnnotationModelEvent(this);
+		//		//schadcode für dienstag
+		FSTModel model = project.getFSTModel();
+		if (model == null) {
+			composer.buildFSTModel();
+			model = project.getFSTModel();
+		}
+		if (model == null) {
+			return;
+		}
+		
+		for (FSTFeature fstFeature : model.getFeatures()) {
+			for (FSTRole role : fstFeature.getRoles()) {
+				
+				for (FSTMethod mymethod : role.getAllMethods()){
+					
+					int startline = mymethod.getComposedLine();
+					int endline = mymethod.getComposedLine()+1;
+					
+					for (int line = startline; line < endline; line++){
+						if (line < endline || endline > 0){
+							int length = document.getLineLength(line); //zeichenlänge
+							int lineOffset = document.getLineOffset(line); //zeichenoffset 
+							if (line == endline){
+								length = document.getLineLength(endline);
+							}
+							if (line == startline){
+								lineOffset += mymethod.getStartLineOfContract();
+								length -= mymethod.getStartLineOfContract();
+							}
+							
+							
+//							Position position = new Position (lineOffset, length);
+							// eier des kolumbus suchen composed line
+							Position position = new Position (0, document.getLength());
+							
+//							if (mymethod.refines()){
+								ColorAnnotation cafh = new ColorAnnotation(fstFeature.getColor(), position, ColorAnnotation.TYPE_IMAGE);
+								
+								cafh.setText(fstFeature.getName());
+								annotations.add(cafh);
+								event.annotationAdded(cafh);						
+//							}
+							if (highlighting) {
+								// background colors
+								ColorAnnotation cafhh = new ColorAnnotation(fstFeature.getColor(), position, ColorAnnotation.TYPE_HIGHLIGHT);
+								cafhh.setText(fstFeature.getName());
+								annotations.add(cafhh);
+								event.annotationAdded(cafhh);
+							}
+						}
+						
+						
+						
+						
+
+					}
+					
+		
+					
+					
+				}
+				}
+
+			}
+		
+}
 	/**
 	 * Creates the color annotations from the FSTDirectives.
 	 */
 	private void createAnnotations() {
-		//schadcode für dienstag
-		boolean b = false;
-		if (b) {
-			Position newPoss = new Position(0, 10);
-			ColorAnnotation caa = new ColorAnnotation(3, newPoss, ColorAnnotation.TYPE_IMAGE);
-			caa.setText("sdrf");
-			annotations.add(caa);
-		}
-
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
-
+		
+		
 		for (FSTDirective directive : validDirectiveList) {
 			if (directive == null) {
 				continue;

@@ -60,14 +60,13 @@ public class FSTFeature {
 	}
 	
 	public int getColor() {
-		//ei des kolumbus
 		if (model != null  && model.getFeatureProject().getFeatureModel().getFeature(name).getColorList() != null){
 			Feature feature = model.getFeatureProject().getFeatureModel().getFeature(name);
 			if(feature.getColorList() != null){
 				 return model.getFeatureProject().getFeatureModel().getFeature(name).getColorList().getColor();
 			}
 		}
-		return -1;
+		return color;
 
 	}
 
