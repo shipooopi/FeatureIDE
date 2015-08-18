@@ -61,7 +61,6 @@ import AST.Problem;
 import AST.Program;
 import cide.gparser.ParseException;
 import cide.gparser.TokenMgrError;
-
 import composer.CmdLineInterpreter;
 import composer.CompositionException;
 import composer.FSTGenComposer;
@@ -69,7 +68,6 @@ import composer.FSTGenComposerExtension;
 import composer.ICompositionErrorListener;
 import composer.IParseErrorListener;
 import composer.rules.meta.FeatureModelInfo;
-
 import de.ovgu.cide.fstgen.ast.FSTNode;
 import de.ovgu.cide.fstgen.ast.FSTTerminal;
 import de.ovgu.featureide.core.IFeatureProject;
@@ -1265,4 +1263,9 @@ public class FeatureHouseComposer extends ComposerExtensionClass {
 		}
 		return super.getComposerObjectInstance(c);
 	}
+	@Override
+	public boolean needColor() {
+		return true;
+	}
+
 }

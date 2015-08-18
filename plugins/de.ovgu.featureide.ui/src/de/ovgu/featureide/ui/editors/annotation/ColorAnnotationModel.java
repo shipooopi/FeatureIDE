@@ -358,6 +358,15 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 	 * Creates the color annotations from the FSTDirectives.
 	 */
 	private void createAnnotations() {
+		//schadcode für dienstag
+		boolean b = false;
+		if (b) {
+			Position newPoss = new Position(0, 10);
+			ColorAnnotation caa = new ColorAnnotation(3, newPoss, ColorAnnotation.TYPE_IMAGE);
+			caa.setText("sdrf");
+			annotations.add(caa);
+		}
+
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
 
 		for (FSTDirective directive : validDirectiveList) {
