@@ -56,11 +56,13 @@ public class ColorDia extends Dialog {
 	 */
 
 	final Shell shell = new Shell();
-	ArrayList <Feature> flist;
+	ArrayList<Feature> oldflist;
+	ArrayList<Feature> tempflist;
 
 	protected ColorDia(Shell parentShell, ArrayList<Feature> flist) {
 		super(parentShell);
-		this.flist = flist;
+		this.oldflist = flist;
+		this.tempflist = flist;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
 	}
 
@@ -80,14 +82,14 @@ public class ColorDia extends Dialog {
 
 		Composite container = (Composite) super.createDialogArea(parent);
 		container.setBackground(new Color(parent.getDisplay(), 255, 255, 255));
-//		Composite container2 = (Composite) super.createDialogArea(parent);
-//		container2.setBackground(new Color(parent.getDisplay(), 240, 240, 240));
+		//		Composite container2 = (Composite) super.createDialogArea(parent);
+		//		container2.setBackground(new Color(parent.getDisplay(), 240, 240, 240));
 		GridLayout gridLayout = (GridLayout) container.getLayout();
 		gridLayout.numColumns = 2;
 
 		GridData gridData = new GridData();
 
-//		gridData.verticalAlignment = GridData.BEGINNING;
+		//		gridData.verticalAlignment = GridData.BEGINNING;
 		gridData.horizontalSpan = 2;
 		gridData.verticalSpan = 5;
 		gridData.horizontalAlignment = GridData.FILL;
@@ -110,23 +112,22 @@ public class ColorDia extends Dialog {
 		list.setBackground(new Color(parent.getDisplay(), 240, 240, 240));
 		list.setLayoutData(gridData);
 
-		
-		for (Feature currFeature : flist) {
+		for (Feature currFeature : oldflist) {
 			list.add(currFeature.getName());
 		}
-//		for (int i = 0; i < 50; i++) {
-//			list.add("Item " + i);
-//		}
+		//		for (int i = 0; i < 50; i++) {
+		//			list.add("Item " + i);
+		//		}
 
 		gridData = new GridData();
-//		gridData.verticalSpan = 20;
-//		gridData.verticalAlignment = GridData.FILL;
+		//		gridData.verticalSpan = 20;
+		//		gridData.verticalAlignment = GridData.FILL;
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 
-//		Button button2 = new Button(container, SWT.PUSH);
-//		button2.setLayoutData(gridData);
+		//		Button button2 = new Button(container, SWT.PUSH);
+		//		button2.setLayoutData(gridData);
 		Button button01 = new Button(container, SWT.PUSH);
 		Button button02 = new Button(container, SWT.PUSH);
 		Button button03 = new Button(container, SWT.PUSH);
@@ -137,7 +138,7 @@ public class ColorDia extends Dialog {
 		Button button08 = new Button(container, SWT.PUSH);
 		Button button09 = new Button(container, SWT.PUSH);
 		Button button010 = new Button(container, SWT.PUSH);
-		
+
 		button01.setText("Red");
 		button01.setLayoutData(gridData);
 		button02.setText("Orange");
@@ -169,12 +170,6 @@ public class ColorDia extends Dialog {
 		} else if (IDialogConstants.CANCEL_ID == buttonId) {
 			cancelPressed();
 		}
-	}
-	
-	public void setfList (){
-		
-		
-		
 	}
 
 	protected void okPressed() {
