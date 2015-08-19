@@ -362,8 +362,9 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 
 		IMenuManager subMenuColors = new MenuManager("Color");
 		subMenuColors.add(colorSelectedFeatureAction);
-		subMenuColors.add(new ColorSelectedFeatureChildrenAction(this, getFeatureModel()));
-		subMenuColors.add(new ColorSelectedFeatureSameLevelAction(this, getFeatureModel()));
+		subMenuColors.add(colorSelectedFeatureChildrenAction);
+		subMenuColors.add(colorSelectedFeatureSameLevelAction);
+
 		showHiddenFeaturesAction.setChecked(getFeatureModel().getLayout().showHiddenFeatures());
 
 		final IMenuManager subMenuLayout = new MenuManager(SET_LAYOUT);
