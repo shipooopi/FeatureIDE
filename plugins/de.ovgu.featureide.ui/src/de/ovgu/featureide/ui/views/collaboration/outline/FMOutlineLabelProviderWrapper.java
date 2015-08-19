@@ -68,6 +68,7 @@ public class FMOutlineLabelProviderWrapper extends OutlineLabelProvider {
 
 	@Override
 	public void colorizeItems(TreeItem[] treeItems, IFile file) {
+		prov.colorizeItems(treeItems, file);
 	}
 
 	@Override

@@ -20,11 +20,14 @@
  */
 package de.ovgu.featureide.fm.ui.views.outline;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.TreeItem;
 import org.prop4j.NodeWriter;
 
 import de.ovgu.featureide.fm.core.Constraint;
@@ -38,7 +41,7 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
  * @author Jan Wedding
  * @author Melanie Pflaume
  */
-public class FmLabelProvider implements ILabelProvider,IFontProvider, GUIDefaults {
+public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaults {
 
 	/*
 	 * (non-Javadoc)
@@ -83,6 +86,12 @@ public class FmLabelProvider implements ILabelProvider,IFontProvider, GUIDefault
 	public void removeListener(ILabelProviderListener listener) {
 	}
 
+	public void colorizeItems(TreeItem[] treeItems, IFile file) {
+		if (treeItems != null && treeItems.length > 0) {
+			treeItems[1].setBackground(new Color(null, 100, 100,100));
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -95,11 +104,9 @@ public class FmLabelProvider implements ILabelProvider,IFontProvider, GUIDefault
 				return null; // TODO: Add here icon for feature model
 			if (((Feature) element).getParent().isAlternative()) {
 				return IMG_XOR;
-			}
-			else if (((Feature) element).getParent().isOr()) {
+			} else if (((Feature) element).getParent().isOr()) {
 				return IMG_OR;
-			}
-			else if (((Feature) element).isMandatory()) {
+			} else if (((Feature) element).isMandatory()) {
 				return IMG_MANDATORY;
 			} else {
 				return IMG_OPTIONAL;
@@ -108,9 +115,9 @@ public class FmLabelProvider implements ILabelProvider,IFontProvider, GUIDefault
 			return null; // TODO: Add here icon for "constraint" node
 		} else if (element instanceof Constraint) {
 			return null; // TODO: Add here icon for CONSTRAINT_ELEMENT node
-		} else return null;
+		} else
+			return null;
 	}
-	
 
 	/*
 	 * (non-Javadoc)
@@ -125,11 +132,9 @@ public class FmLabelProvider implements ILabelProvider,IFontProvider, GUIDefault
 			return ((Constraint) element).getNode().toString(NodeWriter.logicalSymbols);
 		else if (element instanceof FmOutlineGroupStateStorage)
 			return "";
-	
+
 		return element.toString();
 	}
-
-
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)

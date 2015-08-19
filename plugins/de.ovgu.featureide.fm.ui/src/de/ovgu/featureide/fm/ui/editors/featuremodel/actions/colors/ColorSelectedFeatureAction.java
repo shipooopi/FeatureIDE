@@ -20,6 +20,8 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
+import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE;
+
 import java.util.ArrayList;
 
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
@@ -27,7 +29,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -38,14 +40,15 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureAction extends Action {
 
+	FeatureEditPart editPart = null;
 	public FeatureModel fm;
-	private Viewer viewer;
-	protected ArrayList<Feature> flist = new ArrayList<Feature>();
+	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
+	protected ArrayList<FeatureEditPart> featureEditPartList = new ArrayList<FeatureEditPart>();
 	final Shell shell = new Shell();
 
-	//	protected void updateSetColorActionText(String menuname) {
-	//		super.setText(menuname);
-	//	}
+	protected void updateSetColorActionText(String menuname) {
+		super.setText(menuname);
+	}
 
 	/**
 	 * @param viewer
@@ -54,77 +57,94 @@ public class ColorSelectedFeatureAction extends Action {
 	public ColorSelectedFeatureAction(Object viewer, FeatureModel featuremodel) {
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
+		updateSetColorActionText(COLOR_SELECTED_FEATURE);
 
 	}
-	
-	
 
 	public ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 
-			updateFeatureList(selection); 			
+			updateFeatureList(selection);
 		}
 	};
 
-	public ArrayList<Feature> updateFeatureList(IStructuredSelection selection) {
+	public void updateFeatureList(IStructuredSelection selection) {
 
-//		flist.add(f);
-//		System.out.println("featname" + f.getName());
-//		System.out.println("listengröße" + flist.size());
-		
 		if (!selection.isEmpty()) {
 
-			if (selection.size() == 1) {
-				Object editPart = selection.getFirstElement();
+			Object[] editPartArray = selection.toArray();
+
+			for (int i = 0; i < selection.size(); i++) {
+
+				Object editPart = editPartArray[i];
 				if (editPart instanceof FeatureEditPart) {
 					FeatureEditPart editP = (FeatureEditPart) editPart;
 					Feature f = editP.getFeature();
-					flist.add(f);
-					editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 0, 0, 45));
+					if (!featureList.contains(f) && !featureEditPartList.contains(editP))
 
-				}
-
-			}
-
-			else {
-				Object[] editPartArray = selection.toArray();
-
-				for (int i = 0; i < selection.size(); i++) {
-
-					Object editPart = editPartArray[i];
-					if (editPart instanceof FeatureEditPart) {
-						FeatureEditPart editP = (FeatureEditPart) editPart;
-
-						Feature f = editP.getFeature();
-
-						flist.add(f);
-
-						//f.getColorList().setColor(color);
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 10, 155, 45));
+					{
+						featureEditPartList.add(editP);
+						featureList.add(f);
 					}
 				}
-
 			}
 
-			// Übergabe der flist 
-			//return flist;
-			//flist.clear();
 		}
-		return flist;
-		
+		return;
 	}
-	
-	
 
 	@Override
 	public void run() {
-		
-		ColorDia dialog = new ColorDia(shell, this.flist);
-		flist.clear();
-		dialog.open();
 
+		ColorDia dialog = new ColorDia(shell, this.featureList, this.fm);
+		int returnstat = dialog.open();
+
+		if (Window.OK == returnstat) {
+			for (FeatureEditPart editP : featureEditPartList) {
+
+				int col = editP.getFeature().getColorList().getColor();
+				if (col != -1 && !featureEditPartList.isEmpty()) {
+
+					switch (col) {
+
+					case 0:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 175, 177));
+						break;//red
+					case 1:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 216, 166));
+						break;//orange
+					case 2:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 237, 255, 166));
+						break;//yellow
+					case 3:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 164, 228, 148));
+						break;//darkgreen
+					case 4:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 166, 255, 201));
+						break;//lightgreen
+					case 5:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 163, 251, 251));
+						break;//cyan
+					case 6:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 228, 228, 228));
+						break;//light grey
+					case 7:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 164, 148, 228));
+						break;//blue
+					case 8:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 240, 166, 255));
+						break;//magenta
+					case 9:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 228, 148, 194));
+						break;//pink
+					}
+				}
+			}
+		}
+		featureList.clear();
+		featureEditPartList.clear();
 	}
 
 }

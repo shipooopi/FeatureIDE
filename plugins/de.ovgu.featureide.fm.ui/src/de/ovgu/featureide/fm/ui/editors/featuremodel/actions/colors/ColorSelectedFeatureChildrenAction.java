@@ -22,19 +22,33 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE_CHILDREN;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
+import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureChildrenAction extends Action {
 
-	protected String selectedFeature;
+	FeatureEditPart editPart = null;
+	public FeatureModel fm;
+	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
+	protected ArrayList<FeatureEditPart> featureEditPartList = new ArrayList<FeatureEditPart>();
+	final Shell shell = new Shell();
 
-	protected void updateSetColorActionText(String featureName) {
-		super.setText(featureName);
+	protected void updateSetColorActionText(String menuname) {
+		super.setText(menuname);
 	}
 
 	/**
@@ -42,26 +56,120 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 	 * @param featuremodel
 	 */
 	public ColorSelectedFeatureChildrenAction(Object viewer, FeatureModel featuremodel) {
-
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
 		updateSetColorActionText(COLOR_SELECTED_FEATURE_CHILDREN);
+
 	}
 
-	private ISelectionChangedListener listener = new ISelectionChangedListener() {
+	public ISelectionChangedListener listener = new ISelectionChangedListener() {
+		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
-			//IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+
+			updateFeatureList(selection);
+		}
+	};
+
+	public void updateFeatureList(IStructuredSelection selection) {
+
+		if (!selection.isEmpty()) {
+
+			Object[] editPartArray = selection.toArray();
+
+			for (int i = 0; i < selection.size(); i++) {
+
+				Object editPart = editPartArray[i];
+				if (editPart instanceof FeatureEditPart) {
+					FeatureEditPart editP = (FeatureEditPart) editPart;
+					Feature f = editP.getFeature();
+					if (!featureList.contains(f) && !featureEditPartList.contains(editP))
+
+					{
+						featureEditPartList.add(editP);
+						featureList.add(f);
+					}
+				}
+			}
+
+		}
+		addChildren();
+		return;
+	}
+
+	public void addChildren() {
+
+		for (int i = 0; i < featureList.size(); i++) {
+			Feature f = featureList.get(i);
+
+			if (f.hasChildren()) {
+				LinkedList<Feature> childrenList = f.getChildren();
+				for (int j = 0; j < childrenList.size(); j++) {
+					Feature child = childrenList.get(j);
+
+					if (!featureList.contains(child)) {
+						featureList.add(child);
+
+					}
+
+				}
+
+			}
 
 		}
 
-	};
+	}
 
-	/* (non-Javadoc)
-	 * @see de.ovgu.featureide.fm.ui.editors.featuremodel.actions.CreateConstraintAction#run()
-	 */
 	@Override
 	public void run() {
 
+		ColorDia dialog = new ColorDia(shell, this.featureList, this.fm);
+		int returnstat = dialog.open();
+
+		if (Window.OK == returnstat) {
+			for (FeatureEditPart editP : featureEditPartList) {
+
+				int col = editP.getFeature().getColorList().getColor();
+				if (col != -1 && !featureEditPartList.isEmpty()) {
+
+					switch (col) {
+
+					case 0:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 175, 177));
+						break;//red
+					case 1:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 216, 166));
+						break;//orange
+					case 2:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 237, 255, 166));
+						break;//yellow
+					case 3:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 164, 228, 148));
+						break;//darkgreen
+					case 4:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 166, 255, 201));
+						break;//lightgreen
+					case 5:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 163, 251, 251));
+						break;//cyan
+					case 6:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 228, 228, 228));
+						break;//light grey
+					case 7:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 164, 148, 228));
+						break;//blue
+					case 8:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 240, 166, 255));
+						break;//magenta
+					case 9:
+						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 228, 148, 194));
+						break;//pink
+					}
+				}
+			}
+		}
+		featureList.clear();
+		featureEditPartList.clear();
 	}
 
 }
