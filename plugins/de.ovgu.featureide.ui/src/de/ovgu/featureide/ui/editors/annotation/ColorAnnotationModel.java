@@ -265,18 +265,21 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 			createDirectiveList();
 			createAnnotations();
 			}
-		} else if (!directiveMap.isEmpty()) {
+		} else{
+			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){
+				try {
+					createFeatureHouseAnnotations();
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}}
+		if (!directiveMap.isEmpty()) {
 			annotatedPositions.clear();
 			updateDirectives();
 			createAnnotations();
 		}
-		if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){
-		try {
-			createFeatureHouseAnnotations();
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}}
+	
+		}
 	}
 
 	/**
@@ -378,7 +381,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 	
 	private void createFeatureHouseAnnotations() throws BadLocationException{
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
-		//		//schadcode für dienstag
+		//schadcode für dienstag
 		FSTModel model = project.getFSTModel();
 		if (model == null) {
 			composer.buildFSTModel();
@@ -393,40 +396,49 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 				
 				for (FSTMethod mymethod : role.getAllMethods()){
 					
-					int startline = mymethod.getComposedLine();
-					int endline = mymethod.getComposedLine()+1;
 					
-					for (int line = startline; line < endline; line++){
-						if (line < endline || endline > 0){
-							int length = document.getLineLength(line); //zeichenlänge
-							int lineOffset = document.getLineOffset(line); //zeichenoffset 
-							if (line == endline){
-								length = document.getLineLength(endline);
-							}
-							if (line == startline){
-								lineOffset += mymethod.getStartLineOfContract();
-								length -= mymethod.getStartLineOfContract();
-							}
-							
+					if (file.getFullPath().toString().contains(fstFeature.getName()) && file.getFullPath().toString().contains("features")){
+						for ( int line = 0; line < document.getNumberOfLines(); line++){
+						ColorAnnotation cafh = new ColorAnnotation(fstFeature.getColor(), new Position (line, 1), ColorAnnotation.TYPE_IMAGE);
+						cafh.setText(fstFeature.getName());
+						annotations.add(cafh);
+						event.annotationAdded(cafh);	
+						}
+//					}
+					if (highlighting) {
+						// background colors
+						Position position = new Position(0,document.getLength());
+						ColorAnnotation cafhh = new ColorAnnotation(fstFeature.getColor(), position, ColorAnnotation.TYPE_HIGHLIGHT);
+						cafhh.setText(fstFeature.getName());
+						annotations.add(cafhh);
+						event.annotationAdded(cafhh);
+					}
+						
+					}
+					
+					if (file.getFullPath().toString().contains("src")){
+					
+					}
+//					int startline = mymethod.getComposedLine();
+//					int endline = mymethod.getComposedLine()+1;
+//					
+//					for (int line = startline; line < endline; line++){
+//						if (line < endline || endline > 0){
+//							int length = document.getLineLength(line); //zeichenlänge
+//							int lineOffset = document.getLineOffset(line); //zeichenoffset 
+//							if (line == endline){
+//								length = document.getLineLength(endline);
+//							}
+//							if (line == startline){
+//								lineOffset += mymethod.getStartLineOfContract();
+//								length -= mymethod.getStartLineOfContract();
+//							}
+//							
 							
 //							Position position = new Position (lineOffset, length);
 							// eier des kolumbus suchen composed line
-							Position position = new Position (0, document.getLength());
-							
-//							if (mymethod.refines()){
-								ColorAnnotation cafh = new ColorAnnotation(fstFeature.getColor(), position, ColorAnnotation.TYPE_IMAGE);
-								
-								cafh.setText(fstFeature.getName());
-								annotations.add(cafh);
-								event.annotationAdded(cafh);						
-//							}
-							if (highlighting) {
-								// background colors
-								ColorAnnotation cafhh = new ColorAnnotation(fstFeature.getColor(), position, ColorAnnotation.TYPE_HIGHLIGHT);
-								cafhh.setText(fstFeature.getName());
-								annotations.add(cafhh);
-								event.annotationAdded(cafhh);
-							}
+
+
 						}
 						
 						
@@ -435,15 +447,10 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 
 					}
 					
-		
-					
-					
 				}
 				}
 
-			}
-		
-}
+	
 	/**
 	 * Creates the color annotations from the FSTDirectives.
 	 */
