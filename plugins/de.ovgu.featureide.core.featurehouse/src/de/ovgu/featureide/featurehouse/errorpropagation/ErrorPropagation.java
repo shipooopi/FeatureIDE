@@ -72,7 +72,7 @@ public abstract class ErrorPropagation {
 	 */
 	public final Job job;
 
-	public boolean force = false;
+	public boolean force = false; //FOP Composed Lines
 
 	/**
 	 * Propagates error markers for composed files to sources files.<br>
@@ -141,6 +141,10 @@ public abstract class ErrorPropagation {
 
 			if (job.getState() == Job.NONE) {
 				job.schedule();
+				/*
+				 * waiting to get the job done (FOP only) 
+				 * used for ComposedLines
+				 */
 				if(force){
 					while(job.getState() != Job.NONE){
 						try {

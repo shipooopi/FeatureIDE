@@ -154,7 +154,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 				if (colormodel == null) {
 					IFile file = ((FileEditorInput) input).getFile();
 					IFeatureProject project = CorePlugin.getFeatureProject(file);
-					
+
 					if (project != null && project.getComposer() != null && project.getComposer().needColor()) {
 						IDocument document = provider.getDocument(input);
 						colormodel = new ColorAnnotationModel(document, file, project, editor);
@@ -374,10 +374,12 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 
 		return composer.buildModelDirectivesForFile(lines);
 	}
-/**
- * Creates Annotations for FOP-Projects, featureHouse
- * @throws BadLocationException
- */
+
+	/**
+	 * Creates Annotations for FOP-Projects, featureHouse
+	 * 
+	 * @throws BadLocationException
+	 */
 	private void createFOPAnnotations() throws BadLocationException {
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
 		FSTModel model = project.getFSTModel();
@@ -390,16 +392,19 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 			return;
 		}
 
-		clear();// FIXED MAINPROBLEM
+		clear();
 
-		//		for (FSTMethod m : model.getClass(file.getName()).getRole("Hello").getMethods()) {
-		//			composer.postCompile(null, file);
-		////			int i = 0;
-		////			while (i++ < 10000000);
-		//			System.out.println(m + " - " + m.getComposedLine());
-		//		}
+		/*
+		 * 	for (FSTMethod m : model.getClass(file.getName()).getRole("Hello").getMethods()) {
+		 *		composer.postCompile(null, file);
+		 *		int i = 0;
+		 *		while (i++ < 10000000);
+		 *		System.out.println(m + " - " + m.getComposedLine());
+		 *	}
+		 *
+		 *COMPOSED FILE ANNOTATIONS
+		 */
 
-		//COMPOSED FILE ANNOTATIONS
 		if (file.getFullPath().toString().contains("/src/")) {
 			composer.postCompile(null, file);
 
@@ -410,35 +415,38 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 						if (m.getComposedLine() != 0) {
 							startline = m.getComposedLine() - 1;
 						}
-						int endline = m.getComposedLine() + m.getMethodLength()-1; // startline + m.methodlength und dafür kein -1 mehr
+						int endline = m.getComposedLine() + m.getMethodLength() - 1;
 						for (int line = startline; line <= endline; line++) {
-							
-							int lineOffset = document.getLineOffset(line); //zeichenoffset
-							int length = document.getLineLength(line); //zeichenlänge
+							int lineOffset = document.getLineOffset(line);
+							int length = document.getLineLength(line);
+							// bar at the left of the editor
 							Position methodposition = new Position(lineOffset, length);
 							ColorAnnotation cafh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_IMAGE);
 							cafh.setText(m.getRole().getFeature().getName());
 							annotations.add(cafh);
 							event.annotationAdded(cafh);
-
 							if (highlighting) {
+								//background colors
 								ColorAnnotation cafhh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_HIGHLIGHT);
 								cafhh.setText(fstFeature.getName());
 								annotations.add(cafhh);
 								event.annotationAdded(cafhh);
 							}
-							
+
 						}
 					}
 				}
 			}
 		} else {
+			/*
+			 * Colorannotations
+			 */
 			for (FSTFeature fstFeature : model.getFeatures()) {
 
 				int color = fstFeature.getColor();
 				if (file.getFullPath().toString().contains("/" + fstFeature.getName() + "/") && file.getFullPath().toString().contains("features")) {
 					for (int line = 0; line < document.getNumberOfLines(); line++) {
-
+						// bar at the left of the editor
 						Position newPosition = new Position(document.getLineOffset(line), document.getLineLength(line));
 						ColorAnnotation cafh = new ColorAnnotation(color, newPosition, ColorAnnotation.TYPE_IMAGE);
 						cafh.setText(fstFeature.getName());
@@ -458,8 +466,6 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 
 			}
 		}
-		
-		// eier des kolumbus suchen composed line
 
 	}
 
