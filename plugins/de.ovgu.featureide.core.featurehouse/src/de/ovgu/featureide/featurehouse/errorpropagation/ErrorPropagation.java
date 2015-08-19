@@ -72,6 +72,8 @@ public abstract class ErrorPropagation {
 	 */
 	public final Job job;
 
+	public boolean force = false;
+
 	/**
 	 * Propagates error markers for composed files to sources files.<br>
 	 * Call {@link #addFile(IFile)} to propagate the markers of the given source
@@ -97,6 +99,7 @@ public abstract class ErrorPropagation {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
 				propagateMarkers(monitor);
+				force = false;
 				return Status.OK_STATUS;
 			}
 		};
@@ -138,6 +141,15 @@ public abstract class ErrorPropagation {
 
 			if (job.getState() == Job.NONE) {
 				job.schedule();
+				if(force){
+					while(job.getState() != Job.NONE){
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 		}
 	}
@@ -175,13 +187,13 @@ public abstract class ErrorPropagation {
 	 * Removes the not composed markers form the given source file and calls
 	 * <code>propagateMarkers(marker, file)</code>
 	 */
-	protected void propagateMarkers(IFile file) {
+	protected void propagateMarkers(IFile file) {//boolean force
 		if (!file.exists()) {
 			return;
 		}
 		try {
 			IMarker[] markers = file.findMarkers(null, true, IResource.DEPTH_INFINITE);
-			if (markers.length != 0) {
+			if (force  || markers.length != 0) {
 				LinkedList<IMarker> marker = new LinkedList<IMarker>();
 				for (IMarker m : markers) {
 					String message = m.getAttribute(IMarker.MESSAGE, null);
@@ -191,7 +203,7 @@ public abstract class ErrorPropagation {
 						marker.add(m);
 					}
 				}
-				if (!marker.isEmpty()) {
+				if (force || !marker.isEmpty()) {
 					propagateMarkers(marker, file);
 				}
 			}

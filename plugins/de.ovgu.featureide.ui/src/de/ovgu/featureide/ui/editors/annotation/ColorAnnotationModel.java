@@ -154,11 +154,8 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 				if (colormodel == null) {
 					IFile file = ((FileEditorInput) input).getFile();
 					IFeatureProject project = CorePlugin.getFeatureProject(file);
-					//TODO Jonas, Christian
+					
 					if (project != null && project.getComposer() != null && project.getComposer().needColor()) {
-						if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){
-							//
-						}
 						IDocument document = provider.getDocument(input);
 						colormodel = new ColorAnnotationModel(document, file, project, editor);
 						modelex.addAnnotationModel(KEY, colormodel);
@@ -245,7 +242,6 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 	 * @param createNew
 	 *            true: builds new FSTModel
 	 *            false: only gets new FSTDirectives
-	  
 	 */
 	private void updateAnnotations(boolean createNew) {
 		if (!annotations.isEmpty()) {
@@ -253,32 +249,33 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		}
 		if (createNew) {
 			annotatedPositions = new HashMap<Integer, Position>(docLines);
-			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){//our FeatureHouseComposerAnnotations
+			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")) {//our FeatureHouseComposerAnnotations
 				try {
-					createFeatureHouseAnnotations();
+
+					createFOPAnnotations();
+
 				} catch (BadLocationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					UIPlugin.getDefault().logError(e);
 				}
-				}
-			else {
-			createDirectiveList();
-			createAnnotations();
+			} else {
+				createDirectiveList();
+				createAnnotations();
 			}
-		} else{
-			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")){
+		} else {
+			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")) {//ourFeatureHouseComposerAnnotations
 				try {
-					createFeatureHouseAnnotations();
+					clear();
+					createFOPAnnotations();
 				} catch (BadLocationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}}
-		if (!directiveMap.isEmpty()) {
-			annotatedPositions.clear();
-			updateDirectives();
-			createAnnotations();
-		}
-	
+					UIPlugin.getDefault().logError(e);
+				}
+			}
+			if (!directiveMap.isEmpty()) {
+				annotatedPositions.clear();
+				updateDirectives();
+				createAnnotations();
+			}
+
 		}
 	}
 
@@ -315,7 +312,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		int index = 0;
 		for (FSTFeature fstFeature : model.getFeatures()) {
 			for (FSTRole role : fstFeature.getRoles()) {
-						if (file.equals(role.getFile())) {
+				if (file.equals(role.getFile())) {
 					for (FSTDirective dir : role.getDirectives()) {
 						directiveMap.put(dir.getId(), dir);
 						index++;
@@ -377,12 +374,14 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 
 		return composer.buildModelDirectivesForFile(lines);
 	}
-
-	
-	private void createFeatureHouseAnnotations() throws BadLocationException{
+/**
+ * Creates Annotations for FOP-Projects, featureHouse
+ * @throws BadLocationException
+ */
+	private void createFOPAnnotations() throws BadLocationException {
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
-		//schadcode für dienstag
 		FSTModel model = project.getFSTModel();
+
 		if (model == null) {
 			composer.buildFSTModel();
 			model = project.getFSTModel();
@@ -390,76 +389,86 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		if (model == null) {
 			return;
 		}
-		
-		for (FSTFeature fstFeature : model.getFeatures()) {
-//			for (FSTRole role : fstFeature.getRoles()) {
-				
-//				for (FSTMethod mymethod : role.getAllMethods()){
-					
-					int color = fstFeature.getColor();
-					if (file.getFullPath().toString().contains("/"+fstFeature.getName()+"/") && file.getFullPath().toString().contains("features")){
-						for (int line = 0; line < document.getNumberOfLines(); line++){
+
+		clear();// FIXED MAINPROBLEM
+
+		//		for (FSTMethod m : model.getClass(file.getName()).getRole("Hello").getMethods()) {
+		//			composer.postCompile(null, file);
+		////			int i = 0;
+		////			while (i++ < 10000000);
+		//			System.out.println(m + " - " + m.getComposedLine());
+		//		}
+
+		//COMPOSED FILE ANNOTATIONS
+		if (file.getFullPath().toString().contains("/src/")) {
+			composer.postCompile(null, file);
+
+			for (FSTFeature fstFeature : model.getFeatures()) {
+				for (FSTRole role : fstFeature.getRoles()) {
+					for (FSTMethod m : role.getAllMethods()) {
+						int startline = m.getComposedLine();
+						if (m.getComposedLine() != 0) {
+							startline = m.getComposedLine() - 1;
+						}
+						int endline = m.getComposedLine() + m.getMethodLength()-1; // startline + m.methodlength und dafür kein -1 mehr
+						for (int line = startline; line <= endline; line++) {
+							
+							int lineOffset = document.getLineOffset(line); //zeichenoffset
+							int length = document.getLineLength(line); //zeichenlänge
+							Position methodposition = new Position(lineOffset, length);
+							ColorAnnotation cafh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_IMAGE);
+							cafh.setText(m.getRole().getFeature().getName());
+							annotations.add(cafh);
+							event.annotationAdded(cafh);
+
+							if (highlighting) {
+								ColorAnnotation cafhh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_HIGHLIGHT);
+								cafhh.setText(fstFeature.getName());
+								annotations.add(cafhh);
+								event.annotationAdded(cafhh);
+							}
+							
+						}
+					}
+				}
+			}
+		} else {
+			for (FSTFeature fstFeature : model.getFeatures()) {
+
+				int color = fstFeature.getColor();
+				if (file.getFullPath().toString().contains("/" + fstFeature.getName() + "/") && file.getFullPath().toString().contains("features")) {
+					for (int line = 0; line < document.getNumberOfLines(); line++) {
+
 						Position newPosition = new Position(document.getLineOffset(line), document.getLineLength(line));
 						ColorAnnotation cafh = new ColorAnnotation(color, newPosition, ColorAnnotation.TYPE_IMAGE);
 						cafh.setText(fstFeature.getName());
 						annotations.add(cafh);
-						event.annotationAdded(cafh);	
-						}
-//					}
+						event.annotationAdded(cafh);
+
+					}
 					if (highlighting) {
 						// background colors
-						Position position = new Position(0,document.getLength());
+						Position position = new Position(0, document.getLength());
 						ColorAnnotation cafhh = new ColorAnnotation(color, position, ColorAnnotation.TYPE_HIGHLIGHT);
 						cafhh.setText(fstFeature.getName());
 						annotations.add(cafhh);
 						event.annotationAdded(cafhh);
 					}
-						
-					}
+				}
+
+			}
 		}
-					
-//					if (file.getFullPath().toString().contains("src")){
-//					
-//					}
-//					int startline = mymethod.getComposedLine();
-//					int endline = mymethod.getComposedLine()+1;
-//					
-//					for (int line = startline; line < endline; line++){
-//						if (line < endline || endline > 0){
-//							int length = document.getLineLength(line); //zeichenlänge
-//							int lineOffset = document.getLineOffset(line); //zeichenoffset 
-//							if (line == endline){
-//								length = document.getLineLength(endline);
-//							}
-//							if (line == startline){
-//								lineOffset += mymethod.getStartLineOfContract();
-//								length -= mymethod.getStartLineOfContract();
-//							}
-//							
-							
-//							Position position = new Position (lineOffset, length);
-							// eier des kolumbus suchen composed line
+		
+		// eier des kolumbus suchen composed line
 
+	}
 
-						}
-						
-						
-						
-						
-
-//					}
-//					
-//				}
-//				}
-
-	
 	/**
 	 * Creates the color annotations from the FSTDirectives.
 	 */
 	private void createAnnotations() {
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
-		
-		
+
 		for (FSTDirective directive : validDirectiveList) {
 			if (directive == null) {
 				continue;
