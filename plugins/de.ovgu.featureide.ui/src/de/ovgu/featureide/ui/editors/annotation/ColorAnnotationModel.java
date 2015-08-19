@@ -392,14 +392,15 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		}
 		
 		for (FSTFeature fstFeature : model.getFeatures()) {
-			for (FSTRole role : fstFeature.getRoles()) {
+//			for (FSTRole role : fstFeature.getRoles()) {
 				
-				for (FSTMethod mymethod : role.getAllMethods()){
+//				for (FSTMethod mymethod : role.getAllMethods()){
 					
-					
-					if (file.getFullPath().toString().contains(fstFeature.getName()) && file.getFullPath().toString().contains("features")){
-						for ( int line = 0; line < document.getNumberOfLines(); line++){
-						ColorAnnotation cafh = new ColorAnnotation(fstFeature.getColor(), new Position (line, 1), ColorAnnotation.TYPE_IMAGE);
+					int color = fstFeature.getColor();
+					if (file.getFullPath().toString().contains("/"+fstFeature.getName()+"/") && file.getFullPath().toString().contains("features")){
+						for (int line = 0; line < document.getNumberOfLines(); line++){
+						Position newPosition = new Position(document.getLineOffset(line), document.getLineLength(line));
+						ColorAnnotation cafh = new ColorAnnotation(color, newPosition, ColorAnnotation.TYPE_IMAGE);
 						cafh.setText(fstFeature.getName());
 						annotations.add(cafh);
 						event.annotationAdded(cafh);	
@@ -408,17 +409,18 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 					if (highlighting) {
 						// background colors
 						Position position = new Position(0,document.getLength());
-						ColorAnnotation cafhh = new ColorAnnotation(fstFeature.getColor(), position, ColorAnnotation.TYPE_HIGHLIGHT);
+						ColorAnnotation cafhh = new ColorAnnotation(color, position, ColorAnnotation.TYPE_HIGHLIGHT);
 						cafhh.setText(fstFeature.getName());
 						annotations.add(cafhh);
 						event.annotationAdded(cafhh);
 					}
 						
 					}
+		}
 					
-					if (file.getFullPath().toString().contains("src")){
-					
-					}
+//					if (file.getFullPath().toString().contains("src")){
+//					
+//					}
 //					int startline = mymethod.getComposedLine();
 //					int endline = mymethod.getComposedLine()+1;
 //					
@@ -445,10 +447,10 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 						
 						
 
-					}
-					
-				}
-				}
+//					}
+//					
+//				}
+//				}
 
 	
 	/**
