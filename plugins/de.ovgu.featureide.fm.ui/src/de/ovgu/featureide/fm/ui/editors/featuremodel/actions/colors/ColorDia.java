@@ -61,13 +61,11 @@ public class ColorDia extends Dialog {
 
 	Shell shell = new Shell();
 	ArrayList<Feature> flist = new ArrayList<Feature>();
-	public FeatureModel fm;
 	int colorID = -1;
 
-	protected ColorDia(Shell parentShell, ArrayList<Feature> flist, FeatureModel fm) {
+	protected ColorDia(Shell parentShell, ArrayList<Feature> flist) {
 		super(parentShell);
 		this.flist = flist;
-		this.fm = fm;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
 	}
 

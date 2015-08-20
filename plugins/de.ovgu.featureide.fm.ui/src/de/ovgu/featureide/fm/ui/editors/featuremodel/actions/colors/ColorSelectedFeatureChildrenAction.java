@@ -153,7 +153,7 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 	public void run() {
 		//addChildren();
 
-		ColorDia dialog = new ColorDia(shell, this.featureList, this.fm);
+		ColorDia dialog = new ColorDia(shell, this.featureList);
 		int returnstat = dialog.open();
 
 		if (Window.OK == returnstat) {

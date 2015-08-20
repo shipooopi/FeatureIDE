@@ -22,7 +22,6 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE;
 
-import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
@@ -36,23 +35,15 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 
 import de.ovgu.featureide.fm.core.Feature;
-import de.ovgu.featureide.fm.core.FeatureModel;
-import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelWriter;
 import de.ovgu.featureide.fm.ui.editors.FeatureDiagramEditor;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureAction extends Action {
 
-	FeatureEditPart editPart = null;
-	public FeatureModel fm;
 	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
 	final Shell shell = new Shell();
 	static final String COLOR_FILE_NAME = ".color.xml";
-	protected XmlFeatureModelWriter writer;
-	protected String featuretext;
 	private IProject featureProject;
-	private FeatureModel featuremodel;
-	private FeatureDiagramEditor viewer; 
 
 	protected void updateSetColorActionText(String menuname) {
 		super.setText(menuname);
@@ -64,7 +55,6 @@ public class ColorSelectedFeatureAction extends Action {
 	 */
 	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
 		featureProject = project;
-		this.viewer = viewer;
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
 		updateSetColorActionText(COLOR_SELECTED_FEATURE);
@@ -92,7 +82,7 @@ public class ColorSelectedFeatureAction extends Action {
 				if (editPart instanceof FeatureEditPart) {
 					FeatureEditPart editP = (FeatureEditPart) editPart;
 					Feature f = editP.getFeature();
-					if (!featureList.contains(f) )
+					if (!featureList.contains(f))
 
 					{
 						featureList.add(f);
@@ -100,15 +90,11 @@ public class ColorSelectedFeatureAction extends Action {
 				}
 			}
 
-		}else{
+		} else {
 			featureList.clear();
 		}
 		return;
 	}
-
-	//	public void saveColorsToFile() {
-	//		featureProject.getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject.getProject());
-	//	}
 
 	public IFile getColorFile(IProject project) {
 		return project.getFile(COLOR_FILE_NAME);
@@ -116,48 +102,13 @@ public class ColorSelectedFeatureAction extends Action {
 
 	@Override
 	public void run() {
-
-		ColorDia dialog = new ColorDia(shell, this.featureList, this.fm);
+		ColorDia dialog = new ColorDia(shell, this.featureList);
 		int returnstat = dialog.open();
 
 		if (Window.OK == returnstat) {
-			//refresh FeatureDiagram
-			viewer.refresh();
-			
-			
-			//Save new values to file
 			featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
-
-			
-//			featureList.get(0).getFeatureModel().get
-			
-			
-			
-			
-			
-			
-//			for (FeatureEditPart editP : featureEditPartList) {
-//
-//				int col = editP.getFeature().getColorList().getColor();
-//				if (col != -1 && !featureEditPartList.isEmpty()) {
-//
-//					editP.getFeatureFigure().setBackgroundColor(
-//							new Color(Display.getDefault(), ColorPalette.getRGB(editP.getFeature().getColorList().getColor(), 0)));
-//
-//				}
-//			}
+			featureList.get(0).getFeatureModel().redrawDiagram();
 		}
-//		featuremodel = featureEditPartList.get(0).getFeature().getFeatureModel();
-//
-//		if (featuremodel != null) {
-//			featuremodel.getColorschemeTable().saveColorsToFile(featureProject.getProject());
-//		}
-
-		featureList.clear();
-		//this.fm.getColorschemeTable().saveColorsToFile(project);
-		//writer = new XmlFeatureModelWriter(featuremodel);
-		//featuretext = writer.writeToString();
-
 	}
 
 }

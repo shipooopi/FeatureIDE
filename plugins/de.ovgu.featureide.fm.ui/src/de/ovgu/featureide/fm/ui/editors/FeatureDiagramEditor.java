@@ -71,7 +71,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.progress.UIJob;
 
-import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.fm.core.Constraint;
 import de.ovgu.featureide.fm.core.ConstraintAttribute;
 import de.ovgu.featureide.fm.core.ExtendedFeatureModel;
@@ -275,12 +274,9 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 		createLayerAction = new CreateLayerAction(this, featureModel, null);
 		createCompoundAction = new CreateCompoundAction(this, featureModel, null);
 		deleteAction = new DeleteAction(this, featureModel);
-		
-		
-		
-		IProject pr = CorePlugin.getFeatureProject(featureModelEditor.getModelFile()).getProject();
-		
-		colorSelectedFeatureAction = new ColorSelectedFeatureAction(this, pr);
+
+		colorSelectedFeatureAction = new ColorSelectedFeatureAction(this, featureModelEditor.getModelFile().getProject());
+
 		colorSelectedFeatureChildrenAction = new ColorSelectedFeatureChildrenAction(this, featureModel);
 		colorSelectedFeatureSameLevelAction = new ColorSelectedFeatureSameLevelAction(this, featureModel);
 		deleteAllAction = new DeleteAllAction(this, featureModel);
