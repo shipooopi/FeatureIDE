@@ -36,14 +36,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 
 /**
  * The purpose of this dialog is to display the content of a 'normal' {@link TreeViewer} in a {@link CheckboxTreeViewer} to select some of it's
@@ -60,9 +59,10 @@ public class ColorDia extends Dialog {
 	 * @param parentShell
 	 */
 
-	final Shell shell = new Shell();
+	Shell shell = new Shell();
 	ArrayList<Feature> flist = new ArrayList<Feature>();
 	public FeatureModel fm;
+	int colorID = -1;
 
 	protected ColorDia(Shell parentShell, ArrayList<Feature> flist, FeatureModel fm) {
 		super(parentShell);
@@ -101,6 +101,7 @@ public class ColorDia extends Dialog {
 		Button button1 = new Button(container, SWT.PUSH);
 		button1.setText("Oben");
 		button1.setLayoutData(gridData);
+		button1.setVisible(false);
 
 		gridData = new GridData();
 		gridData.verticalSpan = 20;
@@ -109,16 +110,19 @@ public class ColorDia extends Dialog {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 
-		final List list = new List(container, /*SWT.BORDER |*/SWT.MULTI | SWT.V_SCROLL);
-		list.setBackground(new Color(parent.getDisplay(), 255, 255, 255));
-		list.setLayoutData(gridData);
-		//		final Table table = new Table (container,SWT.NONE); 
-		//		table.setLayoutData(gridData);
+		//		final List list = new List(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+		//		list.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(3,0)));
+		//		list.setLayoutData(gridData);
+		final Table table = new Table(container, SWT.NONE);
+		table.setBackground(new Color(null, 240, 240, 240));
+		table.setLayoutData(gridData);
 
 		for (int i = 0; i < flist.size(); i++) {
-			//			TableItem item = new TableItem(table,SWT.NONE);
-			//			item.setText(flist.get(i).getName());
-			list.add(flist.get(i).getName());
+			TableItem item = new TableItem(table, SWT.NONE);
+			item.setText(flist.get(i).getName());
+			if (flist.get(i).getColorList().getColor() != -1) {
+				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(flist.get(i).getColorList().getColor(), 0)));
+			}
 		}
 
 		gridData = new GridData();
@@ -166,70 +170,70 @@ public class ColorDia extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 
 				if (e.getSource() == buttonRED) {
+					colorID = 0;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(0);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonORANGE) {
+					colorID = 1;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(1);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonYELLOW) {
+					colorID = 2;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(2);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonDARKGREEN) {
+					colorID = 3;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(3);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonLIGHTGREEN) {
+					colorID = 4;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(4);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonCYAN) {
+					colorID = 5;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(5);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonLIGHTGREY) {
+					colorID = 6;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(6);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonBLUE) {
+					colorID = 7;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(7);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonMAGENTA) {
+					colorID = 8;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(8);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonPINK) {
+					colorID = 9;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(9);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 				if (e.getSource() == buttonCLEAR) {
+					colorID = -1;
 					for (int i = 0; i < flist.size(); i++) {
-						flist.get(i).getColorList().setColor(-1);
+						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
-
 				}
 
 			}
@@ -257,7 +261,12 @@ public class ColorDia extends Dialog {
 
 	protected void buttonPressed(int buttonId) {
 		if (IDialogConstants.OK_ID == buttonId) {
+
+			for (int i = 0; i < flist.size(); i++) {
+				flist.get(i).getColorList().setColor(colorID);
+			}
 			okPressed();
+
 		} else if (IDialogConstants.CANCEL_ID == buttonId) {
 			cancelPressed();
 		}
