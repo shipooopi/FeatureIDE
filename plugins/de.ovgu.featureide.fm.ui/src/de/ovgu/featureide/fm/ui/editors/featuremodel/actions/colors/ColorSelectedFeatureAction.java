@@ -22,20 +22,23 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.io.xml.XmlFeatureModelWriter;
+import de.ovgu.featureide.fm.ui.editors.FeatureDiagramEditor;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureAction extends Action {
@@ -43,8 +46,13 @@ public class ColorSelectedFeatureAction extends Action {
 	FeatureEditPart editPart = null;
 	public FeatureModel fm;
 	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
-	protected ArrayList<FeatureEditPart> featureEditPartList = new ArrayList<FeatureEditPart>();
 	final Shell shell = new Shell();
+	static final String COLOR_FILE_NAME = ".color.xml";
+	protected XmlFeatureModelWriter writer;
+	protected String featuretext;
+	private IProject featureProject;
+	private FeatureModel featuremodel;
+	private FeatureDiagramEditor viewer; 
 
 	protected void updateSetColorActionText(String menuname) {
 		super.setText(menuname);
@@ -54,7 +62,9 @@ public class ColorSelectedFeatureAction extends Action {
 	 * @param viewer
 	 * @param featuremodel
 	 */
-	public ColorSelectedFeatureAction(Object viewer, FeatureModel featuremodel) {
+	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
+		featureProject = project;
+		this.viewer = viewer;
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
 		updateSetColorActionText(COLOR_SELECTED_FEATURE);
@@ -82,17 +92,26 @@ public class ColorSelectedFeatureAction extends Action {
 				if (editPart instanceof FeatureEditPart) {
 					FeatureEditPart editP = (FeatureEditPart) editPart;
 					Feature f = editP.getFeature();
-					if (!featureList.contains(f) && !featureEditPartList.contains(editP))
+					if (!featureList.contains(f) )
 
 					{
-						featureEditPartList.add(editP);
 						featureList.add(f);
 					}
 				}
 			}
 
+		}else{
+			featureList.clear();
 		}
 		return;
+	}
+
+	//	public void saveColorsToFile() {
+	//		featureProject.getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject.getProject());
+	//	}
+
+	public IFile getColorFile(IProject project) {
+		return project.getFile(COLOR_FILE_NAME);
 	}
 
 	@Override
@@ -102,49 +121,43 @@ public class ColorSelectedFeatureAction extends Action {
 		int returnstat = dialog.open();
 
 		if (Window.OK == returnstat) {
-			for (FeatureEditPart editP : featureEditPartList) {
+			//refresh FeatureDiagram
+			viewer.refresh();
+			
+			
+			//Save new values to file
+			featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
 
-				int col = editP.getFeature().getColorList().getColor();
-				if (col != -1 && !featureEditPartList.isEmpty()) {
-
-					switch (col) {
-
-					case 0:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 175, 177));
-						break;//red
-					case 1:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 216, 166));
-						break;//orange
-					case 2:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 237, 255, 166));
-						break;//yellow
-					case 3:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 164, 228, 148));
-						break;//darkgreen
-					case 4:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 166, 255, 201));
-						break;//lightgreen
-					case 5:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 163, 251, 251));
-						break;//cyan
-					case 6:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 228, 228, 228));
-						break;//light grey
-					case 7:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 164, 148, 228));
-						break;//blue
-					case 8:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 240, 166, 255));
-						break;//magenta
-					case 9:
-						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 228, 148, 194));
-						break;//pink
-					}
-				}
-			}
+			
+//			featureList.get(0).getFeatureModel().get
+			
+			
+			
+			
+			
+			
+//			for (FeatureEditPart editP : featureEditPartList) {
+//
+//				int col = editP.getFeature().getColorList().getColor();
+//				if (col != -1 && !featureEditPartList.isEmpty()) {
+//
+//					editP.getFeatureFigure().setBackgroundColor(
+//							new Color(Display.getDefault(), ColorPalette.getRGB(editP.getFeature().getColorList().getColor(), 0)));
+//
+//				}
+//			}
 		}
+//		featuremodel = featureEditPartList.get(0).getFeature().getFeatureModel();
+//
+//		if (featuremodel != null) {
+//			featuremodel.getColorschemeTable().saveColorsToFile(featureProject.getProject());
+//		}
+
 		featureList.clear();
-		featureEditPartList.clear();
+		//this.fm.getColorschemeTable().saveColorsToFile(project);
+		//writer = new XmlFeatureModelWriter(featuremodel);
+		//featuretext = writer.writeToString();
+
 	}
 
 }

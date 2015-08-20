@@ -22,6 +22,8 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE_CHILDREN;
 
+import java.awt.List;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -93,35 +95,63 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 			}
 
 		}
-		addChildren();
 		return;
 	}
 
-	public void addChildren() {
+//	public void addChildren() {
+//
+//		for (int i = 0; i < featureList.size(); i++) {
+//			Feature f = featureList.get(i);
+//
+//			if (f.hasChildren()) {
+//				LinkedList<Feature> childrenList = f.getChildren();
+//				for (int j = 0; j < childrenList.size(); j++) {
+//					Feature child = childrenList.get(j);
+//
+//					if (!featureList.contains(child)) {
+//						featureList.add(child);
+//
+//					}
+//					
+//				}
+//
+//			}
+//
+//		}
+//
+//	}
+// use for ColorSelectedFeatureChildrenAction	
+//	public void addChildren() {
+//
+//		for (int i = 0; i < featureEditPartList.size(); i++) {
+//			Feature f = featureList.get(i);
+//			FeatureEditPart editP = featureEditPartList.get(i);
+//
+//			if (f.hasChildren()) {
+//				LinkedList<Feature> childrenFeatureList = f.getChildren();
+//				AbstractList <FeatureEditPart> childrenEditPartList =  (AbstractList<FeatureEditPart>) editP.getChildren();
+//				for (int j = 0; j < childrenFeatureList.size(); j++) {
+//					Feature childFeature = childrenFeatureList.get(j);
+//					FeatureEditPart childeditP = childrenEditPartList.get(j);
+//
+//					if (!featureList.contains(childFeature)) {
+//						featureList.add(childFeature);
+//						
+//
+//					}
+//					
+//				}
+//
+//			}
+//
+//		}
+//
+//	}
 
-		for (int i = 0; i < featureList.size(); i++) {
-			Feature f = featureList.get(i);
-
-			if (f.hasChildren()) {
-				LinkedList<Feature> childrenList = f.getChildren();
-				for (int j = 0; j < childrenList.size(); j++) {
-					Feature child = childrenList.get(j);
-
-					if (!featureList.contains(child)) {
-						featureList.add(child);
-
-					}
-
-				}
-
-			}
-
-		}
-
-	}
 
 	@Override
 	public void run() {
+		//addChildren();
 
 		ColorDia dialog = new ColorDia(shell, this.featureList, this.fm);
 		int returnstat = dialog.open();
@@ -135,6 +165,7 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 					switch (col) {
 
 					case 0:
+						
 						editP.getFeatureFigure().setBackgroundColor(new Color(Display.getDefault(), 255, 175, 177));
 						break;//red
 					case 1:

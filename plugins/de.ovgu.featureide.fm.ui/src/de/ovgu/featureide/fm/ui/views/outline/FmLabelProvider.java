@@ -86,11 +86,11 @@ public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaul
 	public void removeListener(ILabelProviderListener listener) {
 	}
 
-	public void colorizeItems(TreeItem[] treeItems, IFile file) {
-		if (treeItems != null && treeItems.length > 0) {
-			treeItems[1].setBackground(new Color(null, 100, 100,100));
-		}
-	}
+//	public void colorizeItems(TreeItem[] treeItems, IFile file) {
+//		if (treeItems != null && treeItems.length > 0) {
+//			treeItems[1].setBackground(new Color(null, 100, 100,100));
+//		}
+//	}
 
 	/*
 	 * (non-Javadoc)

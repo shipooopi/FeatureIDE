@@ -38,12 +38,15 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.editparts.ZoomListener;
+import org.eclipse.swt.graphics.Color;
 
+import de.ovgu.featureide.fm.core.ColorList;
 import de.ovgu.featureide.fm.core.ExtendedFeature;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer.Attribute;
+import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.ui.editors.FeatureDiagramExtension;
 import de.ovgu.featureide.fm.ui.editors.FeatureUIHelper;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
@@ -139,53 +142,58 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		setBackgroundColor(FMPropertyManager.getConcreteFeatureBackgroundColor());
 		setBorder(FMPropertyManager.getFeatureBorder(feature.isConstraintSelected()));
 
-		final FeatureModelAnalyzer analyser = feature.getFeatureModel().getAnalyser();
-		if (feature.isRoot() && !analyser.valid()) {
-			setBackgroundColor(FMPropertyManager.getDeadFeatureBackgroundColor());
-			setBorder(FMPropertyManager.getDeadFeatureBorder(feature.isConstraintSelected()));
-			toolTip.append(VOID);
+		if (feature.getColorList().getColor() != ColorList.INVALID_COLOR) {
+			setBackgroundColor(new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(),0)));
+
 		} else {
-			if (feature.isConcrete()) {
-				toolTip.append(CONCRETE);
-				analyser.setAttributeFlag(Attribute.Concrete, true);
+			final FeatureModelAnalyzer analyser = feature.getFeatureModel().getAnalyser();
+			if (feature.isRoot() && !analyser.valid()) {
+				setBackgroundColor(FMPropertyManager.getDeadFeatureBackgroundColor());
+				setBorder(FMPropertyManager.getDeadFeatureBorder(feature.isConstraintSelected()));
+				toolTip.append(VOID);
 			} else {
-				setBackgroundColor(FMPropertyManager.getAbstractFeatureBackgroundColor());
-				toolTip.append(ABSTRACT);
-				analyser.setAttributeFlag(Attribute.Abstract, true);
-			}
-
-			if (feature.hasHiddenParent()) {
-				setBorder(FMPropertyManager.getHiddenFeatureBorder(feature.isConstraintSelected()));
-				label.setForegroundColor(HIDDEN_FOREGROUND);
-				toolTip.append(feature.isHidden() ? HIDDEN : HIDDEN_PARENT);
-				analyser.setAttributeFlag(Attribute.Hidden, true);
-			}
-
-			toolTip.append(feature.isRoot() ? ROOT : FEATURE);
-
-			switch (feature.getFeatureStatus()) {
-			case DEAD:
-				if (analyser.valid()) {
-					setBackgroundColor(FMPropertyManager.getDeadFeatureBackgroundColor());
-					setBorder(FMPropertyManager.getDeadFeatureBorder(feature.isConstraintSelected()));
-					toolTip.append(DEAD);
-					analyser.setAttributeFlag(Attribute.Dead, true);
+				if (feature.isConcrete()) {
+					toolTip.append(CONCRETE);
+					analyser.setAttributeFlag(Attribute.Concrete, true);
+				} else {
+					setBackgroundColor(FMPropertyManager.getAbstractFeatureBackgroundColor());
+					toolTip.append(ABSTRACT);
+					analyser.setAttributeFlag(Attribute.Abstract, true);
 				}
-				break;
-			case FALSE_OPTIONAL:
-				setBackgroundColor(FMPropertyManager.getWarningColor());
-				setBorder(FMPropertyManager.getConcreteFeatureBorder(feature.isConstraintSelected()));
-				toolTip.append(FALSE_OPTIONAL);
-				analyser.setAttributeFlag(Attribute.FalseOptional, true);
-				break;
-			case INDETERMINATE_HIDDEN:
-				setBackgroundColor(FMPropertyManager.getWarningColor());
-				setBorder(FMPropertyManager.getHiddenFeatureBorder(feature.isConstraintSelected()));
-				toolTip.append(INDETERMINATE_HIDDEN);
-				analyser.setAttributeFlag(Attribute.IndetHidden, true);
-				break;
-			default:
-				break;
+
+				if (feature.hasHiddenParent()) {
+					setBorder(FMPropertyManager.getHiddenFeatureBorder(feature.isConstraintSelected()));
+					label.setForegroundColor(HIDDEN_FOREGROUND);
+					toolTip.append(feature.isHidden() ? HIDDEN : HIDDEN_PARENT);
+					analyser.setAttributeFlag(Attribute.Hidden, true);
+				}
+
+				toolTip.append(feature.isRoot() ? ROOT : FEATURE);
+
+				switch (feature.getFeatureStatus()) {
+				case DEAD:
+					if (analyser.valid()) {
+						setBackgroundColor(FMPropertyManager.getDeadFeatureBackgroundColor());
+						setBorder(FMPropertyManager.getDeadFeatureBorder(feature.isConstraintSelected()));
+						toolTip.append(DEAD);
+						analyser.setAttributeFlag(Attribute.Dead, true);
+					}
+					break;
+				case FALSE_OPTIONAL:
+					setBackgroundColor(FMPropertyManager.getWarningColor());
+					setBorder(FMPropertyManager.getConcreteFeatureBorder(feature.isConstraintSelected()));
+					toolTip.append(FALSE_OPTIONAL);
+					analyser.setAttributeFlag(Attribute.FalseOptional, true);
+					break;
+				case INDETERMINATE_HIDDEN:
+					setBackgroundColor(FMPropertyManager.getWarningColor());
+					setBorder(FMPropertyManager.getHiddenFeatureBorder(feature.isConstraintSelected()));
+					toolTip.append(INDETERMINATE_HIDDEN);
+					analyser.setAttributeFlag(Attribute.IndetHidden, true);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 
@@ -216,8 +224,7 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 			toolTip.append("\n\nConstraints:\n");
 			toolTip.append(contraints);
 		}
-		
-		
+
 		Figure toolTipContent = new Figure();
 		toolTipContent.setLayoutManager(gl);
 		Label featureName = new Label(feature.getName());
@@ -226,7 +233,7 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		furtherInfos.setFont(DEFAULT_FONT);
 		toolTipContent.add(featureName);
 		toolTipContent.add(furtherInfos);
-		
+
 		// call of the FeatureDiagramExtensions
 		for (FeatureDiagramExtension extension : FeatureDiagramExtension.getExtensions()) {
 			toolTipContent = extension.extendFeatureFigureToolTip(toolTipContent, this);

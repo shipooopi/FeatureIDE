@@ -29,7 +29,6 @@ import static de.ovgu.featureide.fm.core.localization.StringTable.SET_CALCULATIO
 import static de.ovgu.featureide.fm.core.localization.StringTable.SET_LAYOUT;
 import static de.ovgu.featureide.fm.core.localization.StringTable.SET_NAME_TYPE;
 import static de.ovgu.featureide.fm.core.localization.StringTable.UPDATING_FEATURE_MODEL_ATTRIBUTES;
-import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.commands.operations.ObjectUndoContext;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -71,6 +71,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.progress.UIJob;
 
+import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.fm.core.Constraint;
 import de.ovgu.featureide.fm.core.ConstraintAttribute;
 import de.ovgu.featureide.fm.core.ExtendedFeatureModel;
@@ -134,7 +135,6 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 
 	private static final String PAGE_TEXT = FEATURE_DIAGRAM;
 	private static final String ID = FMUIPlugin.PLUGIN_ID + ".editors.FeatureDiagramEditor";
-	private static final String COLOR_TYPE = null;
 
 	private FeatureModelEditor featureModelEditor;
 	private ZoomManager zoomManager;
@@ -275,7 +275,12 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 		createLayerAction = new CreateLayerAction(this, featureModel, null);
 		createCompoundAction = new CreateCompoundAction(this, featureModel, null);
 		deleteAction = new DeleteAction(this, featureModel);
-		colorSelectedFeatureAction = new ColorSelectedFeatureAction(this, featureModel);
+		
+		
+		
+		IProject pr = CorePlugin.getFeatureProject(featureModelEditor.getModelFile()).getProject();
+		
+		colorSelectedFeatureAction = new ColorSelectedFeatureAction(this, pr);
 		colorSelectedFeatureChildrenAction = new ColorSelectedFeatureChildrenAction(this, featureModel);
 		colorSelectedFeatureSameLevelAction = new ColorSelectedFeatureSameLevelAction(this, featureModel);
 		deleteAllAction = new DeleteAllAction(this, featureModel);
