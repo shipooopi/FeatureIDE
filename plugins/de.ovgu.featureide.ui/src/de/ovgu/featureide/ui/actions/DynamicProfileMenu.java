@@ -110,6 +110,7 @@ public class DynamicProfileMenu extends ContributionItem {
 		menuMgr.add(addProfileSchemeAction);
 		menuMgr.add(renameProfileSchemeAction);
 		menuMgr.add(deleteProfileSchemeAction);
+		colorschemeTable.readColorsFromFile(getCurrentFeatureProject().getProject());
 
 		/*
 		 * disables rename and delete when default colorscheme is selected

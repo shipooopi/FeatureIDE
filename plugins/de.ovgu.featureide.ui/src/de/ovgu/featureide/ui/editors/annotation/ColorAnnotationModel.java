@@ -425,6 +425,11 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 							cafh.setText(m.getRole().getFeature().getName());
 							annotations.add(cafh);
 							event.annotationAdded(cafh);
+							// bar at the right of the editor
+							ColorAnnotation cafho = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_OVERVIEW);
+							cafho.setText(m.getRole().getFeature().getName());
+							annotations.add(cafho);
+							event.annotationAdded(cafho);
 							if (highlighting) {
 								//background colors
 								ColorAnnotation cafhh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_HIGHLIGHT);
@@ -453,14 +458,6 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 						annotations.add(cafh);
 						event.annotationAdded(cafh);
 
-					}
-					if (highlighting) {
-						// background colors
-						Position position = new Position(0, document.getLength());
-						ColorAnnotation cafhh = new ColorAnnotation(color, position, ColorAnnotation.TYPE_HIGHLIGHT);
-						cafhh.setText(fstFeature.getName());
-						annotations.add(cafhh);
-						event.annotationAdded(cafhh);
 					}
 				}
 
