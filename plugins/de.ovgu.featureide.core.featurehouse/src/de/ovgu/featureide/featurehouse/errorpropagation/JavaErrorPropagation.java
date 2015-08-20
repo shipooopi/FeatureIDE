@@ -178,7 +178,6 @@ public class JavaErrorPropagation extends ErrorPropagation {
 			
 		}
 		if (found) {
-			//ei des kolumbus
 			method.setComposedLine(lineCounter - (method.getEndLine() - method.getLine() + methodOverhead));
 		}
 		return found;
