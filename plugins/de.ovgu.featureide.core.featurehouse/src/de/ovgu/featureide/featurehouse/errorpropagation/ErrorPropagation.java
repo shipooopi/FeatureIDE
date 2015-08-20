@@ -50,6 +50,7 @@ import de.ovgu.featureide.core.fstmodel.FSTRole;
 import de.ovgu.featureide.featurehouse.FeatureHouseCorePlugin;
 import de.ovgu.featureide.fm.core.Feature;
 
+
 /**
  * Propagates error markers for composed files to sources files.
  * 
@@ -150,7 +151,7 @@ public abstract class ErrorPropagation {
 						try {
 							Thread.sleep(10);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							CorePlugin.getDefault().logError(e);
 						}
 					}
 				}
