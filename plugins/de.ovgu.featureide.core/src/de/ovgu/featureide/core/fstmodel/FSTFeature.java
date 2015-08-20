@@ -67,6 +67,7 @@ public class FSTFeature {
 			}
 		}
 		return color;
+
 	}
 
 	public String getName() {
