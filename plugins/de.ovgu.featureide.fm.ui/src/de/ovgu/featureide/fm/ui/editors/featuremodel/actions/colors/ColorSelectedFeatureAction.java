@@ -106,8 +106,11 @@ public class ColorSelectedFeatureAction extends Action {
 		int returnstat = dialog.open();
 
 		if (Window.OK == returnstat) {
-			featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
-			featureList.get(0).getFeatureModel().redrawDiagram();
+
+			if (featureList.get(0) != null) {
+				featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
+				featureList.get(0).getFeatureModel().redrawDiagram();
+			}
 		}
 	}
 
