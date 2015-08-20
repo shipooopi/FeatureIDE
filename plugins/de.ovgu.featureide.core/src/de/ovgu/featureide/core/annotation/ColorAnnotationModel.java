@@ -56,6 +56,7 @@ import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.core.builder.IComposerExtensionClass;
 import de.ovgu.featureide.core.fstmodel.FSTFeature;
+import de.ovgu.featureide.core.fstmodel.FSTMethod;
 import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
 import de.ovgu.featureide.core.fstmodel.preprocessor.FSTDirective;
@@ -251,12 +252,33 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		}
 		if (createNew) {
 			annotatedPositions = new HashMap<Integer, Position>(docLines);
-			createDirectiveList();
-			createAnnotations();
-		} else if (!directiveMap.isEmpty()) {
-			annotatedPositions.clear();
-			updateDirectives();
-			createAnnotations();
+			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")) {//our FeatureHouseComposerAnnotations
+				try {
+
+					createFOPAnnotations();
+
+				} catch (BadLocationException e) {
+					CorePlugin.getDefault().logError(e);
+				}
+			} else {
+				createDirectiveList();
+				createAnnotations();
+			}
+		} else {
+			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")) {//ourFeatureHouseComposerAnnotations
+				try {
+					clear();
+					createFOPAnnotations();
+				} catch (BadLocationException e) {
+					CorePlugin.getDefault().logError(e);
+				}
+			}
+			if (!directiveMap.isEmpty()) {
+				annotatedPositions.clear();
+				updateDirectives();
+				createAnnotations();
+			}
+
 		}
 	}
 	
@@ -357,6 +379,95 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		}
 		
 		return composer.buildModelDirectivesForFile(lines);
+	}
+	
+	/**
+	 * Creates the color annotations from the FSTDirectives.
+	 */
+	private void createFOPAnnotations() throws BadLocationException {
+		AnnotationModelEvent event = new AnnotationModelEvent(this);
+		FSTModel model = project.getFSTModel();
+
+		if (model == null) {
+			composer.buildFSTModel();
+			model = project.getFSTModel();
+		}
+		if (model == null) {
+			return;
+		}
+
+		clear();
+
+		/*
+		 * 	for (FSTMethod m : model.getClass(file.getName()).getRole("Hello").getMethods()) {
+		 *		composer.postCompile(null, file);
+		 *		int i = 0;
+		 *		while (i++ < 10000000);
+		 *		System.out.println(m + " - " + m.getComposedLine());
+		 *	}
+		 *
+		 *COMPOSED FILE ANNOTATIONS
+		 */
+
+		if (file.getFullPath().toString().contains("/src/")) {
+			composer.postCompile(null, file);
+
+			for (FSTFeature fstFeature : model.getFeatures()) {
+				for (FSTRole role : fstFeature.getRoles()) {
+					for (FSTMethod m : role.getAllMethods()) {
+						int startline = m.getComposedLine();
+						if (m.getComposedLine() != 0) {
+							startline = m.getComposedLine() - 1;
+						}
+						int endline = m.getComposedLine() + m.getMethodLength() - 1;
+						for (int line = startline; line <= endline; line++) {
+							int lineOffset = document.getLineOffset(line);
+							int length = document.getLineLength(line);
+							// bar at the left of the editor
+							Position methodposition = new Position(lineOffset, length);
+							ColorAnnotation cafh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_IMAGE);
+							cafh.setText(m.getRole().getFeature().getName());
+							annotations.add(cafh);
+							event.annotationAdded(cafh);
+							// bar at the right of the editor
+							ColorAnnotation cafho = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_OVERVIEW);
+							cafho.setText(m.getRole().getFeature().getName());
+							annotations.add(cafho);
+							event.annotationAdded(cafho);
+							if (highlighting) {
+								//background colors
+								ColorAnnotation cafhh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_HIGHLIGHT);
+								cafhh.setText(fstFeature.getName());
+								annotations.add(cafhh);
+								event.annotationAdded(cafhh);
+							}
+
+						}
+					}
+				}
+			}
+		} else {
+			/*
+			 * Colorannotations
+			 */
+			for (FSTFeature fstFeature : model.getFeatures()) {
+
+				int color = fstFeature.getColor();
+				if (file.getFullPath().toString().contains("/" + fstFeature.getName() + "/") && file.getFullPath().toString().contains("features")) {
+					for (int line = 0; line < document.getNumberOfLines(); line++) {
+						// bar at the left of the editor
+						Position newPosition = new Position(document.getLineOffset(line), document.getLineLength(line));
+						ColorAnnotation cafh = new ColorAnnotation(color, newPosition, ColorAnnotation.TYPE_IMAGE);
+						cafh.setText(fstFeature.getName());
+						annotations.add(cafh);
+						event.annotationAdded(cafh);
+
+					}
+				}
+
+			}
+		}
+
 	}
 	
 	/**

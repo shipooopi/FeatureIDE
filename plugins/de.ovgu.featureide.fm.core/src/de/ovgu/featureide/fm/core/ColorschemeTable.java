@@ -150,7 +150,7 @@ public class ColorschemeTable {
 	 * Sets the selected colorscheme to an empty colorschme
 	 */
 	public void setEmptyColorscheme() {
-		this.selectedColorscheme = 0;
+		this.selectedColorscheme = 1;
 	}
 	
 	public void reset() {

@@ -96,7 +96,8 @@ public class DynamicProfileMenu extends ContributionItem {
 		FeatureModel fm = myFeatureModel;
 		ColorschemeTable colorschemeTable = fm.getColorschemeTable();
 		List<String> csNames = colorschemeTable.getColorschemeNames();
-
+		
+		
 		int count = 0;
 		for (String name : csNames) {
 			SetProfileColorSchemeAction setCSAction = new SetProfileColorSchemeAction(name, ++count, Action.AS_CHECK_BOX, myFeatureModel, myFeatureProject);
@@ -148,18 +149,18 @@ public class DynamicProfileMenu extends ContributionItem {
 	 *  this method disables the profilemenu, if more than one project is selected
 	 */
 	private static boolean isMultipleSelection() {
-		boolean multipleSelected = false;
+		
 		IStructuredSelection myselection = getIStructuredCurrentSelection();
 
 		if (myselection instanceof ITreeSelection) {
 			TreeSelection treeSelection = (TreeSelection) myselection;
 			TreePath[] treePaths = treeSelection.getPaths();
 			if (treePaths.length > 1) {
-				multipleSelected = true;
-				return multipleSelected;
+				return true;
+				
 			}
 		}
-		return multipleSelected;
+		return false;
 
 	}
 
