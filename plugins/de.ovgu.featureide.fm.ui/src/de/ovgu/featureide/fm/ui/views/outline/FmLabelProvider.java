@@ -21,6 +21,7 @@
 package de.ovgu.featureide.fm.ui.views.outline;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -41,7 +42,7 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
  * @author Jan Wedding
  * @author Melanie Pflaume
  */
-public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaults {
+public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaults, IColorProvider {
 
 	/*
 	 * (non-Javadoc)
@@ -86,11 +87,9 @@ public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaul
 	public void removeListener(ILabelProviderListener listener) {
 	}
 
-//	public void colorizeItems(TreeItem[] treeItems, IFile file) {
-//		if (treeItems != null && treeItems.length > 0) {
-//			treeItems[1].setBackground(new Color(null, 100, 100,100));
-//		}
-//	}
+	public void colorizeItems(TreeItem[] treeItems, IFile file) {
+
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -143,4 +142,31 @@ public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaul
 	public Font getFont(Object element) {
 		return DEFAULT_FONT;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
+	 */
+	@Override
+	public Color getForeground(Object element) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
+	 */
+	@Override
+	public Color getBackground(Object element) {
+		
+//		if (element instanceof Feature) {
+//			
+//		((Feature) element).getColorList().getColor();
+//		return new Color(null, 
+//		
+//		}
+//		
+//		
+//		
+	return GUIDefaults.CONCRETE_BACKGROUND;
+		}
 }
