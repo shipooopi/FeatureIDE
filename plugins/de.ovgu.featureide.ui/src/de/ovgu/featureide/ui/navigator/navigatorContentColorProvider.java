@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -43,11 +44,11 @@ import de.ovgu.featureide.fm.core.configuration.FeatureNotFoundException;
 /**
  * TODO description
  * 
- * @author harnisch
+ * @author Christian Harnisch
  */
-public class navigatorContentColorProvider implements ILabelProvider, IColorProvider, ITreeContentProvider{
-	
-	private Color color_red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+public class navigatorContentColorProvider implements ILabelProvider, IColorProvider, ITreeContentProvider {
+	private Color color_black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
 	 */
@@ -58,48 +59,76 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 	}
 
 	/* (non-Javadoc)
+	 * TODO: Description
 	 * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
 	 */
 	@Override
 	public Color getBackground(Object element) {
 		// TODO Auto-generated method stub
-		int mycolorasint;
-		Color mycolor = new Color(null, 255,255,255);
-		try{
-			if (element instanceof IFile){
+		try {
+			if (element instanceof IFile) {
 				IFile file = (IFile) element;
-				
-				FeatureModel fm = CorePlugin.getFeatureProject(file).getFeatureModel();
-				for (Feature myfeature : fm.getFeatures()){
-					if (myfeature.getColorList().getColor() != -1)
-					{
-						mycolorasint = myfeature.getColorList().getColor();
-						mycolor = new Color(null, ColorPalette.getRGB(mycolorasint, 0)); //int color to rbg "casten"
+				FeatureModel fm = getFeatureModel(file);
+				for (Feature myfeature : fm.getFeatures()) {
+					if (file.getParent().toString().endsWith(myfeature.getName())) {
+						return changeColor(myfeature);
 					}
-					
-					
-					
 				}
-				return mycolor;
+
 			}
-			if (element instanceof IFolder || element instanceof IProject){
-				IContainer folder = (IContainer) element;
-				if (folder.getProject().isOpen()){
-					FeatureModel fm = CorePlugin.getFeatureProject(folder.getProject()).getFeatureModel();
-					for (Feature myfeature : fm.getFeatures()){
-						if (myfeature.getColorList().getColor() != -1){
-						mycolorasint = myfeature.getColorList().getColor();
-						mycolor = new Color(null, ColorPalette.getRGB(mycolorasint, 0));
+			if (element instanceof IFolder) {
+				IFolder folder = (IFolder) element;
+
+				if (folder.getProject().isOpen()) {
+					FeatureModel fm = getFeatureModel(folder);// CorePlugin.getFeatureProject(folder.getProject()).getFeatureModel();
+					for (Feature myfeature : fm.getFeatures()) {
+						if (folder.getFullPath().toString().endsWith(myfeature.getName())) {
+							return changeColor(myfeature);
 						}
 					}
-					return mycolor;
+
 				}
 			}
-		}
-		catch (FeatureNotFoundException e){
-			
+			if (element instanceof IProject) {
+				IContainer folder = (IContainer) element;
+				if (folder.getProject().isOpen()) {
+					FeatureModel fm = getFeatureModel(folder);//CorePlugin.getFeatureProject(folder.getProject()).getFeatureModel();
+					for (Feature myfeature : fm.getFeatures()) {
+						if (myfeature.getColorList().getColor() != -1) {
+							return color_black;
+						}
+					}
+				}
+			}
+
+		} catch (FeatureNotFoundException e) {
+				CorePlugin.getDefault().logError(e);
 		}
 		return null;
+	}
+
+	/**
+	 * TODO description
+	 * @param resource
+	 * @return
+	 */
+	private FeatureModel getFeatureModel(IResource resource) {
+		return CorePlugin.getFeatureProject(resource).getFeatureModel();
+	}
+
+	/**
+	 * TODO description
+	 * @param myfeature
+	 * @return
+	 */
+	private Color changeColor(Feature myfeature) {
+		Color mycolor = new Color(null, 255, 255, 255);
+		int mycolorasint;
+		if (myfeature.getColorList().getColor() != -1) {
+			mycolorasint = myfeature.getColorList().getColor();
+			mycolor = new Color(null, ColorPalette.getRGB(mycolorasint, 0));
+		}
+		return mycolor;
 	}
 
 	/* (non-Javadoc)
@@ -108,7 +137,7 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 	@Override
 	public void addListener(ILabelProviderListener listener) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/* (non-Javadoc)
@@ -117,8 +146,8 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		color_red.dispose();
-		
+		color_black.dispose();
+
 	}
 
 	/* (non-Javadoc)
@@ -136,7 +165,7 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 	@Override
 	public void removeListener(ILabelProviderListener listener) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/* (non-Javadoc)
@@ -163,7 +192,7 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/* (non-Javadoc)
