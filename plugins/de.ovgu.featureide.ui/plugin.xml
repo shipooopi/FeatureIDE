@@ -1343,4 +1343,57 @@
 				type="org.eclipse.core.resources.IFolder">
 		</propertyTester>
 	</extension>
+ <extension point="org.eclipse.ui.navigator.navigatorContent">
+		<navigatorContent
+        activeByDefault="true"
+        contentProvider="de.ovgu.featureide.ui.navigator.navigatorContentColorProvider"
+        id="de.ovgu.featureide.ui.navigatorContentColorProvider"
+        labelProvider="de.ovgu.featureide.ui.navigator.navigatorContentColorProvider"
+        name="featureide Color Provider"
+        priority="high"
+        providesSaveables="false">
+			<triggerPoints>
+				<or>
+					<instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+					<instanceof value="org.eclipse.core.resources.IProject" />
+					<instanceof value="org.eclipse.core.resources.IFolder" />
+				</or>
+			</triggerPoints>
+			<possibleChildren>
+				<or>
+					<instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+					<instanceof value="org.eclipse.core.resources.IProject" />
+					<instanceof value="org.eclipse.core.resources.IResource" />
+					<instanceof value="org.eclipse.core.resources.IFolder" />
+					<instanceof value="org.eclipse.core.resources.IFile" />
+				</or>
+			</possibleChildren>
+			<enablement>
+				<or>
+					<instanceof value="org.eclipse.core.resources.IProject">
+					</instanceof>
+					<instanceof value="org.eclipse.core.resources.IResource">
+					</instanceof>
+				</or>
+			</enablement>
+		</navigatorContent>
+	</extension>
+ <extension
+       point="org.eclipse.ui.navigator.viewer">
+    <viewerContentBinding
+          viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+       <includes>
+          <contentExtension
+                pattern="de.ovgu.featureide.ui.navigatorContentColorProvider">
+          </contentExtension></includes>
+    </viewerContentBinding>
+    <viewerContentBinding viewerId="org.eclipse.ui.views.ResourceNavigator">
+			<includes>
+				<contentExtension pattern="de.ovgu.cide.navigatorContentColorProvider">
+				</contentExtension>
+			</includes>
+		</viewerContentBinding>
+ </extension>
+	
+	
 </plugin>
