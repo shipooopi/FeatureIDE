@@ -36,6 +36,7 @@ import de.ovgu.featureide.fm.core.FeatureModel;
  * @author Christian Harnisch
  */
 
+@SuppressWarnings("restriction")
 public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;

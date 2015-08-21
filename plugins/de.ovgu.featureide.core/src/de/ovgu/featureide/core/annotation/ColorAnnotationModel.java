@@ -33,7 +33,9 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.Vector;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -56,15 +58,16 @@ import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.core.builder.IComposerExtensionClass;
 import de.ovgu.featureide.core.fstmodel.FSTFeature;
+import de.ovgu.featureide.core.fstmodel.FSTField;
 import de.ovgu.featureide.core.fstmodel.FSTMethod;
 import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
+import de.ovgu.featureide.core.fstmodel.RoleElement;
 import de.ovgu.featureide.core.fstmodel.preprocessor.FSTDirective;
 import de.ovgu.featureide.fm.core.ColorList;
 import de.ovgu.featureide.fm.core.annotation.ColorAnnotation;
 import de.ovgu.featureide.fm.core.annotation.LogService;
 import de.ovgu.featureide.fm.core.annotation.LogService.LogLevel;
-//import de.ovgu.featureide.ui.UIPlugin;
 
 /**
  * Assigns color annotations to the editor.
@@ -254,7 +257,6 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 			annotatedPositions = new HashMap<Integer, Position>(docLines);
 			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")) {//our FeatureHouseComposerAnnotations
 				try {
-
 					createFOPAnnotations();
 
 				} catch (BadLocationException e) {
@@ -267,7 +269,6 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		} else {
 			if (project.getComposerID().equals("de.ovgu.featureide.composer.featurehouse")) {//ourFeatureHouseComposerAnnotations
 				try {
-					clear();
 					createFOPAnnotations();
 				} catch (BadLocationException e) {
 					CorePlugin.getDefault().logError(e);
@@ -382,7 +383,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 	}
 	
 	/**
-	 * Creates the color annotations from the FSTDirectives.
+	 * Creates Annotations for FOP 
 	 */
 	private void createFOPAnnotations() throws BadLocationException {
 		AnnotationModelEvent event = new AnnotationModelEvent(this);
@@ -399,77 +400,110 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		clear();
 
 		/*
-		 * 	for (FSTMethod m : model.getClass(file.getName()).getRole("Hello").getMethods()) {
-		 *		composer.postCompile(null, file);
-		 *		int i = 0;
-		 *		while (i++ < 10000000);
-		 *		System.out.println(m + " - " + m.getComposedLine());
-		 *	}
-		 *
 		 *COMPOSED FILE ANNOTATIONS
 		 */
-
-		if (file.getFullPath().toString().contains("/src/")) {
+		if (isInBuildFolder((IFolder)file.getParent())) {
 			composer.postCompile(null, file);
-
 			for (FSTFeature fstFeature : model.getFeatures()) {
 				for (FSTRole role : fstFeature.getRoles()) {
 					for (FSTMethod m : role.getAllMethods()) {
-						int startline = m.getComposedLine();
-						if (m.getComposedLine() != 0) {
-							startline = m.getComposedLine() - 1;
-						}
-						int endline = m.getComposedLine() + m.getMethodLength() - 1;
-						for (int line = startline; line <= endline; line++) {
-							int lineOffset = document.getLineOffset(line);
-							int length = document.getLineLength(line);
-							// bar at the left of the editor
-							Position methodposition = new Position(lineOffset, length);
-							ColorAnnotation cafh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_IMAGE);
-							cafh.setText(m.getRole().getFeature().getName());
-							annotations.add(cafh);
-							event.annotationAdded(cafh);
-							// bar at the right of the editor
-							ColorAnnotation cafho = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_OVERVIEW);
-							cafho.setText(m.getRole().getFeature().getName());
-							annotations.add(cafho);
-							event.annotationAdded(cafho);
-							if (highlighting) {
-								//background colors
-								ColorAnnotation cafhh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_HIGHLIGHT);
-								cafhh.setText(fstFeature.getName());
-								annotations.add(cafhh);
-								event.annotationAdded(cafhh);
-							}
-
-						}
+						createFOPComposedAnnotations(event, fstFeature, m);
+					}
+					for (FSTField f : role.getAllFields()) {
+						createFOPComposedAnnotations(event, fstFeature, f);
 					}
 				}
 			}
 		} else {
-			/*
-			 * Colorannotations
-			 */
-			for (FSTFeature fstFeature : model.getFeatures()) {
-
+			String featureName = getFeature((IFolder)file.getParent());
+			if (featureName != null) {
+				FSTFeature fstFeature = model.getFeature(featureName);
 				int color = fstFeature.getColor();
-				if (file.getFullPath().toString().contains("/" + fstFeature.getName() + "/") && file.getFullPath().toString().contains("features")) {
-					for (int line = 0; line < document.getNumberOfLines(); line++) {
-						// bar at the left of the editor
-						Position newPosition = new Position(document.getLineOffset(line), document.getLineLength(line));
-						ColorAnnotation cafh = new ColorAnnotation(color, newPosition, ColorAnnotation.TYPE_IMAGE);
-						cafh.setText(fstFeature.getName());
-						annotations.add(cafh);
-						event.annotationAdded(cafh);
-
-					}
-				}
-
+				for (int line = 0; line < document.getNumberOfLines(); line++) {
+					// bar at the left of the editor
+					Position newPosition = new Position(document.getLineOffset(line), document.getLineLength(line));
+					ColorAnnotation cafh = new ColorAnnotation(color, newPosition, ColorAnnotation.TYPE_IMAGE);
+					cafh.setText(fstFeature.getName());
+					annotations.add(cafh);
+					event.annotationAdded(cafh);
+				}				
 			}
 		}
 
 	}
+
+	/**
+	 * Creates Annotations for FOP Composed File
+	 * @param event 
+	 * @param fstFeature
+	 * @param m
+	 * @throws BadLocationException
+	 */
+	private void createFOPComposedAnnotations(AnnotationModelEvent event, FSTFeature fstFeature, RoleElement<?> m) throws BadLocationException {
+		if (m.getComposedLine() <= 0) {
+			return;
+		}
+		int startline = m.getComposedLine() - 1;
+		int endline = m.getComposedLine() + m.getMethodLength() - 1;
+		int lineOffset = document.getLineOffset(startline);
+		int length = 0;
+		for (int line = startline; line <= endline; line++) {
+			length += document.getLineLength(line);
+			// bar at the left of the editor
+			Position methodposition = new Position(document.getLineOffset(line), document.getLineLength(line));
+			ColorAnnotation cafh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_IMAGE);
+			cafh.setText(m.getRole().getFeature().getName());
+			annotations.add(cafh);
+			event.annotationAdded(cafh);
+		}
+		Position methodposition = new Position(lineOffset, length);
+		// bar at the right of the editor
+		ColorAnnotation cafho = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_OVERVIEW);
+		cafho.setText(m.getRole().getFeature().getName());
+		annotations.add(cafho);
+		event.annotationAdded(cafho);
+		if (highlighting) {
+			//background colors
+			ColorAnnotation cafhh = new ColorAnnotation(m.getRole().getFeature().getColor(), methodposition, ColorAnnotation.TYPE_HIGHLIGHT);
+			cafhh.setText(fstFeature.getName());
+			annotations.add(cafhh);
+			event.annotationAdded(cafhh);
+		}
+	}
 	
+	/**
+	 * Checks whether the File is in the SourceFolder
+	 * @param folder 
+	 * @return Feature from the SourceFolder
+	 */
+	private String getFeature(IFolder folder) {
+		IContainer parent = folder.getParent();
+		if (parent.equals(project.getSourceFolder())) {
+			return folder.getName();
+		}
+		if (parent instanceof IFolder) {
+			return getFeature((IFolder) parent);
+		}
+		return null;
+	}
+
+	/**
+	 * Checks whether the File is in the BuildFolder
+	 * 
+	 * @param folder 
+	 * @return true if BuildFolder or child of BuildFolder
+	 */
+	private boolean isInBuildFolder(IFolder folder) {
+		if (folder.equals(project.getBuildFolder())) {
+			return true;
+		}
+		IContainer parent = folder.getParent();
+		if (parent instanceof IFolder) {
+			return isInBuildFolder((IFolder) parent);
+		}
+		return false;
+	}
+
 	/**
 	 *  Creates the color annotations from the FSTDirectives.
 	 */
