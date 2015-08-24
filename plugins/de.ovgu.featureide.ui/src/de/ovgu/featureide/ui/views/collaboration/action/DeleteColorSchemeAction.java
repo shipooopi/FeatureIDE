@@ -25,6 +25,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 import de.ovgu.featureide.ui.views.collaboration.CollaborationView;
 
 /**
@@ -45,7 +47,10 @@ public class DeleteColorSchemeAction extends AbstractColorAction {
 	 */
 	@Override
 	protected boolean action(FeatureModel fm, String collName) {
-		fm.getColorschemeTable().removeColorscheme();
+		//fm.getColorschemeTable().removeColorscheme();
+		
+		ProfileManager.Project project = ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+		project.removeProfile(project.getActiveProfile().getName());
 		return true;
 	}
 	

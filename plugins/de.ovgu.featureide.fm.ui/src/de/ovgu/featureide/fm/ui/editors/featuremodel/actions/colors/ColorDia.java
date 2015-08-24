@@ -34,15 +34,20 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
+import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
 /**
  * The purpose of this dialog is to display the content of a 'normal' {@link TreeViewer} in a {@link CheckboxTreeViewer} to select some of it's
@@ -70,13 +75,13 @@ public class ColorDia extends Dialog {
 	}
 
 	protected void configureShell(Shell newShell) {
-		newShell.setMinimumSize(new Point(600, 600));
+		newShell.setMinimumSize(new Point(300, 300));
 		super.configureShell(newShell);
 		newShell.setText("Color Dialog");
 	}
 
 	protected Point getInitialSize() {
-		return new Point(600, 600);
+		return new Point(300, 300);
 	}
 
 	@Override
@@ -108,9 +113,6 @@ public class ColorDia extends Dialog {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 
-		//		final List list = new List(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
-		//		list.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(3,0)));
-		//		list.setLayoutData(gridData);
 		final Table table = new Table(container, SWT.NONE);
 		table.setBackground(new Color(null, 240, 240, 240));
 		table.setLayoutData(gridData);
@@ -118,140 +120,109 @@ public class ColorDia extends Dialog {
 		for (int i = 0; i < flist.size(); i++) {
 			TableItem item = new TableItem(table, SWT.NONE);
 			item.setText(flist.get(i).getName());
-			if (flist.get(i).getColorList().getColor() != -1) {
-				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(flist.get(i).getColorList().getColor(), 0)));
-			}
+//			if (flist.get(i).getColorList().getColor() != -1) {
+//				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(flist.get(i).getColorList().getColor(), 0)));
+//			}
+			final Feature feature = flist.get(i);
+			Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+			if (profile.hasFeatureColor(feature.getName()))
+				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0)));
 		}
 
 		gridData = new GridData();
+		gridData.verticalAlignment = GridData.BEGINNING;
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 
-		final Button buttonRED = new Button(container, SWT.PUSH);
-		final Button buttonORANGE = new Button(container, SWT.PUSH);
-		final Button buttonYELLOW = new Button(container, SWT.PUSH);
-		final Button buttonDARKGREEN = new Button(container, SWT.PUSH);
-		final Button buttonLIGHTGREEN = new Button(container, SWT.PUSH);
-		final Button buttonCYAN = new Button(container, SWT.PUSH);
-		final Button buttonLIGHTGREY = new Button(container, SWT.PUSH);
-		final Button buttonBLUE = new Button(container, SWT.PUSH);
-		final Button buttonMAGENTA = new Button(container, SWT.PUSH);
-		final Button buttonPINK = new Button(container, SWT.PUSH);
-		final Button buttonCLEAR = new Button(container, SWT.PUSH);
+		final String[] dropdownITEMS = { "Red", "Orange", "Yellow", "Dark Green", "Light Green", "Cyan", "Light Grey", "Blue", "Magenta", "Pink" };
+		Combo colorDROPDOWN = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		colorDROPDOWN.setLayoutData(gridData);
+		colorDROPDOWN.setItems(dropdownITEMS);
+		colorDROPDOWN.setToolTipText("Choose a color");
 
-		buttonRED.setText("Red");
-		buttonRED.setLayoutData(gridData);
-		buttonORANGE.setText("Orange");
-		buttonORANGE.setLayoutData(gridData);
-		buttonYELLOW.setText("Yellow");
-		buttonYELLOW.setLayoutData(gridData);
-		buttonDARKGREEN.setText("Dark Green");
-		buttonDARKGREEN.setLayoutData(gridData);
-		buttonLIGHTGREEN.setText("Light Green");
-		buttonLIGHTGREEN.setLayoutData(gridData);
-		buttonCYAN.setText("Cyan");
-		buttonCYAN.setLayoutData(gridData);
-		buttonLIGHTGREY.setText("Light Grey");
-		buttonLIGHTGREY.setLayoutData(gridData);
-		buttonBLUE.setText("Blue");
-		buttonBLUE.setLayoutData(gridData);
-		buttonMAGENTA.setText("Magenta");
-		buttonMAGENTA.setLayoutData(gridData);
-		buttonPINK.setText("Pink");
-		buttonPINK.setLayoutData(gridData);
-		buttonCLEAR.setText("Clear");
-		buttonCLEAR.setLayoutData(gridData);
+		SelectionListener selectionListener = new SelectionListener() {
+			public void widgetSelected(SelectionEvent event) {
+				Combo dropdownLISTENER = ((Combo) event.widget);
 
-		SelectionListener listener = new SelectionListener() {
-
-			public void widgetSelected(SelectionEvent e) {
-
-				if (e.getSource() == buttonRED) {
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[0])) {
 					colorID = 0;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonORANGE) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[1])) {
 					colorID = 1;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonYELLOW) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[2])) {
 					colorID = 2;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonDARKGREEN) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[3])) {
 					colorID = 3;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonLIGHTGREEN) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[4])) {
 					colorID = 4;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonCYAN) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[5])) {
 					colorID = 5;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonLIGHTGREY) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[6])) {
 					colorID = 6;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonBLUE) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[7])) {
 					colorID = 7;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonMAGENTA) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[8])) {
 					colorID = 8;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonPINK) {
+
+				if (dropdownLISTENER.getText().equals(dropdownITEMS[9])) {
 					colorID = 9;
 					for (int i = 0; i < flist.size(); i++) {
 						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
 					}
 				}
-				if (e.getSource() == buttonCLEAR) {
-					colorID = -1;
-					for (int i = 0; i < flist.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0)));
-					}
-				}
-
 			}
 
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
 
-			}
+			};
 		};
-
-		buttonRED.addSelectionListener(listener);
-		buttonORANGE.addSelectionListener(listener);
-		buttonYELLOW.addSelectionListener(listener);
-		buttonDARKGREEN.addSelectionListener(listener);
-		buttonLIGHTGREEN.addSelectionListener(listener);
-		buttonCYAN.addSelectionListener(listener);
-		buttonLIGHTGREY.addSelectionListener(listener);
-		buttonBLUE.addSelectionListener(listener);
-		buttonMAGENTA.addSelectionListener(listener);
-		buttonPINK.addSelectionListener(listener);
-		buttonCLEAR.addSelectionListener(listener);
+		colorDROPDOWN.addSelectionListener(selectionListener);
 
 		return parent;
 
@@ -261,13 +232,32 @@ public class ColorDia extends Dialog {
 		if (IDialogConstants.OK_ID == buttonId) {
 
 			for (int i = 0; i < flist.size(); i++) {
-				flist.get(i).getColorList().setColor(colorID);
+				//printSchemas(flist.get(i).getFeatureModel().getColorschemeTable());
+				//flist.get(i).getColorList().setColor(flist.get(i).getFeatureModel().getColorschemeTable().getSelectedColorscheme(), colorID);
+				
+				// Marcus Fix
+				final Feature feature = flist.get(i);
+				final FeatureModel model = feature.getFeatureModel();
+				ProfileManager.Project project = ProfileManager.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+				ProfileManager.Project.Profile activeProfile = project.getActiveProfile();
+				activeProfile.setFeatureColor(feature.getName(), ProfileManager.getColorFromID(colorID));
+				// End Marcus Fix
 			}
 			okPressed();
 
 		} else if (IDialogConstants.CANCEL_ID == buttonId) {
 			cancelPressed();
 		}
+	}
+
+	/**
+	 * @param colorschemeTable
+	 */
+	private void printSchemas(ColorschemeTable colorschemeTable) {
+		System.out.println("------");
+		for (String s : colorschemeTable.getColorschemeNames())
+			System.out.println(s);
+
 	}
 
 	protected void okPressed() {

@@ -24,7 +24,6 @@ import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED
 
 import java.util.ArrayList;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.gef.ui.parts.GraphicalViewerImpl;
 import org.eclipse.jface.action.Action;
@@ -65,7 +64,6 @@ public class ColorSelectedFeatureAction extends Action {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-
 			updateFeatureList(selection);
 		}
 	};
@@ -73,6 +71,7 @@ public class ColorSelectedFeatureAction extends Action {
 	public void updateFeatureList(IStructuredSelection selection) {
 
 		if (!selection.isEmpty()) {
+			featureList.clear();
 
 			Object[] editPartArray = selection.toArray();
 
@@ -90,25 +89,29 @@ public class ColorSelectedFeatureAction extends Action {
 				}
 			}
 
-		} else {
-			featureList.clear();
+			return;
 		}
-		return;
-	}
-
-	public IFile getColorFile(IProject project) {
-		return project.getFile(COLOR_FILE_NAME);
+		featureList.clear();
 	}
 
 	@Override
 	public void run() {
 		ColorDia dialog = new ColorDia(shell, this.featureList);
+
 		int returnstat = dialog.open();
 
 		if (Window.OK == returnstat) {
-			featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
-			featureList.get(0).getFeatureModel().redrawDiagram();
+
+			if (!featureList.isEmpty()) {
+				featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
+				featureList.get(0).getFeatureModel().redrawDiagram();
+			}
 		}
+
+		if (Window.CANCEL == returnstat) {
+			featureList.clear();
+		}
+
 	}
 
 }

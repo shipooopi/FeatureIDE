@@ -120,10 +120,13 @@ import de.ovgu.featureide.fm.core.AWaitingJob;
 import de.ovgu.featureide.fm.core.ColorList;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Color;
 import de.ovgu.featureide.fm.core.PropertyConstants;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.core.job.AStoppableJob;
 import de.ovgu.featureide.fm.ui.GraphicsExporter;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 import de.ovgu.featureide.ui.UIPlugin;
 import de.ovgu.featureide.ui.views.collaboration.action.AddColorSchemeAction;
 import de.ovgu.featureide.ui.views.collaboration.action.AddRoleAction;
@@ -549,7 +552,9 @@ public class CollaborationView extends ViewPart implements GUIDefaults, ICurrent
 				ColorschemeTable colorschemeTable = fm.getColorschemeTable();
 				List<String> csNames = colorschemeTable.getColorschemeNames();
 
-				String curColorSchemeName = colorschemeTable.getSelectedColorschemeName();
+				ProfileManager.Project projet = ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+				final String curColorSchemeName = ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile().getName();
+				
 				MenuManager colorSchemeSubMenu = null;
 
 				if (curColorSchemeName != null) {
@@ -559,9 +564,9 @@ public class CollaborationView extends ViewPart implements GUIDefaults, ICurrent
 				}
 
 				int count = 0;
-				for (String name : csNames) {
-					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, viewer, this, ++count);
-					if (count == colorschemeTable.getSelectedColorscheme()) {
+				for (String name : projet.getProfileNames()) {
+					SetColorSchemeAction setCSAction = new SetColorSchemeAction(name, viewer, this, ++count, name);
+					if (name.equals(curColorSchemeName)) {
 						setCSAction.setChecked(true);
 					}
 					colorSchemeSubMenu.add(setCSAction);
@@ -569,23 +574,35 @@ public class CollaborationView extends ViewPart implements GUIDefaults, ICurrent
 
 				colorSchemeSubMenu.add(new Separator());
 				colorSchemeSubMenu.add(addColorSchemeAction);
+				
 				colorSchemeSubMenu.add(renameColorSchemeAction);
 				colorSchemeSubMenu.add(deleteColorSchemeAction);
+				renameColorSchemeAction.setEnabled(!curColorSchemeName.equals("Default"));
+				deleteColorSchemeAction.setEnabled(!curColorSchemeName.equals("Default"));
+				
 				colorSubMenu.removeAll();
 				colorSubMenu.add(colorSchemeSubMenu);
 				colorSubMenu.add(new Separator());
 
-				boolean enableColorActions = colorschemeTable.getSelectedColorscheme() > 0;
+				//boolean enableColorActions = colorschemeTable.getSelectedColorscheme() > 0;
 				for (int i = 0; i < setColorActions.length; i++) {
-					setColorActions[i].setEnabled(enableColorActions);
+					//setColorActions[i].setEnabled(enableColorActions);
 					setColorActions[i].setChecked(false);
 					colorSubMenu.add(setColorActions[i]);
 				}
 
-				int color = fm.getFeature(coll.getName()).getColorList().getColor();
-				if (ColorList.isValidColor(color)) {
-					setColorActions[color].setChecked(true);
+				
+//				int color = fm.getFeature(coll.getName()).getColorList().getColor();
+//				if (ColorList.isValidColor(color)) {
+//					setColorActions[color].setChecked(true);
+//				}
+				ProfileManager.Project.Profile profile =  ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+				Color color = profile.getColor(coll.getName());
+				int colorIndex = ProfileManager.toColorIndex(color);
+				if (ColorList.isValidColor(ProfileManager.toColorIndex(color))) {
+					setColorActions[colorIndex].setChecked(true);
 				}
+				
 
 				menuMgr.add(colorSubMenu);
 			}

@@ -46,7 +46,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorInput;
@@ -57,6 +59,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.sat4j.specs.TimeoutException;
 
+import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer;
 import de.ovgu.featureide.fm.core.FunctionalInterfaces;
 import de.ovgu.featureide.fm.core.FunctionalInterfaces.IBinaryFunction;
@@ -69,6 +72,7 @@ import de.ovgu.featureide.fm.core.configuration.TreeElement;
 import de.ovgu.featureide.fm.core.job.IJob;
 import de.ovgu.featureide.fm.core.job.util.JobFinishListener;
 import de.ovgu.featureide.fm.ui.FMUIPlugin;
+import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
 
 /**
  * Basic class with some default methods for configuration editor pages.
@@ -394,7 +398,36 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		if (errorMessage(tree)) {
 			final Configuration configuration = configurationEditor.getConfiguration();
 			tree.removeAll();
+			tree.addListener(SWT.PaintItem, new Listener() {
+				
+				@Override
+				public void handleEvent(Event event) {
+					if(event.item instanceof TreeItem){
+						TreeItem item = (TreeItem) event.item;
+						if(item.getData() instanceof SelectableFeature){
+							SelectableFeature feature =(SelectableFeature)  item.getData();
+							Feature f = feature.getFeature();
+							System.out.println(f.getName());
+							item.setBackground(GUIDefaults.CONCRETE_BACKGROUND);
+							
+						}
+						
+					System.out.println();
+//					 TODO Auto-generated method stub
+					}
+					
+				}
+			});
 			final TreeItem root = new TreeItem(tree, 0);
+			root.addListener(SWT.Paint, new Listener() {
+				
+				@Override
+				public void handleEvent(Event event) {
+					System.out.println();
+					// TODO Auto-generated method stub
+					
+				}
+			});
 			root.setText(configuration.getRoot().getName());
 			root.setData(configuration.getRoot());
 			itemMap.put(configuration.getRoot(), root);

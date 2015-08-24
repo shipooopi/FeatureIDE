@@ -26,6 +26,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 import de.ovgu.featureide.ui.views.collaboration.CollaborationView;
 import de.ovgu.featureide.ui.wizards.RenameColorSchemeWizard;
 
@@ -51,7 +53,8 @@ public class RenameColorSchemeAction extends AbstractColorAction {
 
 		WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
 		dialog.create();
-		dialog.open();
+		if (dialog.open() == WizardDialog.OK)
+			collaborationView.refresh();
 		
 		return false;
 	}

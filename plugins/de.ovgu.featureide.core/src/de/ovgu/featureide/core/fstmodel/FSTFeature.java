@@ -26,6 +26,9 @@ import java.util.LinkedList;
 import javax.annotation.Nonnull;
 
 import de.ovgu.featureide.fm.core.Feature;
+import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
 /**
  * Represents a feature at the {@link FSTModel}.<br>
@@ -63,7 +66,10 @@ public class FSTFeature {
 		if (model != null  && model.getFeatureProject().getFeatureModel().getFeature(name).getColorList() != null){
 			Feature feature = model.getFeatureProject().getFeatureModel().getFeature(name);
 			if(feature.getColorList() != null){
-				 return model.getFeatureProject().getFeatureModel().getFeature(name).getColorList().getColor();
+				final FeatureModel featureModel = model.getFeatureProject().getFeatureModel();
+				ProfileManager.Project project = ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+				return ProfileManager.toColorIndex(project.getActiveProfile().getColor(name));
+				 //return model.getFeatureProject().getFeatureModel().getFeature(name).getColorList().getColor();
 			}
 		}
 		return color;

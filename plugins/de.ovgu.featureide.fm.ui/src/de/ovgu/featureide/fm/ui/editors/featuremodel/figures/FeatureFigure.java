@@ -45,8 +45,11 @@ import de.ovgu.featureide.fm.core.ExtendedFeature;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer;
+import de.ovgu.featureide.fm.core.ProfileManager;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer.Attribute;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 import de.ovgu.featureide.fm.ui.editors.FeatureDiagramExtension;
 import de.ovgu.featureide.fm.ui.editors.FeatureUIHelper;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
@@ -134,6 +137,13 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 	private boolean isHidden(Feature feature) {
 		return !feature.getFeatureModel().getLayout().showHiddenFeatures() && feature.hasHiddenParent();
 	}
+	
+	/**
+	 * @author Marcus Pinnecke
+	 */
+	private Profile getCurrentProfile(FeatureModel featureModel) {
+		return ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+	}
 
 	public void setProperties() {
 		final StringBuilder toolTip = new StringBuilder();
@@ -142,8 +152,10 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		setBackgroundColor(FMPropertyManager.getConcreteFeatureBackgroundColor());
 		setBorder(FMPropertyManager.getFeatureBorder(feature.isConstraintSelected()));
 
-		if (feature.getColorList().getColor() != ColorList.INVALID_COLOR) {
-			setBackgroundColor(new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(),0)));
+		if (getCurrentProfile(feature.getFeatureModel()).hasFeatureColor(feature.getName())) {
+		//if (feature.getColorList().getColor() != ColorList.INVALID_COLOR) {
+			//setBackgroundColor(new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(),0)));
+			setBackgroundColor(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())),0)));
 
 		} else {
 			final FeatureModelAnalyzer analyser = feature.getFeatureModel().getAnalyser();

@@ -63,7 +63,7 @@ public class AddProfileColorSchemeAction extends Action {
 	 * this Method calls the Wizard and saves the configuration
 	 */
 	public void run() {
-		NewColorSchemeWizard wizard = new NewColorSchemeWizard(model);
+		NewColorSchemeWizard wizard = new NewColorSchemeWizard(model, null);
 
 		WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
 		dialog.create();
