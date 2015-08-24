@@ -1,5 +1,7 @@
 package de.ovgu.featureide.ui.actions;
 
+import static de.ovgu.featureide.fm.core.localization.StringTable.NO_COLORSCHEME_SELECTED;
+
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -28,6 +30,8 @@ import de.ovgu.featureide.core.CorePlugin;
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
 /**
  * Class to add the profilemenu to the contextmenu of the project (projectonly)
@@ -97,11 +101,14 @@ public class DynamicProfileMenu extends ContributionItem {
 		ColorschemeTable colorschemeTable = fm.getColorschemeTable();
 		List<String> csNames = colorschemeTable.getColorschemeNames();
 		
+		ProfileManager.Project project = ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+		final String curColorSchemeName = ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile().getName();
+		
 		
 		int count = 0;
-		for (String name : csNames) {
+		for (String name : project.getProfileNames()) {
 			SetProfileColorSchemeAction setCSAction = new SetProfileColorSchemeAction(name, ++count, Action.AS_CHECK_BOX, myFeatureModel, myFeatureProject);
-			if (count == colorschemeTable.getSelectedColorscheme()) {
+			if (name.equals(curColorSchemeName)) {
 				setCSAction.setChecked(true);
 			}
 			menuMgr.add(setCSAction);
@@ -116,7 +123,7 @@ public class DynamicProfileMenu extends ContributionItem {
 		/*
 		 * disables rename and delete when default colorscheme is selected
 		 */
-		if (colorschemeTable.getSelectedColorschemeName().equals("Default Colorscheme")) {
+		if (curColorSchemeName.equals("Default")) {
 			renameProfileSchemeAction.setEnabled(false);
 			deleteProfileSchemeAction.setEnabled(false);
 		}

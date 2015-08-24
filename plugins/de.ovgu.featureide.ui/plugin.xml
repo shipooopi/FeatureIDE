@@ -1346,10 +1346,9 @@
  <extension point="org.eclipse.ui.navigator.navigatorContent">
 		<navigatorContent
         activeByDefault="true"
-        contentProvider="de.ovgu.featureide.ui.navigator.navigatorContentColorProvider"
-        id="de.ovgu.featureide.ui.navigatorContentColorProvider"
-        labelProvider="de.ovgu.featureide.ui.navigator.navigatorContentColorProvider"
-        name="featureide Color Provider"
+        id="de.ovgu.featureide.ui.NavigatorContentImageProvider"
+        labelProvider="de.ovgu.featureide.ui.navigator.NavigatorContentImageProvider"
+        name="featureide Image Provider"
         priority="high"
         providesSaveables="false">
 			<triggerPoints>
@@ -1384,12 +1383,12 @@
           viewerId="org.eclipse.ui.navigator.ProjectExplorer">
        <includes>
           <contentExtension
-                pattern="de.ovgu.featureide.ui.navigatorContentColorProvider">
+                pattern="de.ovgu.featureide.ui.NavigatorContentImageProvider">
           </contentExtension></includes>
     </viewerContentBinding>
     <viewerContentBinding viewerId="org.eclipse.ui.views.ResourceNavigator">
 			<includes>
-				<contentExtension pattern="de.ovgu.cide.navigatorContentColorProvider">
+				<contentExtension pattern="de.ovgu.featureide.ui.NavigatorContentImageProvider">
 				</contentExtension>
 			</includes>
 		</viewerContentBinding>
