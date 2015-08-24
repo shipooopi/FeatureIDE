@@ -115,8 +115,6 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.calculations.Redund
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.calculations.RunManualCalculationsAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.calculations.TautologyContraintsCalculationsAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors.ColorSelectedFeatureAction;
-import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors.ColorSelectedFeatureChildrenAction;
-import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors.ColorSelectedFeatureSameLevelAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.GraphicalEditPartFactory;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.layouts.FeatureDiagramLayoutHelper;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.layouts.FeatureDiagramLayoutManager;
@@ -147,8 +145,6 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 	private MandatoryAction mandatoryAction;
 	private AbstractAction abstractAction;
 	private ColorSelectedFeatureAction colorSelectedFeatureAction;
-	private ColorSelectedFeatureChildrenAction colorSelectedFeatureChildrenAction;
-	private ColorSelectedFeatureSameLevelAction colorSelectedFeatureSameLevelAction;
 	private HiddenAction hiddenAction;
 	private AndAction andAction;
 	private OrAction orAction;
@@ -277,8 +273,6 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 
 		colorSelectedFeatureAction = new ColorSelectedFeatureAction(this, featureModelEditor.getModelFile().getProject());
 
-		colorSelectedFeatureChildrenAction = new ColorSelectedFeatureChildrenAction(this, featureModel);
-		colorSelectedFeatureSameLevelAction = new ColorSelectedFeatureSameLevelAction(this, featureModel);
 		deleteAllAction = new DeleteAllAction(this, featureModel);
 		mandatoryAction = new MandatoryAction(this, featureModel);
 		hiddenAction = new HiddenAction(this, featureModel);
@@ -361,11 +355,6 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 		subMenuCalculations.add(new RedundantConstrainsCalculationsAction(this, getFeatureModel()));
 		subMenuCalculations.add(new TautologyContraintsCalculationsAction(this, getFeatureModel()));
 
-		IMenuManager subMenuColors = new MenuManager("Color");
-		subMenuColors.add(colorSelectedFeatureAction);
-		subMenuColors.add(colorSelectedFeatureChildrenAction);
-		subMenuColors.add(colorSelectedFeatureSameLevelAction);
-
 		showHiddenFeaturesAction.setChecked(getFeatureModel().getLayout().showHiddenFeatures());
 
 		final IMenuManager subMenuLayout = new MenuManager(SET_LAYOUT);
@@ -425,13 +414,15 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			menu.add(new Separator());
 			menu.add(reverseOrderAction);
 			menu.add(legendAction);
-			menu.add(subMenuColors);
+			menu.add(new Separator());
+			menu.add(colorSelectedFeatureAction);
 			menu.add(new Separator());
 		} else if (editConstraintAction.isEnabled() && !connectionSelected) {
 			menu.add(createConstraintAction);
 			menu.add(editConstraintAction);
 			menu.add(deleteAction);
-			menu.add(subMenuColors);
+			menu.add(new Separator());
+			menu.add(colorSelectedFeatureAction);
 		} else if (legendLayoutAction.isEnabled()) {
 			menu.add(legendLayoutAction);
 			menu.add(legendAction);
@@ -445,7 +436,8 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			menu.add(new Separator());
 			menu.add(reverseOrderAction);
 			menu.add(legendAction);
-			menu.add(subMenuColors);
+			menu.add(new Separator());
+			menu.add(colorSelectedFeatureAction);
 		}
 		menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		if (featureModelEditor.getFeatureModel().hasHidden()) {

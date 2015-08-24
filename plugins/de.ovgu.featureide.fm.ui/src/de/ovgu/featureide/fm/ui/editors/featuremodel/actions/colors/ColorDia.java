@@ -114,15 +114,13 @@ public class ColorDia extends Dialog {
 		gridData.grabExcessVerticalSpace = true;
 
 		final Table table = new Table(container, SWT.NONE);
-		table.setBackground(new Color(null, 240, 240, 240));
+		
 		table.setLayoutData(gridData);
 
 		for (int i = 0; i < flist.size(); i++) {
 			TableItem item = new TableItem(table, SWT.NONE);
 			item.setText(flist.get(i).getName());
-//			if (flist.get(i).getColorList().getColor() != -1) {
-//				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(flist.get(i).getColorList().getColor(), 0)));
-//			}
+			
 			final Feature feature = flist.get(i);
 			Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 			if (profile.hasFeatureColor(feature.getName()))

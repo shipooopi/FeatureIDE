@@ -20,7 +20,7 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
-import static de.ovgu.featureide.fm.core.localization.StringTable.COLOR_SELECTED_FEATURE;
+import static de.ovgu.featureide.fm.core.localization.StringTable.COLORATION;
 
 import java.util.ArrayList;
 
@@ -56,7 +56,7 @@ public class ColorSelectedFeatureAction extends Action {
 		featureProject = project;
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
-		updateSetColorActionText(COLOR_SELECTED_FEATURE);
+		updateSetColorActionText(COLORATION);
 
 	}
 
