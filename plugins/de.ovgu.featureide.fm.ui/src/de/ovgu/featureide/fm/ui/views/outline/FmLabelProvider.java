@@ -33,6 +33,7 @@ import org.prop4j.NodeWriter;
 
 import de.ovgu.featureide.fm.core.Constraint;
 import de.ovgu.featureide.fm.core.Feature;
+import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
 
 /**
@@ -157,16 +158,19 @@ public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaul
 	 */
 	@Override
 	public Color getBackground(Object element) {
-		
-//		if (element instanceof Feature) {
-//			
-//		((Feature) element).getColorList().getColor();
-//		return new Color(null, 
-//		
-//		}
-//		
-//		
-//		
-	return GUIDefaults.CONCRETE_BACKGROUND;
+		Color col = null;
+
+		if (element instanceof Feature) {
+
+			Feature feature = (Feature) element;
+
+			if (feature.getColorList().getColor() == -1) {
+				col = new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(), 1));
+
+			}
+
 		}
+		return col;
+
+	}
 }
