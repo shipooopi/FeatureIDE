@@ -48,15 +48,12 @@ public class ColorSelectedFeatureAction extends Action {
 		super.setText(menuname);
 	}
 
-	/**
-	 * @param viewer
-	 * @param featuremodel
-	 */
 	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
 		featureProject = project;
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
 		updateSetColorActionText(COLORATION);
+		setEnabled(false);
 
 	}
 
@@ -79,23 +76,25 @@ public class ColorSelectedFeatureAction extends Action {
 
 				Object editPart = editPartArray[i];
 				if (editPart instanceof FeatureEditPart) {
+					setEnabled(editPart instanceof FeatureEditPart);
 					FeatureEditPart editP = (FeatureEditPart) editPart;
-					Feature f = editP.getFeature();
-					if (!featureList.contains(f))
+					Feature feature = editP.getFeature();
+					if (!featureList.contains(feature))
 
 					{
-						featureList.add(f);
+						featureList.add(feature);
 					}
 				}
 			}
 
 			return;
 		}
-		featureList.clear();
+		setEnabled(selection.isEmpty());
 	}
 
 	@Override
 	public void run() {
+
 		ColorDia dialog = new ColorDia(shell, this.featureList);
 
 		int returnstat = dialog.open();
@@ -106,10 +105,6 @@ public class ColorSelectedFeatureAction extends Action {
 				featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
 				featureList.get(0).getFeatureModel().redrawDiagram();
 			}
-		}
-
-		if (Window.CANCEL == returnstat) {
-			featureList.clear();
 		}
 
 	}

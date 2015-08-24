@@ -415,11 +415,13 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 						if (item.getData() instanceof SelectableFeature) {
 							SelectableFeature feature = (SelectableFeature) item.getData();
 							Feature f = feature.getFeature();
-
-							if (ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())) != -1) {
-								item.setBackground(new Color(null, ColorPalette.getRGB(
-										ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())), 0)));
-							}
+							
+							//if (f.getFeatureModel().getColorschemeTable().getSelectedColorscheme() != 1) {
+								if (ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())) != -1) {
+									item.setBackground(new Color(null, ColorPalette.getRGB(
+											ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())), 0.4f)));
+								}
+							//}
 						}
 
 					}

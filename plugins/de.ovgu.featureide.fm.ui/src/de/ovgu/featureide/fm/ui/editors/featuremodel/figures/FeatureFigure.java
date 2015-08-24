@@ -152,11 +152,13 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		setBackgroundColor(FMPropertyManager.getConcreteFeatureBackgroundColor());
 		setBorder(FMPropertyManager.getFeatureBorder(feature.isConstraintSelected()));
 
-		if (getCurrentProfile(feature.getFeatureModel()).hasFeatureColor(feature.getName())) {
-		//if (feature.getColorList().getColor() != ColorList.INVALID_COLOR) {
-			//setBackgroundColor(new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(),0)));
-			setBackgroundColor(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())),0)));
-
+		if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
+			if (getCurrentProfile(feature.getFeatureModel()).hasFeatureColor(feature.getName())) {
+				//if (feature.getColorList().getColor() != ColorList.INVALID_COLOR) {
+				//setBackgroundColor(new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(),0)));
+				setBackgroundColor(new Color(null, ColorPalette.getRGB(
+						ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0)));
+			}
 		} else {
 			final FeatureModelAnalyzer analyser = feature.getFeatureModel().getAnalyser();
 			if (feature.isRoot() && !analyser.valid()) {
