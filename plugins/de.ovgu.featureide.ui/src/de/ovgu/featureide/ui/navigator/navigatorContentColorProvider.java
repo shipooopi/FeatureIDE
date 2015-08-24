@@ -47,7 +47,7 @@ import de.ovgu.featureide.fm.core.configuration.FeatureNotFoundException;
  * @author Christian Harnisch
  */
 public class navigatorContentColorProvider implements ILabelProvider, IColorProvider, ITreeContentProvider {
-	private Color color_black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+	private Color color_grey = Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
@@ -79,12 +79,12 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 			if (element instanceof IFolder) {
 				IFolder folder = (IFolder) element;
 
-				if (folder.getProject().isOpen()) {
+				//if (folder.getProject().isOpen()) {
 					FeatureModel fm = getFeatureModel(folder);// CorePlugin.getFeatureProject(folder.getProject()).getFeatureModel();
 					for (Feature myfeature : fm.getFeatures()) {
 						if (folder.getFullPath().toString().endsWith(myfeature.getName())) {
 							return changeColor(myfeature);
-						}
+				//		}
 					}
 
 				}
@@ -95,7 +95,7 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 					FeatureModel fm = getFeatureModel(folder);//CorePlugin.getFeatureProject(folder.getProject()).getFeatureModel();
 					for (Feature myfeature : fm.getFeatures()) {
 						if (myfeature.getColorList().getColor() != -1) {
-							return color_black;
+							return color_grey;
 						}
 					}
 				}
@@ -146,7 +146,7 @@ public class navigatorContentColorProvider implements ILabelProvider, IColorProv
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		color_black.dispose();
+		color_grey.dispose();
 
 	}
 
