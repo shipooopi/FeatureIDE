@@ -39,6 +39,9 @@ import org.eclipse.swt.widgets.Shell;
 
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 public class ColorSelectedFeatureChildrenAction extends Action {
@@ -158,8 +161,11 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 
 		if (Window.OK == returnstat) {
 			for (FeatureEditPart editP : featureEditPartList) {
-
-				int col = editP.getFeature().getColorList().getColor();
+				
+				//int col = editP.getFeature().getColorList().getColor();
+				Profile profile = getCurrentProfile(editP.getFeature().getFeatureModel());
+				int col = ProfileManager.toColorIndex(profile.getColor(editP.getFeature().getName()));
+				
 				if (col != -1 && !featureEditPartList.isEmpty()) {
 
 					switch (col) {
@@ -201,6 +207,13 @@ public class ColorSelectedFeatureChildrenAction extends Action {
 		}
 		featureList.clear();
 		featureEditPartList.clear();
+	}
+
+	/**
+	 * @author Marcus Pinnecke
+	 */
+	private Profile getCurrentProfile(FeatureModel featureModel) {
+		return ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 	}
 
 }
