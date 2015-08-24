@@ -60,10 +60,14 @@ import org.eclipse.ui.part.EditorPart;
 import org.sat4j.specs.TimeoutException;
 
 import de.ovgu.featureide.fm.core.Feature;
+import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer;
 import de.ovgu.featureide.fm.core.FunctionalInterfaces;
 import de.ovgu.featureide.fm.core.FunctionalInterfaces.IBinaryFunction;
 import de.ovgu.featureide.fm.core.FunctionalInterfaces.IFunction;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
+import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.core.configuration.Configuration;
 import de.ovgu.featureide.fm.core.configuration.ConfigurationPropagatorJobWrapper.IConfigJob;
 import de.ovgu.featureide.fm.core.configuration.SelectableFeature;
@@ -72,7 +76,7 @@ import de.ovgu.featureide.fm.core.configuration.TreeElement;
 import de.ovgu.featureide.fm.core.job.IJob;
 import de.ovgu.featureide.fm.core.job.util.JobFinishListener;
 import de.ovgu.featureide.fm.ui.FMUIPlugin;
-import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
 /**
  * Basic class with some default methods for configuration editor pages.
@@ -393,41 +397,37 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		}
 	}
 
+	private Profile getCurrentProfile(FeatureModel featureModel) {
+		return ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+	}
+
 	protected void updateTree() {
 		itemMap.clear();
 		if (errorMessage(tree)) {
 			final Configuration configuration = configurationEditor.getConfiguration();
 			tree.removeAll();
 			tree.addListener(SWT.PaintItem, new Listener() {
-				
+
 				@Override
 				public void handleEvent(Event event) {
-					if(event.item instanceof TreeItem){
+					if (event.item instanceof TreeItem) {
 						TreeItem item = (TreeItem) event.item;
-						if(item.getData() instanceof SelectableFeature){
-							SelectableFeature feature =(SelectableFeature)  item.getData();
+						if (item.getData() instanceof SelectableFeature) {
+							SelectableFeature feature = (SelectableFeature) item.getData();
 							Feature f = feature.getFeature();
-							System.out.println(f.getName());
-							item.setBackground(GUIDefaults.CONCRETE_BACKGROUND);
-							
+
+							if (ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())) != -1) {
+								item.setBackground(new Color(null, ColorPalette.getRGB(
+										ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())), 0)));
+							}
 						}
-						
-					System.out.println();
-//					 TODO Auto-generated method stub
+
 					}
-					
+
 				}
 			});
 			final TreeItem root = new TreeItem(tree, 0);
-			root.addListener(SWT.Paint, new Listener() {
-				
-				@Override
-				public void handleEvent(Event event) {
-					System.out.println();
-					// TODO Auto-generated method stub
-					
-				}
-			});
+
 			root.setText(configuration.getRoot().getName());
 			root.setData(configuration.getRoot());
 			itemMap.put(configuration.getRoot(), root);
