@@ -90,8 +90,8 @@ public class NavigatorContentImageProvider implements  ILabelProvider, IColorPro
 				FeatureModel fm = getFeatureModel(file);
 				for (Feature myfeature : fm.getFeatures()) {
 					if (file.getParent().toString().endsWith(myfeature.getName())) {
-//						Device d = this.getBackground(file).getDevice();
-						return 	null;//new Image(d, "H:\\git\\FeatureIDE\\plugins\\de.ovgu.featureide.fm.ui\\icons\\plus.gif");
+						//Device d = this.getBackground(file).getDevice();
+						return 	new Image(null, "H:\\git\\FeatureIDE\\plugins\\de.ovgu.featureide.fm.ui\\icons\\plus.gif");
 						
 						}
 				}
@@ -196,6 +196,7 @@ public class NavigatorContentImageProvider implements  ILabelProvider, IColorPro
 	 */
 	@Override
 	public Color getBackground(Object element) {
+//		getImage(element);
 		try {
 			if (element instanceof IFile) {
 				IFile file = (IFile) element;
