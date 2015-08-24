@@ -464,7 +464,7 @@ public class FeatureModelEditor extends MultiPageEditorPart implements IResource
 		getExtensions();
 
 		FMPropertyManager.registerEditor(featureModel);
-		featureModel.getColorschemeTable().readColorsFromFile(file.getProject());
+		//featureModel.getColorschemeTable().readColorsFromFile(file.getProject());
 	}
 
 	void createDiagramPage() {

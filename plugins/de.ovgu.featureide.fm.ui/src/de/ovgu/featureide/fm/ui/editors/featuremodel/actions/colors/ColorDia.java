@@ -41,8 +41,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
+import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.Feature;
+import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
 /**
  * The purpose of this dialog is to display the content of a 'normal' {@link TreeViewer} in a {@link CheckboxTreeViewer} to select some of it's
@@ -115,9 +120,13 @@ public class ColorDia extends Dialog {
 		for (int i = 0; i < flist.size(); i++) {
 			TableItem item = new TableItem(table, SWT.NONE);
 			item.setText(flist.get(i).getName());
-			if (flist.get(i).getColorList().getColor() != -1) {
-				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(flist.get(i).getColorList().getColor(), 0)));
-			}
+//			if (flist.get(i).getColorList().getColor() != -1) {
+//				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(flist.get(i).getColorList().getColor(), 0)));
+//			}
+			final Feature feature = flist.get(i);
+			Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+			if (profile.hasFeatureColor(feature.getName()))
+				item.setBackground(new Color(parent.getDisplay(), ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0)));
 		}
 
 		gridData = new GridData();
@@ -223,13 +232,32 @@ public class ColorDia extends Dialog {
 		if (IDialogConstants.OK_ID == buttonId) {
 
 			for (int i = 0; i < flist.size(); i++) {
-				flist.get(i).getColorList().setColor(colorID);
+				//printSchemas(flist.get(i).getFeatureModel().getColorschemeTable());
+				//flist.get(i).getColorList().setColor(flist.get(i).getFeatureModel().getColorschemeTable().getSelectedColorscheme(), colorID);
+				
+				// Marcus Fix
+				final Feature feature = flist.get(i);
+				final FeatureModel model = feature.getFeatureModel();
+				ProfileManager.Project project = ProfileManager.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+				ProfileManager.Project.Profile activeProfile = project.getActiveProfile();
+				activeProfile.setFeatureColor(feature.getName(), ProfileManager.getColorFromID(colorID));
+				// End Marcus Fix
 			}
 			okPressed();
 
 		} else if (IDialogConstants.CANCEL_ID == buttonId) {
 			cancelPressed();
 		}
+	}
+
+	/**
+	 * @param colorschemeTable
+	 */
+	private void printSchemas(ColorschemeTable colorschemeTable) {
+		System.out.println("------");
+		for (String s : colorschemeTable.getColorschemeNames())
+			System.out.println(s);
+
 	}
 
 	protected void okPressed() {
