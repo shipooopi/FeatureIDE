@@ -176,7 +176,7 @@ public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaul
 
 				if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
 					col = new Color(null, ColorPalette.getRGB(
-							ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.4f));
+							ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f));
 
 				}
 			//}

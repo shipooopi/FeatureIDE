@@ -137,7 +137,7 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 	private boolean isHidden(Feature feature) {
 		return !feature.getFeatureModel().getLayout().showHiddenFeatures() && feature.hasHiddenParent();
 	}
-	
+
 	/**
 	 * @author Marcus Pinnecke
 	 */
@@ -152,12 +152,10 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		setBackgroundColor(FMPropertyManager.getConcreteFeatureBackgroundColor());
 		setBorder(FMPropertyManager.getFeatureBorder(feature.isConstraintSelected()));
 
-		if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
+		if (getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName()) != de.ovgu.featureide.fm.core.ProfileManager.Color.NO_COLOR) {
 			if (getCurrentProfile(feature.getFeatureModel()).hasFeatureColor(feature.getName())) {
-				//if (feature.getColorList().getColor() != ColorList.INVALID_COLOR) {
-				//setBackgroundColor(new Color(null, ColorPalette.getRGB(feature.getColorList().getColor(),0)));
 				setBackgroundColor(new Color(null, ColorPalette.getRGB(
-						ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0)));
+						ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f)));
 			}
 		} else {
 			final FeatureModelAnalyzer analyser = feature.getFeatureModel().getAnalyser();

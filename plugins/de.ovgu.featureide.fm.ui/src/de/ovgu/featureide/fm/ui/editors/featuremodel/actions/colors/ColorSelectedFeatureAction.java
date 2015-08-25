@@ -41,7 +41,6 @@ public class ColorSelectedFeatureAction extends Action {
 
 	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
 	final Shell shell = new Shell();
-	static final String COLOR_FILE_NAME = ".color.xml";
 	private IProject featureProject;
 
 	protected void updateSetColorActionText(String menuname) {
@@ -62,6 +61,7 @@ public class ColorSelectedFeatureAction extends Action {
 		public void selectionChanged(SelectionChangedEvent event) {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			updateFeatureList(selection);
+
 		}
 	};
 
@@ -80,30 +80,25 @@ public class ColorSelectedFeatureAction extends Action {
 					FeatureEditPart editP = (FeatureEditPart) editPart;
 					Feature feature = editP.getFeature();
 					if (!featureList.contains(feature))
-
-					{
 						featureList.add(feature);
-					}
+
 				}
 			}
-
 			return;
 		}
-		setEnabled(selection.isEmpty());
 	}
 
 	@Override
 	public void run() {
 
 		ColorDia dialog = new ColorDia(shell, this.featureList);
-
 		int returnstat = dialog.open();
 
 		if (Window.OK == returnstat) {
 
 			if (!featureList.isEmpty()) {
 				featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
-				featureList.get(0).getFeatureModel().redrawDiagram();
+				featureList.get(0).getFeatureModel().handleModelDataChanged();
 			}
 		}
 

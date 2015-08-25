@@ -413,15 +413,15 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 					if (event.item instanceof TreeItem) {
 						TreeItem item = (TreeItem) event.item;
 						if (item.getData() instanceof SelectableFeature) {
-							SelectableFeature feature = (SelectableFeature) item.getData();
-							Feature f = feature.getFeature();
+							SelectableFeature selectableFeature = (SelectableFeature) item.getData();
+							Feature feature = selectableFeature.getFeature();
 							
-							//if (f.getFeatureModel().getColorschemeTable().getSelectedColorscheme() != 1) {
-								if (ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())) != -1) {
+							if (getCurrentProfile(feature.getFeatureModel()).getColor(selectableFeature.getName()) != de.ovgu.featureide.fm.core.ProfileManager.Color.NO_COLOR) {
+								if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
 									item.setBackground(new Color(null, ColorPalette.getRGB(
-											ProfileManager.toColorIndex(getCurrentProfile(f.getFeatureModel()).getColor(f.getName())), 0.4f)));
+											ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f)));
 								}
-							//}
+							}
 						}
 
 					}
