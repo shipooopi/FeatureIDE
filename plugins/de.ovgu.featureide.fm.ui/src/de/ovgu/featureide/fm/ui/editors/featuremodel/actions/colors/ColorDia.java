@@ -20,12 +20,22 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
+import static de.ovgu.featureide.fm.core.localization.StringTable.BLUE;
+import static de.ovgu.featureide.fm.core.localization.StringTable.CYAN;
+import static de.ovgu.featureide.fm.core.localization.StringTable.DARKGREEN;
+import static de.ovgu.featureide.fm.core.localization.StringTable.LIGHTGREEN;
+import static de.ovgu.featureide.fm.core.localization.StringTable.LIGHTGREY;
+import static de.ovgu.featureide.fm.core.localization.StringTable.MAGENTA;
+import static de.ovgu.featureide.fm.core.localization.StringTable.ORANGE;
+import static de.ovgu.featureide.fm.core.localization.StringTable.PINK;
+import static de.ovgu.featureide.fm.core.localization.StringTable.RED;
+import static de.ovgu.featureide.fm.core.localization.StringTable.YELLOW;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.viewers.CheckboxTreeViewer;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -33,7 +43,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -42,23 +51,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
-import de.ovgu.featureide.fm.core.ProfileManager;
-import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
-import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
-/**
- * The purpose of this dialog is to display the content of a 'normal' {@link TreeViewer} in a {@link CheckboxTreeViewer} to select some of it's
- * content and then export it to *.csv.
- * 
- * @see CsvExporter
- * 
- * @author Dominik Hamann
- * @author Patrick Haese
- */
 public class ColorDia extends Dialog {
 
 	/**
@@ -66,12 +65,21 @@ public class ColorDia extends Dialog {
 	 */
 
 	Shell shell = new Shell();
-	ArrayList<Feature> featurelist = new ArrayList<Feature>();
-	ArrayList<Feature> featurelistbuffer = new ArrayList<Feature>();
-	int colorID = -1;
+	protected List<Feature> featurelist;
+	protected ArrayList<Feature> featurelistbuffer = new ArrayList<Feature>();
+	protected int colorID = -1;
 
-	protected ColorDia(Shell parentShell, ArrayList<Feature> featurelist) {
+	/**
+	 * @param parentShell
+	 * @param featurelist
+	 */
+	protected ColorDia(Shell parentShell, List<Feature> featurelist) {
+		//		assert(featurelist != null);
+
 		super(parentShell);
+		if (featurelist == null)
+			throw new NullPointerException();
+
 		this.featurelist = featurelist;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
 	}
@@ -95,48 +103,34 @@ public class ColorDia extends Dialog {
 		gridLayout.numColumns = 2;
 
 		GridData gridData = new GridData();
-
-		//gridData TopLevelBox
-		gridData.horizontalSpan = 2;
-		gridData.verticalSpan = 2;
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-
-		Button button1 = new Button(container, SWT.PUSH);
-		button1.setText("Oben");
-		button1.setLayoutData(gridData);
-		button1.setVisible(true);
-
-		gridData = new GridData();
 		gridData.verticalAlignment = GridData.BEGINNING;
 		gridData.horizontalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 
-		Label actionLABEL = new Label(container, SWT.NONE);
-		actionLABEL.setLayoutData(gridData);
-		actionLABEL.setBackground(new Color(null, 255, 255, 255));
-		actionLABEL.setText("Choose action: ");
+		Label actionLabel = new Label(container, SWT.NONE);
+		actionLabel.setLayoutData(gridData);
+		actionLabel.setBackground(new Color(null, 255, 255, 255));
+		actionLabel.setText("Choose action: ");
 
-		final String[] dropdownITEMS = { "Selected", "Selected and Children", "Same Level" };
-		Combo actionDROPDOWN = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-		actionDROPDOWN.setLayoutData(gridData);
-		actionDROPDOWN.setItems(dropdownITEMS);
+		final String[] actionDropDownItems = { "Selected", "Selected and direct Children", "Selected and all Children", "Selected and all Siblings" };
+		Combo actionDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		actionDropDownMenu.setLayoutData(gridData);
+		actionDropDownMenu.setItems(actionDropDownItems);
 
-		Label colorLABEL = new Label(container, SWT.NONE);
-		colorLABEL.setLayoutData(gridData);
-		colorLABEL.setBackground(new Color(null, 255, 255, 255));
-		colorLABEL.setText("Choose color: ");
+		Label chooseColorLabel = new Label(container, SWT.NONE);
+		chooseColorLabel.setLayoutData(gridData);
+		chooseColorLabel.setBackground(new Color(null, 255, 255, 255));
+		chooseColorLabel.setText("Choose color: ");
 
-		final String[] dropdownITEMS2 = { "Red", "Orange", "Yellow", "Dark Green", "Light Green", "Cyan", "Light Grey", "Blue", "Magenta", "Pink" };
-		Combo colorDROPDOWN = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
-		colorDROPDOWN.setLayoutData(gridData);
-		colorDROPDOWN.setItems(dropdownITEMS2);
+		final String[] colorDropDownItems = { RED, ORANGE, YELLOW, DARKGREEN, LIGHTGREEN, CYAN, LIGHTGREY, BLUE, MAGENTA, PINK };
+		Combo colorDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		colorDropDownMenu.setLayoutData(gridData);
+		colorDropDownMenu.setItems(colorDropDownItems);
 
-		Label featureLABEL = new Label(container, SWT.NONE);
-		featureLABEL.setLayoutData(gridData);
-		featureLABEL.setBackground(new Color(null, 255, 255, 255));
-		featureLABEL.setText("Features: ");
+		Label featureLabel = new Label(container, SWT.NONE);
+		featureLabel.setLayoutData(gridData);
+		featureLabel.setBackground(new Color(null, 255, 255, 255));
+		featureLabel.setText("Features: ");
 
 		gridData = new GridData();
 		gridData.verticalAlignment = GridData.FILL;
@@ -144,106 +138,45 @@ public class ColorDia extends Dialog {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 
-		final Table table = new Table(container, SWT.NONE);
-		//		table.setBackground(new Color(null, 0, 0, 0));
-		table.setLayoutData(gridData);
-
+		final Table featureTable = new Table(container, SWT.NONE);
+		featureTable.setLayoutData(gridData);
+		
 		SelectionListener selectionListener = new SelectionListener() {
 			public void widgetSelected(SelectionEvent event) {
 				Combo colorLISTENER = ((Combo) event.widget);
 
-				if (colorLISTENER.getText().equals(dropdownITEMS2[0])) {
-					colorID = 0;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[1])) {
-					colorID = 1;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[2])) {
-					colorID = 2;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[3])) {
-					colorID = 3;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[4])) {
-					colorID = 4;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[5])) {
-					colorID = 5;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[6])) {
-					colorID = 6;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[7])) {
-					colorID = 7;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[8])) {
-					colorID = 8;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
-					}
-				}
-
-				if (colorLISTENER.getText().equals(dropdownITEMS2[9])) {
-					colorID = 9;
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						table.getItem(i).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
+				for (int i = 0; i < colorDropDownItems.length; i++) {
+					if (colorLISTENER.getText().equals(colorDropDownItems[i])) {
+						colorID = i;
+						for (int j = 0; j < featurelistbuffer.size(); j++) {
+							featureTable.getItem(j).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
+						}
 					}
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-
 			};
 		};
-		colorDROPDOWN.addSelectionListener(selectionListener);
+		colorDropDownMenu.addSelectionListener(selectionListener);
 
 		SelectionListener selectionListener2 = new SelectionListener() {
 			public void widgetSelected(SelectionEvent event) {
 				Combo actionLISTENER = ((Combo) event.widget);
 
 				// Selected
-				if (actionLISTENER.getText().equals(dropdownITEMS[0])) {
+				if (actionLISTENER.getText().equals(actionDropDownItems[0])) {
 					featurelistbuffer.clear();
 					for (int i = 0; i < featurelist.size(); i++) {
 						featurelistbuffer.add(featurelist.get(i));
 					}
 
+					featureTable.redraw();
+					featureTable.removeAll();
+
 					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						TableItem item = new TableItem(table, SWT.NONE);
+						TableItem item = new TableItem(featureTable, SWT.NONE);
 						item.setText(featurelistbuffer.get(i).getName());
 
 						final Feature feature = featurelistbuffer.get(i);
@@ -254,15 +187,20 @@ public class ColorDia extends Dialog {
 					}
 				}
 
-				// Selected + Children
-				if (actionLISTENER.getText().equals(dropdownITEMS[1])) {
+				// Selected + direct Children
+				if (actionLISTENER.getText().equals(actionDropDownItems[1])) {
 					featurelistbuffer.clear();
+
 					for (int i = 0; i < featurelist.size(); i++) {
+						featurelistbuffer.add(featurelist.get(i));
 						featurelistbuffer.addAll(featurelist.get(i).getChildren());
 					}
 
+					featureTable.redraw();
+					featureTable.removeAll();
+
 					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						TableItem item = new TableItem(table, SWT.NONE);
+						TableItem item = new TableItem(featureTable, SWT.NONE);
 						item.setText(featurelistbuffer.get(i).getName());
 
 						final Feature feature = featurelistbuffer.get(i);
@@ -273,21 +211,68 @@ public class ColorDia extends Dialog {
 					}
 				}
 
-				// Same Level
-				if (actionLISTENER.getText().equals(dropdownITEMS[2])) {
+				// Selected + all Children
+				if (actionLISTENER.getText().equals(actionDropDownItems[2])) {
+					featurelistbuffer.clear();
 
+					for (int i = 0; i < featurelist.size(); i++) {
+						featurelistbuffer.add(featurelist.get(i));
+					}
+
+					for (int i = 0; i < featurelistbuffer.size(); i++) {
+						featurelistbuffer.addAll(featurelistbuffer.get(i).getChildren());
+					}
+
+					featureTable.redraw();
+					featureTable.removeAll();
+
+					for (int i = 0; i < featurelistbuffer.size(); i++) {
+						TableItem item = new TableItem(featureTable, SWT.NONE);
+						item.setText(featurelistbuffer.get(i).getName());
+
+						final Feature feature = featurelistbuffer.get(i);
+						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
+								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+						if (profile.hasFeatureColor(feature.getName()))
+							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
+					}
+				}
+
+				// Selected + Siblings
+				if (actionLISTENER.getText().equals(actionDropDownItems[3])) {
+					featurelistbuffer.clear();
+
+					for (int i = 0; i < featurelist.size(); i++) {
+						if (featurelist.get(i).isRoot()) {
+							featurelistbuffer.add(featurelist.get(i));
+						} else {
+							featurelistbuffer.addAll(featurelist.get(i).getParent().getChildren());
+						}
+					}
+
+					featureTable.redraw();
+					featureTable.removeAll();
+
+					for (int i = 0; i < featurelistbuffer.size(); i++) {
+						TableItem item = new TableItem(featureTable, SWT.NONE);
+						item.setText(featurelistbuffer.get(i).getName());
+
+						final Feature feature = featurelistbuffer.get(i);
+						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
+								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+						if (profile.hasFeatureColor(feature.getName()))
+							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
+					}
 				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-
 			};
 
 		};
 
-		actionDROPDOWN.addSelectionListener(selectionListener2);
+		actionDropDownMenu.addSelectionListener(selectionListener2);
 
 		return parent;
 
@@ -296,12 +281,13 @@ public class ColorDia extends Dialog {
 	protected void buttonPressed(int buttonId) {
 		if (IDialogConstants.OK_ID == buttonId) {
 
-			for (int i = 0; i < featurelist.size(); i++) {
+			for (int i = 0; i < featurelistbuffer.size(); i++) {
 
 				// Marcus Fix
-				final Feature feature = featurelist.get(i);
+				final Feature feature = featurelistbuffer.get(i);
 				final FeatureModel model = feature.getFeatureModel();
-				ProfileManager.Project project = ProfileManager.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+				ProfileManager.Project project = ProfileManager
+						.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
 				ProfileManager.Project.Profile activeProfile = project.getActiveProfile();
 				activeProfile.setFeatureColor(feature.getName(), ProfileManager.getColorFromID(colorID));
 				// End Marcus Fix
@@ -311,16 +297,6 @@ public class ColorDia extends Dialog {
 		} else if (IDialogConstants.CANCEL_ID == buttonId) {
 			cancelPressed();
 		}
-	}
-
-	/**
-	 * @param colorschemeTable
-	 */
-	private void printSchemas(ColorschemeTable colorschemeTable) {
-		System.out.println("------");
-		for (String s : colorschemeTable.getColorschemeNames())
-			System.out.println(s);
-
 	}
 
 	protected void okPressed() {

@@ -980,5 +980,6 @@ public class StringTable {
 	public static final String PINK = "pink";
 	public static final String COLOR_TYPE = "Test Color";
 	public static final String COLORATION = "Coloration";
+	public static final String MAGENTA = "magenta";
 
 }
