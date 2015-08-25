@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  de.ovgu.featureide.core,
  org.eclipse.core.expressions,
  org.eclipse.jdt.launching,
- org.junit;bundle-version="4.11.0"
+ org.junit;bundle-version="4.11.0",
+ org.eclipse.ui.navigator
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: lib/SPLACAT.jar,
  lib/commons-math-2.2.jar,

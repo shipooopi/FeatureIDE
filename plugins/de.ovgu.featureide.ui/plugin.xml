@@ -1343,4 +1343,32 @@
 				type="org.eclipse.core.resources.IFolder">
 		</propertyTester>
 	</extension>
+ <extension
+       point="org.eclipse.ui.navigator.viewer">
+    <viewerContentBinding
+          viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+       <includes>
+          <contentExtension
+                pattern="de.ovgu.featureide.ui.contentID">
+          </contentExtension>
+       </includes>
+    </viewerContentBinding>
+ </extension>
+ <extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+    <navigatorContent
+          contentProvider="de.ovgu.featureide.ui.projectExplorer.ProjectExplorerContentProvider"
+          id="de.ovgu.featureide.ui.contentID"
+          labelProvider="de.ovgu.featureide.ui.projectExplorer.ProjectExplorerLabelProvider"
+          name="FeatureIDEProjectExplorer"
+          priority="highest">
+       <triggerPoints>
+          <instanceof
+                value="org.eclipse.core.resources.IFolder">
+          </instanceof>
+       </triggerPoints>
+    </navigatorContent>
+ </extension>
+	
+	
 </plugin>

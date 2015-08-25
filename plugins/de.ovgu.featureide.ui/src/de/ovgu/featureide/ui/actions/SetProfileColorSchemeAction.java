@@ -24,7 +24,10 @@ import org.eclipse.jface.action.Action;
 
 import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.FeatureModel;
-
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
+import de.ovgu.featureide.ui.views.collaboration.action.AbstractColorAction;
 
 /**
  * This class enables you to switch profiles
@@ -33,20 +36,21 @@ import de.ovgu.featureide.fm.core.FeatureModel;
  * @author Christian Harnisch
  */
 
-public class SetProfileColorSchemeAction extends Action{
+public class SetProfileColorSchemeAction extends Action {
 	private FeatureModel model;
 	private IFeatureProject project;
 	private int index;
-	
+	private String newProfileColorSchemeName;
 
 	/*
 	 * Constructor
 	 */
-	public SetProfileColorSchemeAction(String text,int index, int style, FeatureModel model, IFeatureProject project) {
+	public SetProfileColorSchemeAction(String text, int index, int style, FeatureModel model, IFeatureProject project) {
 		super(text, Action.AS_CHECK_BOX);
 		this.model = model;
 		this.index = index;
 		this.project = project;
+		this.newProfileColorSchemeName = text;
 	}
 
 	/* (non-Javadoc)
@@ -54,17 +58,24 @@ public class SetProfileColorSchemeAction extends Action{
 	 * 
 	 * this method changes selected Colorscheme and saves the configuration 
 	 */
-	public void run(){
-		if (model.getColorschemeTable().getSelectedColorscheme() != index) {
-			model.getColorschemeTable().setSelectedColorscheme(index);
-			model.getColorschemeTable().saveColorsToFile(project.getProject());
-		} else {
-			model.getColorschemeTable().setEmptyColorscheme();
-			model.getColorschemeTable().saveColorsToFile(project.getProject());
+	public void run() {
+		ProfileManager.Project projet = ProfileManager.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
+		Profile p = projet.getProfile(newProfileColorSchemeName);
+		if (!projet.getActiveProfile().getName().equals(p.getName())) {
+			p.setAsActiveProfile();
+
 		}
+		
+		//	
+		//		if (model.getColorschemeTable().getSelectedColorscheme() != index) {
+		//			model.getColorschemeTable().setSelectedColorscheme(index);
+		//			model.getColorschemeTable().saveColorsToFile(project.getProject());
+		//		} else {
+		//			model.getColorschemeTable().setEmptyColorscheme();
+		//			model.getColorschemeTable().saveColorsToFile(project.getProject());
+		//		}
+		//	}
+		//	
+
 	}
-	
-	
-	
-	
 }
