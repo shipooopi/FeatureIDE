@@ -185,6 +185,10 @@ public class CollaborationView extends ViewPart implements GUIDefaults, ICurrent
 	private Point cursorPosition;
 	private CollaborationViewSearch search;
 	private MenuManager colorSubMenu;
+	
+	/*
+	 * the following codefragments which are commented out, create the submenu of the colorscheme
+	 */
 //	private AddColorSchemeAction addColorSchemeAction;
 //	private RenameColorSchemeAction renameColorSchemeAction;
 //	private DeleteColorSchemeAction deleteColorSchemeAction;
