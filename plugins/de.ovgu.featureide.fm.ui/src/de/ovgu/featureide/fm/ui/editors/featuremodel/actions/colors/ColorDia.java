@@ -20,7 +20,6 @@
  */
 package de.ovgu.featureide.fm.ui.editors.featuremodel.actions.colors;
 
-import static de.ovgu.featureide.fm.core.localization.StringTable.BLUE;
 import static de.ovgu.featureide.fm.core.localization.StringTable.CYAN;
 import static de.ovgu.featureide.fm.core.localization.StringTable.DARKGREEN;
 import static de.ovgu.featureide.fm.core.localization.StringTable.LIGHTGREEN;
@@ -28,7 +27,12 @@ import static de.ovgu.featureide.fm.core.localization.StringTable.LIGHTGREY;
 import static de.ovgu.featureide.fm.core.localization.StringTable.MAGENTA;
 import static de.ovgu.featureide.fm.core.localization.StringTable.ORANGE;
 import static de.ovgu.featureide.fm.core.localization.StringTable.PINK;
+import static de.ovgu.featureide.fm.core.localization.StringTable.PURPLE;
 import static de.ovgu.featureide.fm.core.localization.StringTable.RED;
+import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATURE;
+import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATURE_ALL_CHILDREN;
+import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATURE_DIRECT_CHILDREN;
+import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATURE_SIBLINGS;
 import static de.ovgu.featureide.fm.core.localization.StringTable.YELLOW;
 
 import java.util.ArrayList;
@@ -60,28 +64,21 @@ import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
 public class ColorDia extends Dialog {
 
-	/**
-	 * @param parentShell
-	 */
-
-	Shell shell = new Shell();
 	protected List<Feature> featurelist;
 	protected ArrayList<Feature> featurelistbuffer = new ArrayList<Feature>();
 	protected int colorID = -1;
+	private boolean actionChecked = false;
+	private boolean colorChecked = false;
 
 	/**
 	 * @param parentShell
 	 * @param featurelist
 	 */
 	protected ColorDia(Shell parentShell, List<Feature> featurelist) {
-		//		assert(featurelist != null);
-
 		super(parentShell);
-		if (featurelist == null)
-			throw new NullPointerException();
-
 		this.featurelist = featurelist;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
+
 	}
 
 	protected void configureShell(Shell newShell) {
@@ -94,7 +91,6 @@ public class ColorDia extends Dialog {
 		return new Point(500, 500);
 	}
 
-	@Override
 	protected Control createDialogArea(Composite parent) {
 
 		final Composite container = (Composite) super.createDialogArea(parent);
@@ -105,15 +101,14 @@ public class ColorDia extends Dialog {
 		GridData gridData = new GridData();
 		gridData.verticalAlignment = GridData.BEGINNING;
 		gridData.horizontalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
 
 		Label actionLabel = new Label(container, SWT.NONE);
 		actionLabel.setLayoutData(gridData);
 		actionLabel.setBackground(new Color(null, 255, 255, 255));
 		actionLabel.setText("Choose action: ");
 
-		final String[] actionDropDownItems = { "Selected", "Selected and direct Children", "Selected and all Children", "Selected and all Siblings" };
-		Combo actionDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		final Combo actionDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		final String[] actionDropDownItems = { SELECTED_FEATURE, SELECTED_FEATURE_DIRECT_CHILDREN, SELECTED_FEATURE_ALL_CHILDREN, SELECTED_FEATURE_SIBLINGS };
 		actionDropDownMenu.setLayoutData(gridData);
 		actionDropDownMenu.setItems(actionDropDownItems);
 
@@ -122,8 +117,8 @@ public class ColorDia extends Dialog {
 		chooseColorLabel.setBackground(new Color(null, 255, 255, 255));
 		chooseColorLabel.setText("Choose color: ");
 
-		final String[] colorDropDownItems = { RED, ORANGE, YELLOW, DARKGREEN, LIGHTGREEN, CYAN, LIGHTGREY, BLUE, MAGENTA, PINK };
-		Combo colorDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		final Combo colorDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
+		final String[] colorDropDownItems = { RED, ORANGE, YELLOW, DARKGREEN, LIGHTGREEN, CYAN, LIGHTGREY, PURPLE, MAGENTA, PINK };
 		colorDropDownMenu.setLayoutData(gridData);
 		colorDropDownMenu.setItems(colorDropDownItems);
 
@@ -138,40 +133,44 @@ public class ColorDia extends Dialog {
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
 
-		final Table featureTable = new Table(container, SWT.NONE);
+		final Table featureTable = new Table(container, SWT.BORDER | SWT.NO_FOCUS | SWT.HIDE_SELECTION);
 		featureTable.setLayoutData(gridData);
-		
-		SelectionListener selectionListener = new SelectionListener() {
+
+		SelectionListener colorSelectionListener = new SelectionListener() {
 			public void widgetSelected(SelectionEvent event) {
-				Combo colorLISTENER = ((Combo) event.widget);
+				Combo colorListener = ((Combo) event.widget);
 
 				for (int i = 0; i < colorDropDownItems.length; i++) {
-					if (colorLISTENER.getText().equals(colorDropDownItems[i])) {
+					if (colorListener.getText().equals(colorDropDownItems[i])) {
+						colorChecked = true;
 						colorID = i;
 						for (int j = 0; j < featurelistbuffer.size(); j++) {
 							featureTable.getItem(j).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
 						}
 					}
 				}
+				if (actionChecked && colorChecked) {
+					ColorDia.this.getButton(OK).setEnabled(true);
+				}
 			}
 
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			};
 		};
-		colorDropDownMenu.addSelectionListener(selectionListener);
+		colorDropDownMenu.addSelectionListener(colorSelectionListener);
 
-		SelectionListener selectionListener2 = new SelectionListener() {
+		SelectionListener actionSelectionListener = new SelectionListener() {
 			public void widgetSelected(SelectionEvent event) {
-				Combo actionLISTENER = ((Combo) event.widget);
+				Combo actionListener = ((Combo) event.widget);
 
 				// Selected
-				if (actionLISTENER.getText().equals(actionDropDownItems[0])) {
+				if (actionListener.getText().equals(actionDropDownItems[0])) {
 					featurelistbuffer.clear();
 					for (int i = 0; i < featurelist.size(); i++) {
 						featurelistbuffer.add(featurelist.get(i));
 					}
 
+					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
 
@@ -185,17 +184,25 @@ public class ColorDia extends Dialog {
 						if (profile.hasFeatureColor(feature.getName()))
 							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
 					}
+
 				}
 
 				// Selected + direct Children
-				if (actionLISTENER.getText().equals(actionDropDownItems[1])) {
+				if (actionListener.getText().equals(actionDropDownItems[1])) {
 					featurelistbuffer.clear();
 
 					for (int i = 0; i < featurelist.size(); i++) {
 						featurelistbuffer.add(featurelist.get(i));
-						featurelistbuffer.addAll(featurelist.get(i).getChildren());
 					}
 
+					for (int j = 0; j < featurelist.size(); j++) {
+						for (int k = 0; k < featurelistbuffer.get(j).getChildren().size(); k++) {
+							if (!featurelistbuffer.contains(featurelistbuffer.get(j).getChildren().get(k)))
+								featurelistbuffer.add(featurelistbuffer.get(j).getChildren().get(k));
+						}
+					}
+
+					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
 
@@ -212,17 +219,21 @@ public class ColorDia extends Dialog {
 				}
 
 				// Selected + all Children
-				if (actionLISTENER.getText().equals(actionDropDownItems[2])) {
+				if (actionListener.getText().equals(actionDropDownItems[2])) {
 					featurelistbuffer.clear();
 
 					for (int i = 0; i < featurelist.size(); i++) {
 						featurelistbuffer.add(featurelist.get(i));
 					}
 
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
-						featurelistbuffer.addAll(featurelistbuffer.get(i).getChildren());
+					for (int j = 0; j < featurelistbuffer.size(); j++) {
+						for (int k = 0; k < featurelistbuffer.get(j).getChildren().size(); k++) {
+							if (!featurelistbuffer.contains(featurelistbuffer.get(j).getChildren().get(k)))
+								featurelistbuffer.add(featurelistbuffer.get(j).getChildren().get(k));
+						}
 					}
 
+					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
 
@@ -239,17 +250,23 @@ public class ColorDia extends Dialog {
 				}
 
 				// Selected + Siblings
-				if (actionLISTENER.getText().equals(actionDropDownItems[3])) {
+				if (actionListener.getText().equals(actionDropDownItems[3])) {
 					featurelistbuffer.clear();
 
 					for (int i = 0; i < featurelist.size(); i++) {
-						if (featurelist.get(i).isRoot()) {
-							featurelistbuffer.add(featurelist.get(i));
-						} else {
-							featurelistbuffer.addAll(featurelist.get(i).getParent().getChildren());
+						featurelistbuffer.add(featurelist.get(i));
+					}
+
+					for (int j = 0; j < featurelistbuffer.size(); j++) {
+						if (!featurelistbuffer.get(j).isRoot()) {
+							for (int k = 0; k < featurelistbuffer.get(j).getParent().getChildren().size(); k++) {
+								if (!featurelistbuffer.contains(featurelistbuffer.get(j).getParent().getChildren().get(k)))
+									featurelistbuffer.add(featurelistbuffer.get(j).getParent().getChildren().get(k));
+							}
 						}
 					}
 
+					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
 
@@ -264,21 +281,32 @@ public class ColorDia extends Dialog {
 							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
 					}
 				}
+				if (actionChecked && colorChecked) {
+					ColorDia.this.getButton(OK).setEnabled(true);
+				}
 			}
 
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			};
-
 		};
 
-		actionDropDownMenu.addSelectionListener(selectionListener2);
+		actionDropDownMenu.addSelectionListener(actionSelectionListener);
+
+		return parent;
+
+	}
+
+	protected Control createContents(Composite parent) {
+		super.createContents(parent);
+
+		getButton(IDialogConstants.OK_ID).setEnabled(false);
 
 		return parent;
 
 	}
 
 	protected void buttonPressed(int buttonId) {
+
 		if (IDialogConstants.OK_ID == buttonId) {
 
 			for (int i = 0; i < featurelistbuffer.size(); i++) {
