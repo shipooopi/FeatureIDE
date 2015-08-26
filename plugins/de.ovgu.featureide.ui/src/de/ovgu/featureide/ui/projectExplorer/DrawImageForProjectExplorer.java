@@ -45,17 +45,15 @@ import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 
 public class DrawImageForProjectExplorer {
 
-	/**
-	 * constants from
-	 * de.ovgu.featureide.fm.core.annotation.ColorPalette
-	 */
-	final static int RED = 0, ORANGE = 1, YELLOW = 2, DARKGREEN = 3, LIGHTGREEN = 4, CYAN = 5, LIGHTGREY = 6, BLUE = 7, MAGENTA = 8, PINK = 9;
-
 	/*
 	 * constants to know, which icon must be returned 			
 	 */
 	final static int FILE = 0, FOLDER = 1, PACKAGE = 2;
 
+	public enum ExplorerObject {
+		FILE, FOLDER, PACKAGE;
+	}
+	
 	/**
 	 * constant for the width of the single colorImage
 	 */
@@ -65,10 +63,10 @@ public class DrawImageForProjectExplorer {
 
 	/**
 	 * @param explorerObject
-	 * @param colors
+	 * @param colors List of colors from de.ovgu.featureide.fm.core.annotation.ColorPalette
 	 * @return the image with the icon of the file, folder or package (explorerObject) and the color of the feature
 	 */
-	public static Image drawExplorerImage(int explorerObject, List<Integer> colors) {
+	public static Image drawExplorerImage(ExplorerObject explorerObject, List<Integer> colors) {
 		colors.sort(new Comparator<Integer>() {
 
 			@Override
@@ -76,8 +74,20 @@ public class DrawImageForProjectExplorer {
 				return i0.compareTo(i1);
 			}
 		});
-
-		colors.add(explorerObject);
+		// create hash value
+		switch (explorerObject) {
+		case FILE:
+			colors.add(1);
+			break;
+		case FOLDER:
+			colors.add(2);
+			break;
+		case PACKAGE:
+			colors.add(3);
+			break;
+		default:
+			throw new RuntimeException(explorerObject + " not implemented");
+		}
 		Integer hashCode = colors.hashCode();
 		if (images.containsKey(hashCode)) {
 			return images.get(hashCode);
@@ -91,7 +101,8 @@ public class DrawImageForProjectExplorer {
 
 		ArrayList<Image> liste = new ArrayList<>();
 
-		if (explorerObject == 0) {
+		switch (explorerObject) {
+		case FILE:
 			/*
 			 * draws the fileIcon:
 			 * BUT : not the original .java file image
@@ -99,13 +110,15 @@ public class DrawImageForProjectExplorer {
 			Image fileImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 			gc.drawImage(fileImage, 0, 0);
 			liste.add(fileImage);
-		}
-		if (explorerObject == 1) {
+
+			break;
+		case FOLDER:
 			Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
 			gc.drawImage(folderImage, 0, 0);
 			liste.add(folderImage);
-		}
-		if (explorerObject == 2) {
+
+			break;
+		case PACKAGE:
 			/*
 			 * should draw the packageIcon
 			 * BUT : I didn´t find any packageIcon
@@ -113,6 +126,7 @@ public class DrawImageForProjectExplorer {
 			Image packageImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEF_VIEW);
 			gc.drawImage(packageImage, 0, 0);
 			liste.add(packageImage);
+			break;
 		}
 
 		for (int i = 0; i < 10; i++) {
@@ -137,7 +151,6 @@ public class DrawImageForProjectExplorer {
 	 * @return the image for the featureHouseExplorer with the folderIcon as default and only one color
 	 */
 	public static Image drawFeatureHouseExplorerImage(List<Integer> colors) {
-
 		colors.add(FOLDER);
 		Integer hashCode = colors.hashCode();
 		if (images.containsKey(hashCode)) {
@@ -202,7 +215,6 @@ public class DrawImageForProjectExplorer {
 	 *         de.ovgu.featureide.fm.core.annotation.ColorPalette
 	 */
 	public static Image getColorImage(int colorID) {
-
 		Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
 		Image finalImage = new Image(folderImage.getDevice(), folderImage.getImageData().width / 4, folderImage.getImageData().height);
 		ImageData data = null;

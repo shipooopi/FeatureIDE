@@ -23,6 +23,7 @@ import de.ovgu.featureide.core.builder.IComposerExtensionClass;
 import de.ovgu.featureide.core.fstmodel.FSTClass;
 import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
+import de.ovgu.featureide.ui.projectExplorer.DrawImageForProjectExplorer.ExplorerObject;
 
 @SuppressWarnings("restriction")
 public class ProjectExplorerLabelProvider implements ILabelProvider {
@@ -76,7 +77,7 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 			IComposerExtensionClass composer = featureProject.getComposer();
 			getPackageColors(folder, myColors, model, !composer.hasFeatureFolder());
 
-			return DrawImageForProjectExplorer.drawExplorerImage(2, myColors);
+			return DrawImageForProjectExplorer.drawExplorerImage(ExplorerObject.PACKAGE, myColors);
 
 		}
 
@@ -103,7 +104,7 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 					IFolder folder = (IFolder) element;
 					if (isInSourceFolder(folder) && !folder.equals(featureProject.getSourceFolder())) {
 						getPackageColors(folder, myColors, model, true);
-						return DrawImageForProjectExplorer.drawExplorerImage(1, myColors);
+						return DrawImageForProjectExplorer.drawExplorerImage(ExplorerObject.FOLDER, myColors);
 					}
 				}
 				if (element instanceof IFile) {
@@ -112,7 +113,7 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 					if (folder instanceof IFolder) {
 						if (isInSourceFolder((IFolder) folder)) {
 							getPackageColors((IFolder)folder, myColors, model, true);
-							return DrawImageForProjectExplorer.drawExplorerImage(0, myColors);
+							return DrawImageForProjectExplorer.drawExplorerImage(ExplorerObject.FILE, myColors);
 						}
 					}
 				}
@@ -131,7 +132,7 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 			FSTModel model = featureProject.getFSTModel();
 			getColors(myColors, myfile, model, !featureProject.getComposer().hasFeatureFolder());
 
-			return DrawImageForProjectExplorer.drawExplorerImage(0, myColors);
+			return DrawImageForProjectExplorer.drawExplorerImage(ExplorerObject.FILE, myColors);
 
 		}
 
