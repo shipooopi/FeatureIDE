@@ -986,6 +986,8 @@ public class StringTable {
 	public static final String SELECTED_FEATURE_DIRECT_CHILDREN = "Selected Feature and all direct Children";
 	public static final String SELECTED_FEATURE_ALL_CHILDREN = "Selected Feature and all Children";
 	public static final String SELECTED_FEATURE_SIBLINGS = "Selected Feature and all Siblings";
-	
-
+	public static final String COLORATION_DIALOG = "Coloration Dialog";
+	public static final String CHOOSE_COLOR_ = "Choose Color:";
+	public static final String CHOOSE_ACTION_ = "Choose Action:";
+	public static final String FEATURES_ = "Features:";
 }

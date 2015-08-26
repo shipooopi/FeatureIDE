@@ -161,27 +161,26 @@ public class FmLabelProvider implements ILabelProvider, IFontProvider, GUIDefaul
 	 * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
 	 */
 
+	/**
+	 * @author Marcus Pinnecke
+	 */
+	//TODO: outsource method to global state
 	private Profile getCurrentProfile(FeatureModel featureModel) {
 		return ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 	}
 
-	@Override
 	public Color getBackground(Object element) {
 		Color col = null;
 
 		if (element instanceof Feature) {
 
 			Feature feature = (Feature) element;
-			//if (feature.getFeatureModel().getColorschemeTable().getSelectedColorscheme() != 1) {
 
-				if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
-					col = new Color(null, ColorPalette.getRGB(
-							ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f));
-				}
-			//}
-
+			if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
+				col = new Color(null, ColorPalette.getRGB(
+						ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f));
+			}
 		}
 		return col;
-
 	}
 }

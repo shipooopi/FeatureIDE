@@ -30,6 +30,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 
@@ -37,26 +38,36 @@ import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.ui.editors.FeatureDiagramEditor;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
+/**
+ * ColorSelectedFeatureAction is the action that opens the ColorSelectedFeatureDialog
+ * with the selected features in the feature diagram
+ * 
+ * @author Christian Elzholz, Marcus Schmelz
+ */
 public class ColorSelectedFeatureAction extends Action {
 
 	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
-	final Shell shell = new Shell();
+	final protected Shell shell = new Shell();
+	TreeViewer viewer;
 
 	public ISelectionChangedListener listener = new ISelectionChangedListener() {
-		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
-			
+
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			updateFeatureList(selection);
-			if(featureList.isEmpty()){
+			if (featureList.isEmpty()) {
 				ColorSelectedFeatureAction.this.setEnabled(false);
-			}else{
+			} else {
 				ColorSelectedFeatureAction.this.setEnabled(true);
 			}
 		}
 
 	};
 
+	/**
+	 * @param viewer
+	 * @param project
+	 */
 	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
 		super(COLORATION);
 		if (viewer instanceof GraphicalViewerImpl)
@@ -64,25 +75,17 @@ public class ColorSelectedFeatureAction extends Action {
 
 	}
 
-	@Override
-	public void run() {
-
-		ColorDia dialog = new ColorDia(shell, this.featureList);
-		int returnstat = dialog.open();
-
-		if (!featureList.isEmpty() && Window.OK == returnstat) {
-			featureList.get(0).getFeatureModel().redrawDiagram();
-		}
-
-	}
-
+	/**
+	 * @param selection
+	 * creates a featureList with the selected features of the featurediagram
+	 */
 	public void updateFeatureList(IStructuredSelection selection) {
-		
+
 		if (!selection.isEmpty()) {
 			featureList.clear();
 
 			Object[] editPartArray = selection.toArray();
-
+			
 			for (int i = 0; i < selection.size(); i++) {
 				Object editPart = editPartArray[i];
 				if (editPart instanceof FeatureEditPart) {
@@ -95,6 +98,16 @@ public class ColorSelectedFeatureAction extends Action {
 			return;
 		} else {
 			return;
+		}
+	}
+
+	public void run() {
+
+		ColorSelectedFeatureDialog dialog = new ColorSelectedFeatureDialog(shell, this.featureList);
+		int returnstat = dialog.open();
+
+		if (!featureList.isEmpty() && Window.OK == returnstat) {
+			featureList.get(0).getFeatureModel().redrawDiagram();
 		}
 	}
 }

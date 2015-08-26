@@ -416,16 +416,12 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 							SelectableFeature selectableFeature = (SelectableFeature) item.getData();
 							Feature feature = selectableFeature.getFeature();
 							
-							if (getCurrentProfile(feature.getFeatureModel()).getColor(selectableFeature.getName()) != de.ovgu.featureide.fm.core.ProfileManager.Color.NO_COLOR) {
-								if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
-									item.setBackground(new Color(null, ColorPalette.getRGB(
-											ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f)));
-								}
+							if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
+								item.setBackground(new Color(null, ColorPalette.getRGB(
+										ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f)));
 							}
 						}
-
 					}
-
 				}
 			});
 			final TreeItem root = new TreeItem(tree, 0);

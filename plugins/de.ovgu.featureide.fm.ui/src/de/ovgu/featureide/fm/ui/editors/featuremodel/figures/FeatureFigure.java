@@ -140,6 +140,8 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 	/**
 	 * @author Marcus Pinnecke
 	 */
+	//TODO: outsource method to global state
+
 	private Profile getCurrentProfile(FeatureModel featureModel) {
 		return ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 	}
@@ -151,6 +153,7 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		setBackgroundColor(FMPropertyManager.getConcreteFeatureBackgroundColor());
 		setBorder(FMPropertyManager.getFeatureBorder(feature.isConstraintSelected()));
 
+		// only color if the active profile is not the default profile
 		if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
 			if (getCurrentProfile(feature.getFeatureModel()).hasFeatureColor(feature.getName())) {
 				setBackgroundColor(new Color(null, ColorPalette.getRGB(

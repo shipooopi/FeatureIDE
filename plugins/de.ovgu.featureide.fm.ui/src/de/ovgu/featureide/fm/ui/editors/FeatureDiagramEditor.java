@@ -390,6 +390,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			ExtendedFeatureModel ext = (ExtendedFeatureModel) getFeatureModel();
 			mplModel = ext.isMultiProductLineModel();
 		}
+		// only allow coloration if the active profile is not the default profile
 		if (getCurrentProfile(getFeatureModel()).getActiveProfile().getName().equals("Default")) {
 			colorSelectedFeatureAction.setEnabled(false);
 		} 

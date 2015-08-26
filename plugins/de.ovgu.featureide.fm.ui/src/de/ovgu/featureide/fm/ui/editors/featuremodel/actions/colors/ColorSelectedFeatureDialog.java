@@ -34,6 +34,10 @@ import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATU
 import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATURE_DIRECT_CHILDREN;
 import static de.ovgu.featureide.fm.core.localization.StringTable.SELECTED_FEATURE_SIBLINGS;
 import static de.ovgu.featureide.fm.core.localization.StringTable.YELLOW;
+import static de.ovgu.featureide.fm.core.localization.StringTable.COLORATION_DIALOG;
+import static de.ovgu.featureide.fm.core.localization.StringTable.CHOOSE_ACTION_;
+import static de.ovgu.featureide.fm.core.localization.StringTable.CHOOSE_COLOR_;
+import static de.ovgu.featureide.fm.core.localization.StringTable.FEATURES_;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,11 +66,17 @@ import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 
-public class ColorDia extends Dialog {
+/**
+ * Sets the color of the features with different methods (children, siblings) in the featurediagram.
+ * The color is chosen in the dialog.
+ * 
+ * @author Christian Elzholz, Marcus Schmelz
+ */
+public class ColorSelectedFeatureDialog extends Dialog {
 
-	protected List<Feature> featurelist;
-	protected ArrayList<Feature> featurelistbuffer = new ArrayList<Feature>();
-	protected int colorID = -1;
+	final protected List<Feature> featureList;
+	protected ArrayList<Feature> featureListBuffer = new ArrayList<Feature>();
+	private int colorId = -1;
 	private boolean actionChecked = false;
 	private boolean colorChecked = false;
 
@@ -74,23 +84,28 @@ public class ColorDia extends Dialog {
 	 * @param parentShell
 	 * @param featurelist
 	 */
-	protected ColorDia(Shell parentShell, List<Feature> featurelist) {
+	protected ColorSelectedFeatureDialog(Shell parentShell, List<Feature> featurelist) {
 		super(parentShell);
-		this.featurelist = featurelist;
+		this.featureList = featurelist;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
-
 	}
 
+	/**
+	 * @param newshell
+	 */
 	protected void configureShell(Shell newShell) {
 		newShell.setMinimumSize(new Point(500, 500));
 		super.configureShell(newShell);
-		newShell.setText("Color Dialog");
+		newShell.setText(COLORATION_DIALOG);
 	}
 
 	protected Point getInitialSize() {
 		return new Point(500, 500);
 	}
 
+	/**
+	 * @param parent
+	 */
 	protected Control createDialogArea(Composite parent) {
 
 		final Composite container = (Composite) super.createDialogArea(parent);
@@ -105,7 +120,7 @@ public class ColorDia extends Dialog {
 		Label actionLabel = new Label(container, SWT.NONE);
 		actionLabel.setLayoutData(gridData);
 		actionLabel.setBackground(new Color(null, 255, 255, 255));
-		actionLabel.setText("Choose action: ");
+		actionLabel.setText(CHOOSE_ACTION_);
 
 		final Combo actionDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
 		final String[] actionDropDownItems = { SELECTED_FEATURE, SELECTED_FEATURE_DIRECT_CHILDREN, SELECTED_FEATURE_ALL_CHILDREN, SELECTED_FEATURE_SIBLINGS };
@@ -115,7 +130,7 @@ public class ColorDia extends Dialog {
 		Label chooseColorLabel = new Label(container, SWT.NONE);
 		chooseColorLabel.setLayoutData(gridData);
 		chooseColorLabel.setBackground(new Color(null, 255, 255, 255));
-		chooseColorLabel.setText("Choose color: ");
+		chooseColorLabel.setText(CHOOSE_COLOR_);
 
 		final Combo colorDropDownMenu = new Combo(container, SWT.DROP_DOWN | SWT.READ_ONLY);
 		final String[] colorDropDownItems = { RED, ORANGE, YELLOW, DARKGREEN, LIGHTGREEN, CYAN, LIGHTGREY, PURPLE, MAGENTA, PINK };
@@ -125,7 +140,7 @@ public class ColorDia extends Dialog {
 		Label featureLabel = new Label(container, SWT.NONE);
 		featureLabel.setLayoutData(gridData);
 		featureLabel.setBackground(new Color(null, 255, 255, 255));
-		featureLabel.setText("Features: ");
+		featureLabel.setText(FEATURES_);
 
 		gridData = new GridData();
 		gridData.verticalAlignment = GridData.FILL;
@@ -136,6 +151,7 @@ public class ColorDia extends Dialog {
 		final Table featureTable = new Table(container, SWT.BORDER | SWT.NO_FOCUS | SWT.HIDE_SELECTION);
 		featureTable.setLayoutData(gridData);
 
+		//listener: defines the future color of the features
 		SelectionListener colorSelectionListener = new SelectionListener() {
 			public void widgetSelected(SelectionEvent event) {
 				Combo colorListener = ((Combo) event.widget);
@@ -143,14 +159,14 @@ public class ColorDia extends Dialog {
 				for (int i = 0; i < colorDropDownItems.length; i++) {
 					if (colorListener.getText().equals(colorDropDownItems[i])) {
 						colorChecked = true;
-						colorID = i;
-						for (int j = 0; j < featurelistbuffer.size(); j++) {
-							featureTable.getItem(j).setBackground(new Color(null, ColorPalette.getRGB(colorID, 0.4f)));
+						colorId = i;
+						for (int j = 0; j < featureListBuffer.size(); j++) {
+							featureTable.getItem(j).setBackground(new Color(null, ColorPalette.getRGB(colorId, 0.4f)));
 						}
 					}
 				}
 				if (actionChecked && colorChecked) {
-					ColorDia.this.getButton(OK).setEnabled(true);
+					ColorSelectedFeatureDialog.this.getButton(OK).setEnabled(true);
 				}
 			}
 
@@ -159,26 +175,27 @@ public class ColorDia extends Dialog {
 		};
 		colorDropDownMenu.addSelectionListener(colorSelectionListener);
 
+		//listener: defines the used method 
 		SelectionListener actionSelectionListener = new SelectionListener() {
 			public void widgetSelected(SelectionEvent event) {
 				Combo actionListener = ((Combo) event.widget);
 
-				// Selected
+				// selectedfeature
 				if (actionListener.getText().equals(actionDropDownItems[0])) {
-					featurelistbuffer.clear();
-					for (int i = 0; i < featurelist.size(); i++) {
-						featurelistbuffer.add(featurelist.get(i));
+					featureListBuffer.clear();
+					for (int i = 0; i < featureList.size(); i++) {
+						featureListBuffer.add(featureList.get(i));
 					}
 
 					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
 
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
+					for (int i = 0; i < featureListBuffer.size(); i++) {
 						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featurelistbuffer.get(i).getName());
+						item.setText(featureListBuffer.get(i).getName());
 
-						final Feature feature = featurelistbuffer.get(i);
+						final Feature feature = featureListBuffer.get(i);
 						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
 								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 						if (profile.hasFeatureColor(feature.getName()))
@@ -187,18 +204,18 @@ public class ColorDia extends Dialog {
 
 				}
 
-				// Selected + direct Children
+				// selectedfeature + direct children
 				if (actionListener.getText().equals(actionDropDownItems[1])) {
-					featurelistbuffer.clear();
+					featureListBuffer.clear();
 
-					for (int i = 0; i < featurelist.size(); i++) {
-						featurelistbuffer.add(featurelist.get(i));
+					for (int i = 0; i < featureList.size(); i++) {
+						featureListBuffer.add(featureList.get(i));
 					}
 
-					for (int j = 0; j < featurelist.size(); j++) {
-						for (int k = 0; k < featurelistbuffer.get(j).getChildren().size(); k++) {
-							if (!featurelistbuffer.contains(featurelistbuffer.get(j).getChildren().get(k)))
-								featurelistbuffer.add(featurelistbuffer.get(j).getChildren().get(k));
+					for (int j = 0; j < featureList.size(); j++) {
+						for (int k = 0; k < featureListBuffer.get(j).getChildren().size(); k++) {
+							if (!featureListBuffer.contains(featureListBuffer.get(j).getChildren().get(k)))
+								featureListBuffer.add(featureListBuffer.get(j).getChildren().get(k));
 						}
 					}
 
@@ -206,11 +223,11 @@ public class ColorDia extends Dialog {
 					featureTable.redraw();
 					featureTable.removeAll();
 
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
+					for (int i = 0; i < featureListBuffer.size(); i++) {
 						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featurelistbuffer.get(i).getName());
+						item.setText(featureListBuffer.get(i).getName());
 
-						final Feature feature = featurelistbuffer.get(i);
+						final Feature feature = featureListBuffer.get(i);
 						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
 								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 						if (profile.hasFeatureColor(feature.getName()))
@@ -218,18 +235,18 @@ public class ColorDia extends Dialog {
 					}
 				}
 
-				// Selected + all Children
+				// selectedfeature + all children
 				if (actionListener.getText().equals(actionDropDownItems[2])) {
-					featurelistbuffer.clear();
+					featureListBuffer.clear();
 
-					for (int i = 0; i < featurelist.size(); i++) {
-						featurelistbuffer.add(featurelist.get(i));
+					for (int i = 0; i < featureList.size(); i++) {
+						featureListBuffer.add(featureList.get(i));
 					}
 
-					for (int j = 0; j < featurelistbuffer.size(); j++) {
-						for (int k = 0; k < featurelistbuffer.get(j).getChildren().size(); k++) {
-							if (!featurelistbuffer.contains(featurelistbuffer.get(j).getChildren().get(k)))
-								featurelistbuffer.add(featurelistbuffer.get(j).getChildren().get(k));
+					for (int j = 0; j < featureListBuffer.size(); j++) {
+						for (int k = 0; k < featureListBuffer.get(j).getChildren().size(); k++) {
+							if (!featureListBuffer.contains(featureListBuffer.get(j).getChildren().get(k)))
+								featureListBuffer.add(featureListBuffer.get(j).getChildren().get(k));
 						}
 					}
 
@@ -237,11 +254,11 @@ public class ColorDia extends Dialog {
 					featureTable.redraw();
 					featureTable.removeAll();
 
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
+					for (int i = 0; i < featureListBuffer.size(); i++) {
 						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featurelistbuffer.get(i).getName());
+						item.setText(featureListBuffer.get(i).getName());
 
-						final Feature feature = featurelistbuffer.get(i);
+						final Feature feature = featureListBuffer.get(i);
 						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
 								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 						if (profile.hasFeatureColor(feature.getName()))
@@ -249,19 +266,19 @@ public class ColorDia extends Dialog {
 					}
 				}
 
-				// Selected + Siblings
+				// selectedfeature + siblings
 				if (actionListener.getText().equals(actionDropDownItems[3])) {
-					featurelistbuffer.clear();
+					featureListBuffer.clear();
 
-					for (int i = 0; i < featurelist.size(); i++) {
-						featurelistbuffer.add(featurelist.get(i));
+					for (int i = 0; i < featureList.size(); i++) {
+						featureListBuffer.add(featureList.get(i));
 					}
 
-					for (int j = 0; j < featurelistbuffer.size(); j++) {
-						if (!featurelistbuffer.get(j).isRoot()) {
-							for (int k = 0; k < featurelistbuffer.get(j).getParent().getChildren().size(); k++) {
-								if (!featurelistbuffer.contains(featurelistbuffer.get(j).getParent().getChildren().get(k)))
-									featurelistbuffer.add(featurelistbuffer.get(j).getParent().getChildren().get(k));
+					for (int j = 0; j < featureListBuffer.size(); j++) {
+						if (!featureListBuffer.get(j).isRoot()) {
+							for (int k = 0; k < featureListBuffer.get(j).getParent().getChildren().size(); k++) {
+								if (!featureListBuffer.contains(featureListBuffer.get(j).getParent().getChildren().get(k)))
+									featureListBuffer.add(featureListBuffer.get(j).getParent().getChildren().get(k));
 							}
 						}
 					}
@@ -270,11 +287,11 @@ public class ColorDia extends Dialog {
 					featureTable.redraw();
 					featureTable.removeAll();
 
-					for (int i = 0; i < featurelistbuffer.size(); i++) {
+					for (int i = 0; i < featureListBuffer.size(); i++) {
 						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featurelistbuffer.get(i).getName());
+						item.setText(featureListBuffer.get(i).getName());
 
-						final Feature feature = featurelistbuffer.get(i);
+						final Feature feature = featureListBuffer.get(i);
 						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
 								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 						if (profile.hasFeatureColor(feature.getName()))
@@ -282,7 +299,7 @@ public class ColorDia extends Dialog {
 					}
 				}
 				if (actionChecked && colorChecked) {
-					ColorDia.this.getButton(OK).setEnabled(true);
+					ColorSelectedFeatureDialog.this.getButton(OK).setEnabled(true);
 				}
 			}
 
@@ -296,29 +313,34 @@ public class ColorDia extends Dialog {
 
 	}
 
+	/**
+	 * @param parent
+	 */
 	protected Control createContents(Composite parent) {
 		super.createContents(parent);
 
 		getButton(IDialogConstants.OK_ID).setEnabled(false);
 
 		return parent;
-
 	}
 
+	/**
+	 * on ok press: set color in selected features
+	 * on cancel press: close dialog, do nothing
+	 * 
+	 * @param buttonId
+	 */
 	protected void buttonPressed(int buttonId) {
 
 		if (IDialogConstants.OK_ID == buttonId) {
 
-			for (int i = 0; i < featurelistbuffer.size(); i++) {
-
-				// Marcus Fix
-				final Feature feature = featurelistbuffer.get(i);
+			for (int i = 0; i < featureListBuffer.size(); i++) {
+				final Feature feature = featureListBuffer.get(i);
 				final FeatureModel model = feature.getFeatureModel();
 				ProfileManager.Project project = ProfileManager
 						.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER);
 				ProfileManager.Project.Profile activeProfile = project.getActiveProfile();
-				activeProfile.setFeatureColor(feature.getName(), ProfileManager.getColorFromID(colorID));
-				// End Marcus Fix
+				activeProfile.setFeatureColor(feature.getName(), ProfileManager.getColorFromID(colorId));
 			}
 			okPressed();
 
