@@ -41,29 +41,44 @@ public class ColorSelectedFeatureAction extends Action {
 
 	protected ArrayList<Feature> featureList = new ArrayList<Feature>();
 	final Shell shell = new Shell();
-	private IProject featureProject;
-
-	protected void updateSetColorActionText(String menuname) {
-		super.setText(menuname);
-	}
-
-	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
-		featureProject = project;
-		if (viewer instanceof GraphicalViewerImpl)
-			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
-		updateSetColorActionText(COLORATION);
-		setEnabled(false);
-
-	}
 
 	public ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			updateFeatureList(selection);
+			if (featureList.isEmpty())  {
+				setEnabled(false);
+			} else  if (!featureList.isEmpty() && isEnabled()){
+				setEnabled(true);
+			}
 
 		}
 	};
+
+	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
+		super(COLORATION);
+		if (viewer instanceof GraphicalViewerImpl)
+			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
+
+		if (featureList.isEmpty()) {
+			setEnabled(false);
+
+		}
+
+	}
+
+	@Override
+	public void run() {
+
+		ColorDia dialog = new ColorDia(shell, this.featureList);
+		int returnstat = dialog.open();
+
+		if (!featureList.isEmpty() && Window.OK == returnstat) {
+			featureList.get(0).getFeatureModel().redrawDiagram();
+		}
+
+	}
 
 	public void updateFeatureList(IStructuredSelection selection) {
 
@@ -73,35 +88,17 @@ public class ColorSelectedFeatureAction extends Action {
 			Object[] editPartArray = selection.toArray();
 
 			for (int i = 0; i < selection.size(); i++) {
-
 				Object editPart = editPartArray[i];
 				if (editPart instanceof FeatureEditPart) {
-					setEnabled(editPart instanceof FeatureEditPart);
 					FeatureEditPart editP = (FeatureEditPart) editPart;
 					Feature feature = editP.getFeature();
 					if (!featureList.contains(feature))
 						featureList.add(feature);
-
 				}
 			}
 			return;
+		} else {
+			return;
 		}
 	}
-
-	@Override
-	public void run() {
-
-		ColorDia dialog = new ColorDia(shell, this.featureList);
-		int returnstat = dialog.open();
-
-		if (Window.OK == returnstat) {
-
-			if (!featureList.isEmpty()) {
-				featureList.get(0).getFeatureModel().getColorschemeTable().saveColorsToFile(featureProject);
-				featureList.get(0).getFeatureModel().handleModelDataChanged();
-			}
-		}
-
-	}
-
 }

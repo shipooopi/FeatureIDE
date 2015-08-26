@@ -40,13 +40,12 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.gef.editparts.ZoomListener;
 import org.eclipse.swt.graphics.Color;
 
-import de.ovgu.featureide.fm.core.ColorList;
 import de.ovgu.featureide.fm.core.ExtendedFeature;
 import de.ovgu.featureide.fm.core.Feature;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer;
-import de.ovgu.featureide.fm.core.ProfileManager;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer.Attribute;
+import de.ovgu.featureide.fm.core.ProfileManager;
 import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
 import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
@@ -152,7 +151,7 @@ public class FeatureFigure extends Figure implements GUIDefaults {
 		setBackgroundColor(FMPropertyManager.getConcreteFeatureBackgroundColor());
 		setBorder(FMPropertyManager.getFeatureBorder(feature.isConstraintSelected()));
 
-		if (getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName()) != de.ovgu.featureide.fm.core.ProfileManager.Color.NO_COLOR) {
+		if (ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())) != -1) {
 			if (getCurrentProfile(feature.getFeatureModel()).hasFeatureColor(feature.getName())) {
 				setBackgroundColor(new Color(null, ColorPalette.getRGB(
 						ProfileManager.toColorIndex(getCurrentProfile(feature.getFeatureModel()).getColor(feature.getName())), 0.5f)));

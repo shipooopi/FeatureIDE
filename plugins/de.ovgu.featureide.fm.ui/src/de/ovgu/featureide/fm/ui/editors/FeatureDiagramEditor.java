@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.commands.operations.ObjectUndoContext;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -79,9 +78,12 @@ import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.FeatureModelAnalyzer;
 import de.ovgu.featureide.fm.core.FeatureStatus;
 import de.ovgu.featureide.fm.core.Preferences;
+import de.ovgu.featureide.fm.core.ProfileManager;
+import de.ovgu.featureide.fm.core.ProfileManager.Project.Profile;
 import de.ovgu.featureide.fm.core.PropertyConstants;
 import de.ovgu.featureide.fm.core.job.AStoppableJob;
 import de.ovgu.featureide.fm.ui.FMUIPlugin;
+import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIDefaults;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.AbstractAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.AlternativeAction;
@@ -416,6 +418,14 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			menu.add(legendAction);
 			menu.add(new Separator());
 			menu.add(colorSelectedFeatureAction);
+
+			if (!getCurrentProfile(getFeatureModel()).getActiveProfile().getName().equals("Default")) {
+				System.out.println();
+				colorSelectedFeatureAction.setEnabled(true);
+			} else {
+				colorSelectedFeatureAction.setEnabled(false);
+			}
+
 			menu.add(new Separator());
 		} else if (editConstraintAction.isEnabled() && !connectionSelected) {
 			menu.add(createConstraintAction);
@@ -487,6 +497,10 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			menu.add(alternativeAction);
 			menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		}
+	}
+
+	private Profile getCurrentProfile(FeatureModel featureModel) {
+		return ProfileManager.getProject(featureModel.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
 	}
 
 	public IAction getDiagramAction(String workbenchActionID) {
