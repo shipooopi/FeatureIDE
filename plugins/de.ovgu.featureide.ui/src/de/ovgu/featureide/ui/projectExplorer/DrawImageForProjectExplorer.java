@@ -85,14 +85,17 @@ public class DrawImageForProjectExplorer {
 		colors.remove(colors.size() - 1);
 
 		Image dummyImage = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
-		Image finalImage = new Image(dummyImage.getDevice(), dummyImage.getImageData().width * 5, dummyImage.getImageData().height);
+		Image finalImage = new Image(dummyImage.getDevice(), dummyImage.getImageData().width +42, dummyImage.getImageData().height);
 		ImageData data = null;
 		org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(finalImage);
 
 		ArrayList<Image> liste = new ArrayList<>();
 
 		if (explorerObject == 0) {
-
+			/*
+			 * draws the fileIcon:
+			 * BUT : not the original .java file image
+			 */
 			Image fileImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 			gc.drawImage(fileImage, 0, 0);
 			liste.add(fileImage);
@@ -103,6 +106,10 @@ public class DrawImageForProjectExplorer {
 			liste.add(folderImage);
 		}
 		if (explorerObject == 2) {
+			/*
+			 * should draw the packageIcon
+			 * BUT : I didn´t find any packageIcon
+			 */
 			Image packageImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEF_VIEW);
 			gc.drawImage(packageImage, 0, 0);
 			liste.add(packageImage);
@@ -115,6 +122,9 @@ public class DrawImageForProjectExplorer {
 				gc.drawImage(getWhiteImage(), 17 + WIDTHCONSTANT * i, 0);
 			}
 		}
+		gc.setForeground(new Color(liste.get(0).getDevice(), 0, 0, 0));
+		gc.drawLine(57, 0, 57, 21); //draws the last vertical line
+		gc.drawLine(17, 15, 57, 15);//draws the horizontal line
 		data = finalImage.getImageData();
 		gc.dispose();
 		Image image = new Image(liste.get(0).getDevice(), data);
@@ -136,13 +146,29 @@ public class DrawImageForProjectExplorer {
 		colors.remove(colors.size() - 1);
 
 		Image dummyImage = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
-		Image finalImage = new Image(dummyImage.getDevice(), dummyImage.getImageData().width * 5, dummyImage.getImageData().height);
+		Image finalImage = new Image(dummyImage.getDevice(), dummyImage.getImageData().width + 6, dummyImage.getImageData().height);
 		ImageData data = null;
 		org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(finalImage);
 
 		Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
 		gc.drawImage(folderImage, 0, 0);
+
+		if (colors.get(0).equals(-1)) {
+			gc.drawImage(getWhiteImage(), 17, 0);
+			gc.setForeground(new Color(folderImage.getDevice(), 0, 0, 0));
+			gc.drawLine(21, 0, 21, 16);//draws the last vertical line
+			gc.drawLine(17, 15, 21, 15);//draws the horizontal line
+			data = finalImage.getImageData();
+			gc.dispose();
+			Image image = new Image(dummyImage.getDevice(), data);
+			images.put(hashCode, image);
+
+			return image;
+		}
 		gc.drawImage(getColorImage(colors.get(0)), 17, 0);
+		gc.setForeground(new Color(folderImage.getDevice(), 0, 0, 0));
+		gc.drawLine(21, 0, 21, 16);//draws the last vertical line
+		gc.drawLine(17, 15, 21, 15);//draws the horizontal line
 		data = finalImage.getImageData();
 		gc.dispose();
 		Image image = new Image(dummyImage.getDevice(), data);
@@ -156,7 +182,7 @@ public class DrawImageForProjectExplorer {
 	 */
 	public static Image getWhiteImage() {
 		Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
-		Image finalImage = new Image(folderImage.getDevice(), folderImage.getImageData().width * 5, folderImage.getImageData().height);
+		Image finalImage = new Image(folderImage.getDevice(), folderImage.getImageData().width / 4, folderImage.getImageData().height);
 		ImageData data = null;
 		org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(finalImage);
 		gc.setForeground(new Color(folderImage.getDevice(), 0, 0, 0));
@@ -178,7 +204,7 @@ public class DrawImageForProjectExplorer {
 	public static Image getColorImage(int colorID) {
 
 		Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
-		Image finalImage = new Image(folderImage.getDevice(), folderImage.getImageData().width * 5, folderImage.getImageData().height);
+		Image finalImage = new Image(folderImage.getDevice(), folderImage.getImageData().width / 4, folderImage.getImageData().height);
 		ImageData data = null;
 		org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(finalImage);
 		gc.setForeground(new Color(folderImage.getDevice(), 0, 0, 0));
