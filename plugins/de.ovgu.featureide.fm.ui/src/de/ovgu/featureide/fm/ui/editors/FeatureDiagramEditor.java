@@ -390,7 +390,9 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			ExtendedFeatureModel ext = (ExtendedFeatureModel) getFeatureModel();
 			mplModel = ext.isMultiProductLineModel();
 		}
-
+		if (getCurrentProfile(getFeatureModel()).getActiveProfile().getName().equals("Default")) {
+			colorSelectedFeatureAction.setEnabled(false);
+		} 
 		if (mplModel) {
 			menu.add(subMenuLayout);
 			menu.add(subMenuNameType);
@@ -417,15 +419,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			menu.add(reverseOrderAction);
 			menu.add(legendAction);
 			menu.add(new Separator());
-			menu.add(colorSelectedFeatureAction);
-
-			if (!getCurrentProfile(getFeatureModel()).getActiveProfile().getName().equals("Default")) {
-				System.out.println();
-				colorSelectedFeatureAction.setEnabled(true);
-			} else {
-				colorSelectedFeatureAction.setEnabled(false);
-			}
-
+			menu.add(colorSelectedFeatureAction);		
 			menu.add(new Separator());
 		} else if (editConstraintAction.isEnabled() && !connectionSelected) {
 			menu.add(createConstraintAction);
@@ -448,6 +442,7 @@ public class FeatureDiagramEditor extends ScrollingGraphicalViewer implements GU
 			menu.add(legendAction);
 			menu.add(new Separator());
 			menu.add(colorSelectedFeatureAction);
+			
 		}
 		menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		if (featureModelEditor.getFeatureModel().hasHidden()) {

@@ -45,26 +45,22 @@ public class ColorSelectedFeatureAction extends Action {
 	public ISelectionChangedListener listener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
+			
 			IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 			updateFeatureList(selection);
-			if (featureList.isEmpty())  {
-				setEnabled(false);
-			} else  if (!featureList.isEmpty() && isEnabled()){
-				setEnabled(true);
+			if(featureList.isEmpty()){
+				ColorSelectedFeatureAction.this.setEnabled(false);
+			}else{
+				ColorSelectedFeatureAction.this.setEnabled(true);
 			}
-
 		}
+
 	};
 
 	public ColorSelectedFeatureAction(FeatureDiagramEditor viewer, IProject project) {
 		super(COLORATION);
 		if (viewer instanceof GraphicalViewerImpl)
 			((GraphicalViewerImpl) viewer).addSelectionChangedListener(listener);
-
-		if (featureList.isEmpty()) {
-			setEnabled(false);
-
-		}
 
 	}
 
@@ -81,7 +77,7 @@ public class ColorSelectedFeatureAction extends Action {
 	}
 
 	public void updateFeatureList(IStructuredSelection selection) {
-
+		
 		if (!selection.isEmpty()) {
 			featureList.clear();
 
