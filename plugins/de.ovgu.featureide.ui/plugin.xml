@@ -1363,9 +1363,17 @@
           name="FeatureIDEProjectExplorer"
           priority="highest">
        <triggerPoints>
-          <instanceof
-                value="org.eclipse.core.resources.IFolder">
-          </instanceof>
+          <or>
+             <instanceof
+                   value="org.eclipse.core.resources.IFile">
+             </instanceof>
+             <instanceof
+                   value="org.eclipse.core.resources.IFolder">
+             </instanceof>
+             <instanceof
+                   value="java.lang.Object">
+             </instanceof>
+          </or>
        </triggerPoints>
     </navigatorContent>
  </extension>

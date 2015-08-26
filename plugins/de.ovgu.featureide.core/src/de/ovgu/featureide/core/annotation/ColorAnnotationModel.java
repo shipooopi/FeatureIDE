@@ -399,15 +399,18 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 		/*
 		 *COMPOSED FILE ANNOTATIONS
 		 */
-		if (isInBuildFolder((IFolder) file.getParent())) {
-			composer.postCompile(null, file);
-			for (FSTFeature fstFeature : model.getFeatures()) {
-				for (FSTRole role : fstFeature.getRoles()) {
-					for (FSTMethod m : role.getAllMethods()) {
-						createFOPComposedAnnotations(event, fstFeature, m);
-					}
-					for (FSTField f : role.getAllFields()) {
-						createFOPComposedAnnotations(event, fstFeature, f);
+		if (file.getParent() instanceof IFolder) {
+
+			if (isInBuildFolder((IFolder) file.getParent())) {
+				composer.postCompile(null, file);
+				for (FSTFeature fstFeature : model.getFeatures()) {
+					for (FSTRole role : fstFeature.getRoles()) {
+						for (FSTMethod m : role.getAllMethods()) {
+							createFOPComposedAnnotations(event, fstFeature, m);
+						}
+						for (FSTField f : role.getAllFields()) {
+							createFOPComposedAnnotations(event, fstFeature, f);
+						}
 					}
 				}
 			}
