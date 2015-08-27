@@ -22,10 +22,8 @@ package de.ovgu.featureide.ui.wizards;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.NEW_COLORSCHEME;
 
-import org.eclipse.jdt.internal.ui.preferences.formatter.ProfileManager.Profile;
 import org.eclipse.jface.wizard.Wizard;
 
-import de.ovgu.featureide.fm.core.ColorschemeTable;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.ProfileManager;
 import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
