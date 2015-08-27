@@ -50,10 +50,6 @@ public class DrawImageForProjectExplorer {
 	private static final Image JAVA_IMAGE = UIPlugin
 			.getImage("JakFileIcon.png");
 	
-	/*
-	 * constants to know, which icon must be returned 			
-	 */
-	final static int FILE = 0, FOLDER = 1, PACKAGE = 2;
 
 	public enum ExplorerObject {
 		FILE, FOLDER, PACKAGE;
@@ -143,7 +139,7 @@ public class DrawImageForProjectExplorer {
 	 * @return the image for the featureHouseExplorer with the folderIcon as default and only one color
 	 */
 	public static Image drawFeatureHouseExplorerImage(List<Integer> colors) {
-		colors.add(FOLDER);
+		colors.add(2);
 		Integer hashCode = colors.hashCode();
 		if (images.containsKey(hashCode)) {
 			return images.get(hashCode);
