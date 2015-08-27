@@ -92,6 +92,8 @@ public class ColorSelectedFeatureDialog extends Dialog {
 
 	/**
 	 * @param newshell
+	 * 
+	 *            Sets the minimal size and the text in the title of the dialog.
 	 */
 	protected void configureShell(Shell newShell) {
 		newShell.setMinimumSize(new Point(500, 500));
@@ -105,6 +107,8 @@ public class ColorSelectedFeatureDialog extends Dialog {
 
 	/**
 	 * @param parent
+	 * 
+	 *            Creates the general layout of the dialog.
 	 */
 	protected Control createDialogArea(Composite parent) {
 
@@ -180,133 +184,109 @@ public class ColorSelectedFeatureDialog extends Dialog {
 			public void widgetSelected(SelectionEvent event) {
 				Combo actionListener = ((Combo) event.widget);
 
-				// selectedfeature
+				// selectedFeature
 				if (actionListener.getText().equals(actionDropDownItems[0])) {
-					featureListBuffer.clear();
-					for (int i = 0; i < featureList.size(); i++) {
-						featureListBuffer.add(featureList.get(i));
-					}
 
+					bufferSelectedFeatures();
 					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
-
-					for (int i = 0; i < featureListBuffer.size(); i++) {
-						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featureListBuffer.get(i).getName());
-
-						final Feature feature = featureListBuffer.get(i);
-						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
-								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
-						if (profile.hasFeatureColor(feature.getName()))
-							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
-					}
-
+					colorPreview(featureTable);
 				}
 
 				// selectedfeature + direct children
 				if (actionListener.getText().equals(actionDropDownItems[1])) {
-					featureListBuffer.clear();
 
-					for (int i = 0; i < featureList.size(); i++) {
-						featureListBuffer.add(featureList.get(i));
-					}
-
-					for (int j = 0; j < featureList.size(); j++) {
-						for (int k = 0; k < featureListBuffer.get(j).getChildren().size(); k++) {
-							if (!featureListBuffer.contains(featureListBuffer.get(j).getChildren().get(k)))
-								featureListBuffer.add(featureListBuffer.get(j).getChildren().get(k));
-						}
-					}
-
+					bufferSelectedFeatures();
+					findDirectChildren();
 					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
-
-					for (int i = 0; i < featureListBuffer.size(); i++) {
-						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featureListBuffer.get(i).getName());
-
-						final Feature feature = featureListBuffer.get(i);
-						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
-								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
-						if (profile.hasFeatureColor(feature.getName()))
-							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
-					}
+					colorPreview(featureTable);
 				}
 
 				// selectedfeature + all children
 				if (actionListener.getText().equals(actionDropDownItems[2])) {
-					featureListBuffer.clear();
 
-					for (int i = 0; i < featureList.size(); i++) {
-						featureListBuffer.add(featureList.get(i));
-					}
-
-					for (int j = 0; j < featureListBuffer.size(); j++) {
-						for (int k = 0; k < featureListBuffer.get(j).getChildren().size(); k++) {
-							if (!featureListBuffer.contains(featureListBuffer.get(j).getChildren().get(k)))
-								featureListBuffer.add(featureListBuffer.get(j).getChildren().get(k));
-						}
-					}
-
+					bufferSelectedFeatures();
+					findAllChildren();
 					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
-
-					for (int i = 0; i < featureListBuffer.size(); i++) {
-						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featureListBuffer.get(i).getName());
-
-						final Feature feature = featureListBuffer.get(i);
-						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
-								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
-						if (profile.hasFeatureColor(feature.getName()))
-							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
-					}
+					colorPreview(featureTable);
 				}
 
 				// selectedfeature + siblings
 				if (actionListener.getText().equals(actionDropDownItems[3])) {
-					featureListBuffer.clear();
 
-					for (int i = 0; i < featureList.size(); i++) {
-						featureListBuffer.add(featureList.get(i));
-					}
-
-					for (int j = 0; j < featureListBuffer.size(); j++) {
-						if (!featureListBuffer.get(j).isRoot()) {
-							for (int k = 0; k < featureListBuffer.get(j).getParent().getChildren().size(); k++) {
-								if (!featureListBuffer.contains(featureListBuffer.get(j).getParent().getChildren().get(k)))
-									featureListBuffer.add(featureListBuffer.get(j).getParent().getChildren().get(k));
-							}
-						}
-					}
-
+					bufferSelectedFeatures();
+					findSiblings();
 					actionChecked = true;
 					featureTable.redraw();
 					featureTable.removeAll();
-
-					for (int i = 0; i < featureListBuffer.size(); i++) {
-						TableItem item = new TableItem(featureTable, SWT.NONE);
-						item.setText(featureListBuffer.get(i).getName());
-
-						final Feature feature = featureListBuffer.get(i);
-						Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
-								PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
-						if (profile.hasFeatureColor(feature.getName()))
-							item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
-					}
+					colorPreview(featureTable);
 				}
 				if (actionChecked && colorChecked) {
 					ColorSelectedFeatureDialog.this.getButton(OK).setEnabled(true);
 				}
 			}
 
+			private void bufferSelectedFeatures() {
+				featureListBuffer.clear();
+				for (int i = 0; i < featureList.size(); i++) {
+					featureListBuffer.add(featureList.get(i));
+				}
+			}
+
+			private void findSiblings() {
+				for (int j = 0; j < featureListBuffer.size(); j++) {
+					if (!featureListBuffer.get(j).isRoot()) {
+						for (int k = 0; k < featureListBuffer.get(j).getParent().getChildren().size(); k++) {
+							if (!featureListBuffer.contains(featureListBuffer.get(j).getParent().getChildren().get(k)))
+								featureListBuffer.add(featureListBuffer.get(j).getParent().getChildren().get(k));
+						}
+					}
+				}
+			}
+
+			private void findAllChildren() {
+				for (int j = 0; j < featureListBuffer.size(); j++) {
+					for (int k = 0; k < featureListBuffer.get(j).getChildren().size(); k++) {
+						if (!featureListBuffer.contains(featureListBuffer.get(j).getChildren().get(k)))
+							featureListBuffer.add(featureListBuffer.get(j).getChildren().get(k));
+					}
+				}
+			}
+
+			private void findDirectChildren() {
+				for (int j = 0; j < featureList.size(); j++) {
+					for (int k = 0; k < featureListBuffer.get(j).getChildren().size(); k++) {
+						if (!featureListBuffer.contains(featureListBuffer.get(j).getChildren().get(k)))
+							featureListBuffer.add(featureListBuffer.get(j).getChildren().get(k));
+					}
+				}
+			}
+
+			/**
+			 * @param featureTable
+			 *            Colors the background of the Tableitems to show a preview of the changed colors
+			 */
+			private void colorPreview(final Table featureTable) {
+				for (int i = 0; i < featureListBuffer.size(); i++) {
+					TableItem item = new TableItem(featureTable, SWT.NONE);
+					item.setText(featureListBuffer.get(i).getName());
+
+					final Feature feature = featureListBuffer.get(i);
+					Profile profile = ProfileManager.getProject(feature.getFeatureModel().xxxGetEclipseProjectPath(),
+							PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+					if (profile.hasFeatureColor(feature.getName()))
+						item.setBackground(new Color(null, ColorPalette.getRGB(ProfileManager.toColorIndex(profile.getColor(feature.getName())), 0.4f)));
+				}
+			}
+
 			public void widgetDefaultSelected(SelectionEvent e) {
 			};
 		};
-
 		actionDropDownMenu.addSelectionListener(actionSelectionListener);
 
 		return parent;
@@ -325,10 +305,9 @@ public class ColorSelectedFeatureDialog extends Dialog {
 	}
 
 	/**
-	 * on ok press: set color in selected features
-	 * on cancel press: close dialog, do nothing
-	 * 
 	 * @param buttonId
+	 *            on ok press: set color in selected features
+	 *            on cancel press: close dialog, do nothing
 	 */
 	protected void buttonPressed(int buttonId) {
 

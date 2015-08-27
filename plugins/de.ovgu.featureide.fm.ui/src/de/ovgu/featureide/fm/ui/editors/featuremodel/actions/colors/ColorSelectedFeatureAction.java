@@ -40,7 +40,7 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.editparts.FeatureEditPart;
 
 /**
  * ColorSelectedFeatureAction is the action that opens the ColorSelectedFeatureDialog
- * with the selected features in the feature diagram
+ * with the selected features in the feature diagram.
  * 
  * @author Christian Elzholz, Marcus Schmelz
  */
@@ -77,7 +77,7 @@ public class ColorSelectedFeatureAction extends Action {
 
 	/**
 	 * @param selection
-	 * creates a featureList with the selected features of the featurediagram
+	 * Creates a featureList with the selected features of the featurediagram.
 	 */
 	public void updateFeatureList(IStructuredSelection selection) {
 
