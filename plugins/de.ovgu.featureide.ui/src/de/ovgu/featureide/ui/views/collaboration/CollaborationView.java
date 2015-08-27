@@ -582,25 +582,25 @@ public class CollaborationView extends ViewPart implements GUIDefaults, ICurrent
 				colorSubMenu.add(new Separator());
 
 				//boolean enableColorActions = colorschemeTable.getSelectedColorscheme() > 0;
-				for (int i = 0; i < setColorActions.length; i++) {
-					//setColorActions[i].setEnabled(enableColorActions);
-					setColorActions[i].setChecked(false);
-					colorSubMenu.add(setColorActions[i]);
-				}
+//				for (int i = 0; i < setColorActions.length; i++) {
+//					//setColorActions[i].setEnabled(enableColorActions);
+//					setColorActions[i].setChecked(false);
+//					colorSubMenu.add(setColorActions[i]);
+//				}
 
 				
 //				int color = fm.getFeature(coll.getName()).getColorList().getColor();
 //				if (ColorList.isValidColor(color)) {
 //					setColorActions[color].setChecked(true);
 //				}
-				ProfileManager.Project.Profile profile =  ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
-				Color color = profile.getColor(coll.getName());
-				int colorIndex = ProfileManager.toColorIndex(color);
-				if (ColorList.isValidColor(ProfileManager.toColorIndex(color))) {
-					setColorActions[colorIndex].setChecked(true);
-				}
-				
-
+//				ProfileManager.Project.Profile profile =  ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile();
+//				Color color = profile.getColor(coll.getName());
+//				int colorIndex = ProfileManager.toColorIndex(color);
+//				if (ColorList.isValidColor(ProfileManager.toColorIndex(color))) {
+//					setColorActions[colorIndex].setChecked(true);
+//				}
+//				
+//
 				menuMgr.add(colorSubMenu);
 			}
 		}
