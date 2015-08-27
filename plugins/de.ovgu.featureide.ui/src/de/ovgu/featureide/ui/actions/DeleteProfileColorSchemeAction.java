@@ -24,7 +24,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import de.ovgu.featureide.core.IFeatureProject;
 import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.ProfileManager;
 import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
@@ -42,15 +41,14 @@ import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
 public class DeleteProfileColorSchemeAction extends Action {
 
 	private FeatureModel model;
-	private IFeatureProject project;
+	
 
 	/*
 	 * Constructor
 	 */
-	public DeleteProfileColorSchemeAction(String text, FeatureModel model, IFeatureProject project) {
+	public DeleteProfileColorSchemeAction(String text, FeatureModel model) {
 		super(text);
 		this.model = model;
-		this.project = project;
 		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
 
 	}
@@ -61,11 +59,9 @@ public class DeleteProfileColorSchemeAction extends Action {
 	 * 
 	 * this method removes the profile and saves the configuration
 	 */
-	public void run() {
-		//model.getColorschemeTable().removeColorscheme();
-		//model.getColorschemeTable().saveColorsToFile(project.getProject());
-		
+	public void run() {	
 		ProfileManager.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile().clearColors();
+		ProfileManager.getProject(model.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile().delete();
 	}
 
 }

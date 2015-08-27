@@ -25,49 +25,50 @@ import de.ovgu.featureide.core.fstmodel.FSTModel;
 import de.ovgu.featureide.core.fstmodel.FSTRole;
 import de.ovgu.featureide.ui.projectExplorer.DrawImageForProjectExplorer.ExplorerObject;
 
+
+
+/**
+ * Labelprovider for projectExplorer - sets an image and a text before the files, folders and packages
+ * 
+ * @author Jonas Weigt
+ */
 @SuppressWarnings("restriction")
 public class ProjectExplorerLabelProvider implements ILabelProvider {
 
-	/**
-	 * 
+	/*
+	 * constant to create space for the image 
 	 */
 	private static final String SPACE_STRING = "             ";
 
-	//	DrawImageForProjectExplorer featuredImage = new DrawImageForProjectExplorer();
 	@Override
 	public void addListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public boolean isLabelProperty(Object element, String property) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void removeListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
+	 * sets custom colored image instead of package, files or folders 
+	 */
 	@Override
 	public Image getImage(Object element) {
-		//element.getClass();
 		List<Integer> myColors = new ArrayList<Integer>();
 
-		//PACKAGE FRAGMENT
+		//returns the image for packages
 		if (element instanceof PackageFragment) {
 			PackageFragment frag = (PackageFragment) element;
 			IFolder folder = (IFolder) frag.getResource();
-			//			System.out.println(folder);
 			IFeatureProject featureProject = CorePlugin.getFeatureProject(frag.getParent().getResource());
 			FSTModel model = featureProject.getFSTModel();
 			if (model.getClasses().isEmpty()) {
@@ -81,13 +82,16 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 
 		}
 
-		// element IResource 
+		// returns the image for folders and preprocessor files
 		if (element instanceof IResource) {
 			IFeatureProject featureProject = CorePlugin.getFeatureProject((IResource) element);
 			IComposerExtensionClass composer = featureProject.getComposer();
 			FSTModel model = featureProject.getFSTModel();
-
-			//composer FeatureHouse Folder
+			if (model.getClasses().isEmpty()) {
+				featureProject.getComposer().buildFSTModel();
+				model = featureProject.getFSTModel();
+			}
+			//composer FeatureHouse
 			if (composer.hasFeatureFolder() && element instanceof IFolder) {
 				IFolder folder = (IFolder) element;
 				//folder inSourceFolder but not SourceFolder itself
@@ -97,9 +101,8 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 				}
 			}
 
-			//preprocessor 
+			//composer Preprocessor
 			if (composer.hasSourceFolder() && !composer.hasFeatureFolder()) {
-//			if (composer.getName().equals("Munge")) {
 				if (element instanceof IFolder) {
 					IFolder folder = (IFolder) element;
 					if (isInSourceFolder(folder) && !folder.equals(featureProject.getSourceFolder())) {
@@ -120,22 +123,25 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 			}
 		}
 
-		//COMPOSED FILES 
+		// returns the image for composed files
 		if (element instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
 
 			CompilationUnit cu = (CompilationUnit) element;
-
+			
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IPath path = cu.getPath();
 			IFile myfile = root.getFile(path);
 			IFeatureProject featureProject = CorePlugin.getFeatureProject(myfile);
 			FSTModel model = featureProject.getFSTModel();
+			if (model.getClasses().isEmpty()) {
+				featureProject.getComposer().buildFSTModel();
+				model = featureProject.getFSTModel();
+			}
 			getColors(myColors, myfile, model, !featureProject.getComposer().hasFeatureFolder());
 
 			return DrawImageForProjectExplorer.drawExplorerImage(ExplorerObject.FILE, myColors);
-
 		}
-
+		
 		return null;
 	}
 
@@ -143,6 +149,7 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 	/**
 	 * @param folder
 	 * @param model
+	 * @return color for featureFolders
 	 */
 	private void getFeatureFolderColors(IFolder folder, List<Integer> myColors, FSTModel model) {
 		myColors.add(model.getFeature(folder.getName()).getColor());
@@ -152,10 +159,14 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 	 * @param myColors
 	 * @param myfile
 	 * @param model
-	 * @param colorUnselectedFeature TODO
+	 * @param colorUnselectedFeature
+	 * @return colors for files
 	 */
 	private void getColors(List<Integer> myColors, IFile myfile, FSTModel model, boolean colorUnselectedFeature) {
 		FSTClass clazz = model.getClass(model.getAbsoluteClassName(myfile));
+		if(clazz == null){
+			return;
+		}
 		for (FSTRole r : clazz.getRoles()) {
 			if (colorUnselectedFeature || r.getFeature().isSelected()) {
 				if (r.getFeature().getColor() != -1) {
@@ -167,7 +178,8 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 
 	/**
 	 * @param folder
-	 * @param colorUnselectedFeature TODO
+	 * @param colorUnselectedFeature 
+	 * @return colors for packages 
 	 */
 	private void getPackageColors(IFolder folder, List<Integer> myColors, FSTModel model, boolean colorUnselectedFeature) {
 		try {
@@ -181,15 +193,14 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 				}
 			}
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				CorePlugin.getDefault().logError(e);
 		}
 
 	}
 
 	/**
 	 * @param folder
-	 * @return
+	 * @return if the Folder is in the Source Folder of the project
 	 */
 	private boolean isInSourceFolder(IFolder folder) {
 		if (folder.equals(CorePlugin.getFeatureProject(folder).getSourceFolder())) {
@@ -202,9 +213,15 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 		return false;
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
+	 * sets customized text to have spacing for our image
+	 */
 	@Override
 	public String getText(Object element) {
 
+		//text for Packages
 		if (element instanceof PackageFragment) {
 			PackageFragment frag = (PackageFragment) element;
 			IFeatureProject featureProject = CorePlugin.getFeatureProject(frag.getParent().getResource());
@@ -218,12 +235,13 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 			return SPACE_STRING + mytest;	
 		}
 
+		//text for Folders
 		if (element instanceof IResource) {
 			IFeatureProject featureProject = CorePlugin.getFeatureProject((IResource) element);
 			if (featureProject != null) {
 				IComposerExtensionClass composer = featureProject.getComposer();
 				//composer FeatureHouse Folder
-				if (composer.getName().equals("FeatureHouse") && element instanceof IFolder) {
+				if (composer.hasFeatureFolder() && element instanceof IFolder) {
 
 					IFolder folder = (IFolder) element;
 					//folder inSourceFolder but not SourceFolder itself
@@ -231,20 +249,26 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 						return " " + folder.getName();
 					}
 				}
-				if (composer.getName().equals("Munge")){
+				//composer Preprocessor
+				if (!composer.hasFeatureFolder()){
 					if (element instanceof IFolder){
 						IFolder folder = (IFolder) element;
+						if (!folder.getName().equals("configs") && !folder.getName().equals("source")){
 						return SPACE_STRING + folder.getName();
+						}
 					}
 					if (element instanceof IFile){
 						IFile file = (IFile) element;
+						if (!file.getFileExtension().equals("xml") && !file.getFileExtension().equals("config")){
 						return SPACE_STRING + file.getName();
+						}
 					}
 				}
 			}
 
 		}
-
+		
+		//text for composed files
 		if (element instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
 
 			CompilationUnit cu = (CompilationUnit) element;

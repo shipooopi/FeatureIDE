@@ -26,13 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.ui.ISharedImages;
+import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import de.ovgu.featureide.fm.core.annotation.ColorPalette;
+import de.ovgu.featureide.ui.UIPlugin;
 
 /**
  * draws the images for the ProjectExplorer.
@@ -44,7 +46,10 @@ import de.ovgu.featureide.fm.core.annotation.ColorPalette;
  */
 
 public class DrawImageForProjectExplorer {
-
+	public static final String ID = UIPlugin.PLUGIN_ID + ".editors.JavaEditor";
+	private static final Image JAVA_IMAGE = UIPlugin
+			.getImage("JakFileIcon.png");
+	
 	/*
 	 * constants to know, which icon must be returned 			
 	 */
@@ -100,35 +105,22 @@ public class DrawImageForProjectExplorer {
 		org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(finalImage);
 
 		ArrayList<Image> liste = new ArrayList<>();
-
+		Image icon = null;
 		switch (explorerObject) {
 		case FILE:
-			/*
-			 * draws the fileIcon:
-			 * BUT : not the original .java file image
-			 */
-			Image fileImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
-			gc.drawImage(fileImage, 0, 0);
-			liste.add(fileImage);
-
+			icon = JAVA_IMAGE;
 			break;
 		case FOLDER:
-			Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
-			gc.drawImage(folderImage, 0, 0);
-			liste.add(folderImage);
-
+			icon = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
 			break;
 		case PACKAGE:
-			/*
-			 * should draw the packageIcon
-			 * BUT : I didn´t find any packageIcon
-			 */
-			Image packageImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEF_VIEW);
-			gc.drawImage(packageImage, 0, 0);
-			liste.add(packageImage);
+			icon = JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PACKAGE);
 			break;
 		}
 
+		gc.drawImage(icon, 0, 0);
+		liste.add(icon);
+		
 		for (int i = 0; i < 10; i++) {
 			if (colors.contains(i)) {
 				gc.drawImage(getColorImage(i), 17 + WIDTHCONSTANT * i, 0);
@@ -147,7 +139,7 @@ public class DrawImageForProjectExplorer {
 	}
 
 	/**
-	 * @param colors
+	 * @param colors: gets a list of Integer to create an Image with the color in the list
 	 * @return the image for the featureHouseExplorer with the folderIcon as default and only one color
 	 */
 	public static Image drawFeatureHouseExplorerImage(List<Integer> colors) {
@@ -163,7 +155,7 @@ public class DrawImageForProjectExplorer {
 		ImageData data = null;
 		org.eclipse.swt.graphics.GC gc = new org.eclipse.swt.graphics.GC(finalImage);
 
-		Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
+		Image folderImage = PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
 		gc.drawImage(folderImage, 0, 0);
 
 		if (colors.get(0).equals(-1)) {
@@ -210,7 +202,7 @@ public class DrawImageForProjectExplorer {
 	}
 
 	/**
-	 * @param colorID
+	 * @param colorID gets a list of Integer to create an Image with the colors in the list
 	 * @return a colored image with the original colors from
 	 *         de.ovgu.featureide.fm.core.annotation.ColorPalette
 	 */

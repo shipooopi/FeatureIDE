@@ -40,6 +40,7 @@ import de.ovgu.featureide.fm.ui.PlugInProfileSerializer;
  * @author Christian Harnisch
  */
 
+@SuppressWarnings({ "unused", "restriction" })
 public class DynamicProfileMenu extends ContributionItem {
 	private AddProfileColorSchemeAction addProfileSchemeAction;
 	private RenameProfileColorSchemeAction renameProfileSchemeAction;
@@ -105,9 +106,9 @@ public class DynamicProfileMenu extends ContributionItem {
 		final String curColorSchemeName = ProfileManager.getProject(fm.xxxGetEclipseProjectPath(), PlugInProfileSerializer.FEATURE_PROJECT_SERIALIZER).getActiveProfile().getName();
 		
 		
-		int count = 0;
+		
 		for (String name : project.getProfileNames()) {
-			SetProfileColorSchemeAction setCSAction = new SetProfileColorSchemeAction(name, ++count, Action.AS_CHECK_BOX, myFeatureModel, myFeatureProject);
+			SetProfileColorSchemeAction setCSAction = new SetProfileColorSchemeAction(name, Action.AS_CHECK_BOX, myFeatureModel);
 			if (name.equals(curColorSchemeName)) {
 				setCSAction.setChecked(true);
 			}
@@ -138,7 +139,7 @@ public class DynamicProfileMenu extends ContributionItem {
 	private void createActions() {
 		addProfileSchemeAction = new AddProfileColorSchemeAction("Add Colorscheme", myFeatureModel, myFeatureProject);
 		renameProfileSchemeAction = new RenameProfileColorSchemeAction("Change Name", myFeatureModel, myFeatureProject);
-		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Colorscheme", myFeatureModel, myFeatureProject);
+		deleteProfileSchemeAction = new DeleteProfileColorSchemeAction("Delete Colorscheme", myFeatureModel);
 
 	}
 	/*
