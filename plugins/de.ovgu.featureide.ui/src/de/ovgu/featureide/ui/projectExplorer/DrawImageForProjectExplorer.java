@@ -49,7 +49,6 @@ public class DrawImageForProjectExplorer {
 	public static final String ID = UIPlugin.PLUGIN_ID + ".editors.JavaEditor";
 	private static final Image JAVA_IMAGE = UIPlugin
 			.getImage("JakFileIcon.png");
-	
 
 	public enum ExplorerObject {
 		FILE, FOLDER, PACKAGE;
