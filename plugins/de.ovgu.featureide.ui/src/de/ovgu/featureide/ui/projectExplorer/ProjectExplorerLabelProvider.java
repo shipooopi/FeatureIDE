@@ -85,6 +85,9 @@ public class ProjectExplorerLabelProvider implements ILabelProvider {
 		// returns the image for folders and preprocessor files
 		if (element instanceof IResource) {
 			IFeatureProject featureProject = CorePlugin.getFeatureProject((IResource) element);
+			if (featureProject == null){
+				return null;
+			}
 			IComposerExtensionClass composer = featureProject.getComposer();
 			FSTModel model = featureProject.getFSTModel();
 			if (model.getClasses().isEmpty()) {
