@@ -414,7 +414,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 					}
 				}
 			}
-		 else {
+		} else {
 			String featureName = getFeature((IFolder) file.getParent());
 			if (featureName != null) {
 				FSTFeature fstFeature = model.getFeature(featureName);
@@ -432,7 +432,7 @@ public final class ColorAnnotationModel implements IAnnotationModel {
 				}
 			}
 		}
-		}
+
 	}
 
 	/**
