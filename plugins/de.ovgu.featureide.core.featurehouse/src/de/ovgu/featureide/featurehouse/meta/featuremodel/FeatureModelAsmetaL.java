@@ -22,6 +22,7 @@ package de.ovgu.featureide.featurehouse.meta.featuremodel;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Set;
 
 import org.prop4j.Node;
 import org.prop4j.NodeWriter;
@@ -31,13 +32,13 @@ import de.ovgu.featureide.fm.core.FeatureModel;
 import de.ovgu.featureide.fm.core.editing.NodeCreator;
 
 /**
- * TODO description
+ * This class provides all information needed, to create the FeatureModel.asm file.
  * 
  * @author Matthias Eiserloh
  */
 public class FeatureModelAsmetaL implements IFeatureModelClass{
 	private final static String HEAD = "/* \r\n * Variability encoding of the feature model for AsmetaL.\r\n * Auto-generated class.\r\n */\r\nasm FeatureModel \n\n";
-	private final static String FIELD_MODIFIER = "\tdynamic controlled  ";
+	private final static String FIELD_MODIFIER = "\tdynamic controlled ";
 	private static final String SELECTFEATURES = "\tstatic valid: Boolean\r\n";
 	private FeatureModel featureModel;
 
@@ -60,7 +61,7 @@ public class FeatureModelAsmetaL implements IFeatureModelClass{
 		StringBuilder fields = new StringBuilder();
 		for (String f : featureModel.getFeatureNames()) {
 			fields.append(FIELD_MODIFIER);
-			fields.append(f.toLowerCase(Locale.ENGLISH));
+			fields.append(f.toLowerCase(Locale.ENGLISH) + "__refinementVar__");
 			fields.append(": Boolean\r\n");
 		}
 		
@@ -75,6 +76,11 @@ public class FeatureModelAsmetaL implements IFeatureModelClass{
 		String formula = nodes.toString(NodeWriter.textualSymbols).toLowerCase(Locale.ENGLISH);
 		if (formula.contains("  &&  true  &&  ! false")) {
 			formula = formula.substring(0, formula.indexOf("  &&  true  &&  ! false"));
+		}
+		Set<String> featureNames = featureModel.getFeatureNames();
+		for(String str : featureNames){
+			str = str.toLowerCase();
+			formula = formula.replaceAll("(\\W|\\A)"+str+"(\\W|\\z)", "$1" + str + "__refinementVar__" + "$2");
 		}
 		return "function valid =\r\n" + formula + "\r\n";
 	}
